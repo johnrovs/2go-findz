@@ -4,6 +4,7 @@ import com.twogofindz.backend.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class AuthorizationTest extends AbstractIntegrationTest {
@@ -32,8 +33,7 @@ class AuthorizationTest extends AbstractIntegrationTest {
 
     @Test
     void newAdminEndpoints_rejectRequestWithoutToken() throws Exception {
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .post("/api/admin/images"))
+        mockMvc.perform(post("/api/admin/images"))
                 .andExpect(status().isUnauthorized());
 
         mockMvc.perform(get("/api/admin/settings"))
@@ -45,8 +45,7 @@ class AuthorizationTest extends AbstractIntegrationTest {
 
     @Test
     void newPublicEndpoints_reachableWithoutAuth() throws Exception {
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .post("/api/public/views"))
+        mockMvc.perform(post("/api/public/views"))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/public/settings"))
