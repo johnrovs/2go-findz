@@ -11,6 +11,7 @@ public interface ProductService {
     ProductResponse create(ProductRequest request);
     ProductResponse update(Long id, ProductRequest request);
     ProductResponse getById(Long id);
+    ProductResponse getActiveById(Long id);
     void softDelete(Long id);
     Page<ProductResponse> search(
             String term, Long categoryId, Boolean trending, Boolean bestSeller, Boolean active,

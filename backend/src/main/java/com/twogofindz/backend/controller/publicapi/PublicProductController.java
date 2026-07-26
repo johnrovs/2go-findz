@@ -41,6 +41,6 @@ public class PublicProductController {
 
     @GetMapping("/{id}")
     public ApiResponse<ProductResponse> getById(@PathVariable Long id) {
-        return ApiResponse.success("Product retrieved successfully.", productService.getById(id));
+        return ApiResponse.success("Product retrieved successfully.", productService.getActiveById(id));
     }
 }

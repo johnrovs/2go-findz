@@ -38,4 +38,32 @@ class PublicProductControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/public/products/{id}", 999999L))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void getById_returns404_forInactiveProduct_butAdminStillSeesIt() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Inactive Visibility Category");
+        ProductRequest inactiveProduct = new ProductRequest(
+                "Inactive Product", "Created inactive directly.", categoryId, null,
+                new BigDecimal("12.00"), "https://amazon.com/dp/inactive", false, false, false);
+
+        var createResult = mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inactiveProduct)))
+                .andReturn();
+        Long productId = objectMapper.readTree(createResult.getResponse().getContentAsString())
+                .path("data").path("id").asLong();
+
+        // Public getById must hide inactive products just like search already does — same 404
+        // as a truly nonexistent id, no information leak about whether the id exists at all.
+        mockMvc.perform(get("/api/public/products/{id}", productId))
+                .andExpect(status().isNotFound());
+
+        // Admins still need full visibility, e.g. to reactivate the product.
+        mockMvc.perform(get("/api/admin/products/{id}", productId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.active").value(false));
+    }
 }

@@ -77,6 +77,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public ProductResponse getActiveById(Long id) {
+        Product product = findProduct(id);
+        // Deliberately identical to the "not found" outcome below: a soft-deleted product must
+        // not be distinguishable from a nonexistent one via the public API (no information leak).
+        if (!product.isActive()) {
+            throw new ResourceNotFoundException("Product not found with id: " + id);
+        }
+        return productMapper.toResponse(product);
+    }
+
+    @Override
     @Transactional
     public void softDelete(Long id) {
         Product product = findProduct(id);

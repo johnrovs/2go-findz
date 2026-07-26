@@ -6,10 +6,12 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -99,5 +101,97 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/admin/products/{id}", productId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(jsonPath("$.data.active").value(false));
+    }
+
+    @Test
+    void createThenUpdate_returnsFreshNonNullTimestamps() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Timestamp Product Category");
+        ProductRequest createRequest = new ProductRequest(
+                "Blender", "A powerful countertop blender.", categoryId, null,
+                new BigDecimal("49.99"), "https://amazon.com/dp/blender", false, false, true);
+
+        var createResult = mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.createdAt").isNotEmpty())
+                .andExpect(jsonPath("$.data.updatedAt").isNotEmpty())
+                .andReturn();
+
+        var createdJson = objectMapper.readTree(createResult.getResponse().getContentAsString());
+        Long productId = createdJson.path("data").path("id").asLong();
+        String createdUpdatedAt = createdJson.path("data").path("updatedAt").asText();
+
+        // MySQL TIMESTAMP columns here have second-level resolution, so we need real wall-clock
+        // time to cross a full second boundary before ON UPDATE CURRENT_TIMESTAMP produces a new
+        // value. A fixed sleep is unreliable against Docker/VM clock drift (e.g. Colima), so
+        // retry with a genuinely different value (required for MySQL to even consider the row
+        // "changed" and fire the trigger) across a few sleep/update cycles.
+        String updatedUpdatedAt = createdUpdatedAt;
+        for (int attempt = 1; attempt <= 5 && updatedUpdatedAt.equals(createdUpdatedAt); attempt++) {
+            Thread.sleep(1100);
+            ProductRequest updateRequest = new ProductRequest(
+                    "Blender", "A powerful countertop blender.", categoryId, null,
+                    new BigDecimal("54.99").add(new BigDecimal(attempt)),
+                    "https://amazon.com/dp/blender", false, false, true);
+            var updateResult = mockMvc.perform(put("/api/admin/products/{id}", productId)
+                            .header("Authorization", "Bearer " + token)
+                            .contentType(APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updateRequest)))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            updatedUpdatedAt = objectMapper.readTree(updateResult.getResponse().getContentAsString())
+                    .path("data").path("updatedAt").asText();
+        }
+
+        assertNotEquals(createdUpdatedAt, updatedUpdatedAt,
+                "updatedAt must advance after an update, not stay frozen at the create-time value");
+    }
+
+    @Test
+    void update_returns400_whenActiveFieldOmittedEntirely() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Missing Active Field Category");
+        ProductRequest createRequest = new ProductRequest(
+                "Toaster", "A basic toaster.", categoryId, null,
+                new BigDecimal("29.99"), "https://amazon.com/dp/toaster", false, false, true);
+
+        var createResult = mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andReturn();
+        Long productId = objectMapper.readTree(createResult.getResponse().getContentAsString())
+                .path("data").path("id").asLong();
+
+        // Simulates a client that only wants to update the price and never sends "active" at
+        // all. Without @NotNull on the boxed Boolean, Jackson would deserialize this as false
+        // and silently soft-delete the product as a side effect of an unrelated field edit.
+        String jsonMissingActive = """
+                {
+                  "name": "Toaster",
+                  "description": "A basic toaster.",
+                  "categoryId": %d,
+                  "imageFileName": null,
+                  "productPrice": 34.99,
+                  "productLink": "https://amazon.com/dp/toaster",
+                  "trending": false,
+                  "bestSeller": false
+                }
+                """.formatted(categoryId);
+
+        mockMvc.perform(put("/api/admin/products/{id}", productId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonMissingActive))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.active").exists());
+
+        mockMvc.perform(get("/api/admin/products/{id}", productId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$.data.active").value(true));
     }
 }
