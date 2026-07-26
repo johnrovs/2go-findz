@@ -4,10 +4,12 @@ import com.twogofindz.backend.dto.request.CategoryRequest;
 import com.twogofindz.backend.dto.response.CategoryResponse;
 import com.twogofindz.backend.dto.response.PublicCategoryResponse;
 import com.twogofindz.backend.entity.ProductCategory;
+import com.twogofindz.backend.exception.CategoryInUseException;
 import com.twogofindz.backend.exception.DuplicateResourceException;
 import com.twogofindz.backend.exception.ResourceNotFoundException;
 import com.twogofindz.backend.mapper.CategoryMapper;
 import com.twogofindz.backend.repository.ProductCategoryRepository;
+import com.twogofindz.backend.repository.ProductRepository;
 import com.twogofindz.backend.service.CategoryService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -19,10 +21,14 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final ProductCategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
     private final CategoryMapper categoryMapper;
 
-    public CategoryServiceImpl(ProductCategoryRepository categoryRepository, CategoryMapper categoryMapper) {
+    public CategoryServiceImpl(ProductCategoryRepository categoryRepository,
+                                ProductRepository productRepository,
+                                CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
         this.categoryMapper = categoryMapper;
     }
 
@@ -74,6 +80,18 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findAll(Sort.by(Sort.Direction.ASC, "productCategoryName")).stream()
                 .map(categoryMapper::toPublicResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        ProductCategory category = findEntityById(id);
+        if (productRepository.existsByCategoryId(id)) {
+            throw new CategoryInUseException(
+                    "Cannot delete category '" + category.getProductCategoryName() +
+                    "' because one or more products are assigned to it. Reassign or remove those products first.");
+        }
+        categoryRepository.delete(category);
     }
 
     private Sort buildSort(String sortBy, String direction) {

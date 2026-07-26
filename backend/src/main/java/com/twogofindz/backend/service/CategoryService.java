@@ -12,4 +12,5 @@ public interface CategoryService {
     CategoryResponse getById(Long id);
     List<CategoryResponse> getAll(String sortBy, String direction);
     List<PublicCategoryResponse> getAllForPublic();
+    void delete(Long id);
 }

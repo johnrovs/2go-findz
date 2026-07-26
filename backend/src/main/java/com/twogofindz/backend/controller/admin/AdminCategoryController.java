@@ -5,6 +5,7 @@ import com.twogofindz.backend.dto.response.ApiResponse;
 import com.twogofindz.backend.dto.response.CategoryResponse;
 import com.twogofindz.backend.service.CategoryService;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,5 +47,11 @@ public class AdminCategoryController {
     @PutMapping("/{id}")
     public ApiResponse<CategoryResponse> update(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
         return ApiResponse.success("Category updated successfully.", categoryService.update(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable Long id) {
+        categoryService.delete(id);
+        return ApiResponse.success("Category deleted successfully.");
     }
 }
