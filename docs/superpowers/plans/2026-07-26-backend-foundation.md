@@ -1250,27 +1250,154 @@ git commit -m "feat: add JWT auth, response envelope, and global exception handl
 - Create: `backend/src/main/java/com/twogofindz/backend/service/impl/CategoryServiceImpl.java`
 - Create: `backend/src/main/java/com/twogofindz/backend/controller/admin/AdminCategoryController.java`
 - Create: `backend/src/main/java/com/twogofindz/backend/controller/publicapi/PublicCategoryController.java`
+- Modify: `backend/src/test/java/com/twogofindz/backend/AbstractIntegrationTest.java` (adds shared `adminToken()` / `createCategoryId()` test helpers so no later task duplicates them)
 - Test: `backend/src/test/java/com/twogofindz/backend/controller/admin/AdminCategoryControllerTest.java`
 - Test: `backend/src/test/java/com/twogofindz/backend/controller/publicapi/PublicCategoryControllerTest.java`
 
 **Interfaces:**
-- Consumes: `ApiResponse`, `ValidationErrorResponse`, `GlobalExceptionHandler`, `ResourceNotFoundException`, `DuplicateResourceException` (Task 3); `/api/auth/login` for obtaining test tokens (Task 3)
-- Produces: `ProductCategory` entity (`id, productCategoryName, commissionRate: BigDecimal, createdAt, updatedAt`); `ProductCategoryRepository.existsByProductCategoryNameIgnoreCase(String): boolean`, `.findByProductCategoryNameIgnoreCase(String): Optional<ProductCategory>`; `CategoryService` with `create(CategoryRequest): CategoryResponse`, `update(Long, CategoryRequest): CategoryResponse`, `getById(Long): CategoryResponse`, `getAll(String sortBy, String direction): List<CategoryResponse>`, `getAllForPublic(): List<PublicCategoryResponse>` (Task 6 adds `delete(Long): void` to this same interface/impl) — Task 5 (`Product`) consumes `ProductCategory` and `ProductCategoryRepository`.
+- Consumes: `ApiResponse`, `ValidationErrorResponse`, `GlobalExceptionHandler`, `ResourceNotFoundException`, `DuplicateResourceException`, `LoginRequest` (Task 3); `/api/auth/login` for obtaining test tokens (Task 3)
+- Produces: `ProductCategory` entity (`id, productCategoryName, commissionRate: BigDecimal, createdAt, updatedAt`); `ProductCategoryRepository.existsByProductCategoryNameIgnoreCase(String): boolean`, `.findByProductCategoryNameIgnoreCase(String): Optional<ProductCategory>`; `CategoryService` with `create(CategoryRequest): CategoryResponse`, `update(Long, CategoryRequest): CategoryResponse`, `getById(Long): CategoryResponse`, `getAll(String sortBy, String direction): List<CategoryResponse>`, `getAllForPublic(): List<PublicCategoryResponse>` (Task 6 adds `delete(Long): void` to this same interface/impl) — Task 5 (`Product`) consumes `ProductCategory` and `ProductCategoryRepository`. `AbstractIntegrationTest` gains `@AutoConfigureMockMvc`, protected `mockMvc`/`objectMapper` fields, `protected String adminToken(): throws Exception` and `protected Long createCategoryId(String token, String name): throws Exception` — **every test class from this task onward extends this and must NOT redeclare its own `adminToken()`/`createCategoryId()`/`@AutoConfigureMockMvc`/MockMvc field.**
 
-- [ ] **Step 1: Write the failing tests**
+- [ ] **Step 1: Write the DTOs first (no dependencies, needed by the test helpers below)**
+
+`CategoryRequest.java`:
+```java
+package com.twogofindz.backend.dto.request;
+
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
+
+public record CategoryRequest(
+        @NotBlank(message = "Category name is required.") String productCategoryName,
+
+        @NotNull(message = "Commission rate is required.")
+        @DecimalMin(value = "0.00", message = "Commission rate must be between 0 and 100.")
+        @DecimalMax(value = "100.00", message = "Commission rate must be between 0 and 100.")
+        BigDecimal commissionRate
+) {
+}
+```
+
+`CategoryResponse.java` (admin-only — includes commission rate):
+```java
+package com.twogofindz.backend.dto.response;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+public record CategoryResponse(
+        Long id,
+        String productCategoryName,
+        BigDecimal commissionRate,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+) {
+}
+```
+
+`PublicCategoryResponse.java` (public — no commission rate):
+```java
+package com.twogofindz.backend.dto.response;
+
+public record PublicCategoryResponse(
+        Long id,
+        String productCategoryName
+) {
+}
+```
+
+- [ ] **Step 2: Modify `AbstractIntegrationTest` to add shared MockMvc + auth test helpers**
+
+Replace the file with:
+```java
+package com.twogofindz.backend;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.twogofindz.backend.dto.request.CategoryRequest;
+import com.twogofindz.backend.dto.request.LoginRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.math.BigDecimal;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
+@Testcontainers
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@AutoConfigureMockMvc
+public abstract class AbstractIntegrationTest {
+
+    @Container
+    static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:8.0")
+            .withDatabaseName("two_go_findz_test")
+            .withUsername("test")
+            .withPassword("test");
+
+    @DynamicPropertySource
+    static void registerProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", MYSQL::getJdbcUrl);
+        registry.add("spring.datasource.username", MYSQL::getUsername);
+        registry.add("spring.datasource.password", MYSQL::getPassword);
+        registry.add("app.jwt.secret", () -> "test-secret-key-for-jwt-signing-in-tests-only-1234567890");
+        registry.add("app.jwt.expiration-ms", () -> "86400000");
+        registry.add("app.cors.allowed-origin", () -> "http://localhost:5173");
+        registry.add("app.upload.directory", () -> "uploads-test");
+    }
+
+    @Autowired
+    protected MockMvc mockMvc;
+
+    @Autowired
+    protected ObjectMapper objectMapper;
+
+    /** Logs in as the seeded admin and returns a bearer token for use in Authorization headers. */
+    protected String adminToken() throws Exception {
+        var result = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new LoginRequest("johnrovs", "admin123"))))
+                .andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("data").path("token").asText();
+    }
+
+    /** Creates a category with a 5.00% commission rate via the admin API and returns its id. */
+    protected Long createCategoryId(String token, String name) throws Exception {
+        var result = mockMvc.perform(post("/api/admin/categories")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new CategoryRequest(name, new BigDecimal("5.00")))))
+                .andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("data").path("id").asLong();
+    }
+}
+```
+
+- [ ] **Step 3: Modify `AuthControllerTest` (Task 3) to drop its now-redundant local fields**
+
+Remove the `@AutoConfigureMockMvc` annotation and the two `@Autowired` field declarations (`mockMvc`, `objectMapper`) from `AuthControllerTest` — it now inherits both from `AbstractIntegrationTest`. Remove the now-unused `AutoConfigureMockMvc` import. The three `@Test` methods are unchanged.
+
+- [ ] **Step 4: Write the failing tests**
 
 `AdminCategoryControllerTest.java`:
 ```java
 package com.twogofindz.backend.controller.admin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twogofindz.backend.AbstractIntegrationTest;
 import com.twogofindz.backend.dto.request.CategoryRequest;
-import com.twogofindz.backend.dto.request.LoginRequest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 
@@ -1279,23 +1406,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
 class AdminCategoryControllerTest extends AbstractIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private String adminToken() throws Exception {
-        var result = mockMvc.perform(post("/api/auth/login")
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new LoginRequest("johnrovs", "admin123"))))
-                .andReturn();
-        return objectMapper.readTree(result.getResponse().getContentAsString())
-                .path("data").path("token").asText();
-    }
 
     @Test
     void create_succeeds_withValidPayload() throws Exception {
@@ -1357,45 +1468,19 @@ class AdminCategoryControllerTest extends AbstractIntegrationTest {
 ```java
 package com.twogofindz.backend.controller.publicapi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twogofindz.backend.AbstractIntegrationTest;
-import com.twogofindz.backend.dto.request.CategoryRequest;
-import com.twogofindz.backend.dto.request.LoginRequest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
 class PublicCategoryControllerTest extends AbstractIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Test
     void getAll_neverExposesCommissionRate() throws Exception {
-        var loginResult = mockMvc.perform(post("/api/auth/login")
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new LoginRequest("johnrovs", "admin123"))))
-                .andReturn();
-        String token = objectMapper.readTree(loginResult.getResponse().getContentAsString())
-                .path("data").path("token").asText();
-
-        mockMvc.perform(post("/api/admin/categories")
-                .header("Authorization", "Bearer " + token)
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(new CategoryRequest("Toys", new BigDecimal("6.00")))));
+        String token = adminToken();
+        createCategoryId(token, "Toys");
 
         mockMvc.perform(get("/api/public/categories"))
                 .andExpect(status().isOk())
@@ -1405,12 +1490,12 @@ class PublicCategoryControllerTest extends AbstractIntegrationTest {
 }
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [ ] **Step 5: Run tests to verify they fail**
 
 Run: `cd backend && mvn test -Dtest=AdminCategoryControllerTest,PublicCategoryControllerTest`
 Expected: FAIL — compilation error (classes below don't exist yet).
 
-- [ ] **Step 3: Write the migration**
+- [ ] **Step 6: Write the migration**
 
 `V3__create_product_categories_table.sql`:
 ```sql
@@ -1425,7 +1510,7 @@ CREATE TABLE product_categories (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
-- [ ] **Step 4: Write the entity and repository**
+- [ ] **Step 7: Write the entity and repository**
 
 `ProductCategory.java`:
 ```java
@@ -1488,57 +1573,9 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
 }
 ```
 
-- [ ] **Step 5: Write the DTOs and mapper**
+- [ ] **Step 8: Write the mapper**
 
-`CategoryRequest.java`:
-```java
-package com.twogofindz.backend.dto.request;
-
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
-import java.math.BigDecimal;
-
-public record CategoryRequest(
-        @NotBlank(message = "Category name is required.") String productCategoryName,
-
-        @NotNull(message = "Commission rate is required.")
-        @DecimalMin(value = "0.00", message = "Commission rate must be between 0 and 100.")
-        @DecimalMax(value = "100.00", message = "Commission rate must be between 0 and 100.")
-        BigDecimal commissionRate
-) {
-}
-```
-
-`CategoryResponse.java` (admin-only — includes commission rate):
-```java
-package com.twogofindz.backend.dto.response;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-public record CategoryResponse(
-        Long id,
-        String productCategoryName,
-        BigDecimal commissionRate,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
-) {
-}
-```
-
-`PublicCategoryResponse.java` (public — no commission rate):
-```java
-package com.twogofindz.backend.dto.response;
-
-public record PublicCategoryResponse(
-        Long id,
-        String productCategoryName
-) {
-}
-```
+(`CategoryRequest`, `CategoryResponse`, and `PublicCategoryResponse` were already created in Step 1.)
 
 `CategoryMapper.java`:
 ```java
@@ -1568,7 +1605,7 @@ public class CategoryMapper {
 }
 ```
 
-- [ ] **Step 6: Write `CategoryService` and its implementation**
+- [ ] **Step 9: Write `CategoryService` and its implementation**
 
 `CategoryService.java`:
 ```java
@@ -1682,7 +1719,7 @@ public class CategoryServiceImpl implements CategoryService {
 }
 ```
 
-- [ ] **Step 7: Write the controllers**
+- [ ] **Step 10: Write the controllers**
 
 `AdminCategoryController.java`:
 ```java
@@ -1768,12 +1805,17 @@ public class PublicCategoryController {
 }
 ```
 
-- [ ] **Step 8: Run tests to verify they pass**
+- [ ] **Step 11: Run tests to verify they pass**
 
 Run: `cd backend && mvn test -Dtest=AdminCategoryControllerTest,PublicCategoryControllerTest`
 Expected: PASS
 
-- [ ] **Step 9: Commit**
+- [ ] **Step 12: Run the full suite to confirm Task 3's tests still pass after Step 3's edit**
+
+Run: `cd backend && mvn test`
+Expected: PASS (`AuthControllerTest` included)
+
+- [ ] **Step 13: Commit**
 
 ```bash
 git add backend/src/main/resources/db/migration/V3__create_product_categories_table.sql \
@@ -1787,6 +1829,7 @@ git add backend/src/main/resources/db/migration/V3__create_product_categories_ta
         backend/src/main/java/com/twogofindz/backend/service/impl/CategoryServiceImpl.java \
         backend/src/main/java/com/twogofindz/backend/controller/admin/AdminCategoryController.java \
         backend/src/main/java/com/twogofindz/backend/controller/publicapi/PublicCategoryController.java \
+        backend/src/test/java/com/twogofindz/backend/AbstractIntegrationTest.java \
         backend/src/test/java/com/twogofindz/backend/controller
 git commit -m "feat: add product category CRUD with admin/public response split"
 ```
@@ -1811,7 +1854,7 @@ git commit -m "feat: add product category CRUD with admin/public response split"
 - Test: `backend/src/test/java/com/twogofindz/backend/controller/publicapi/PublicProductControllerTest.java`
 
 **Interfaces:**
-- Consumes: `ProductCategory`, `ProductCategoryRepository` (Task 4); `ApiResponse`, `ResourceNotFoundException` (Task 3)
+- Consumes: `ProductCategory`, `ProductCategoryRepository` (Task 4); `ApiResponse`, `ResourceNotFoundException` (Task 3); `AbstractIntegrationTest.adminToken()` / `.createCategoryId(String, String)` (Task 4) — test classes use these inherited helpers and must not redeclare them.
 - Produces: `Product` entity (`id, name, description, category: ProductCategory, imageFileName, productPrice: BigDecimal, productLink, trending, bestSeller, active, createdAt, updatedAt`); `ProductRepository.existsByCategoryId(Long): boolean` — Task 6 uses this for the category delete-protection check.
 
 - [ ] **Step 1: Write the failing tests**
@@ -1820,55 +1863,25 @@ git commit -m "feat: add product category CRUD with admin/public response split"
 ```java
 package com.twogofindz.backend.controller.admin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twogofindz.backend.AbstractIntegrationTest;
-import com.twogofindz.backend.dto.request.CategoryRequest;
-import com.twogofindz.backend.dto.request.LoginRequest;
 import com.twogofindz.backend.dto.request.ProductRequest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
 class AdminProductControllerTest extends AbstractIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private String adminToken() throws Exception {
-        var result = mockMvc.perform(post("/api/auth/login")
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new LoginRequest("johnrovs", "admin123"))))
-                .andReturn();
-        return objectMapper.readTree(result.getResponse().getContentAsString())
-                .path("data").path("token").asText();
-    }
-
-    private Long createCategory(String token, String name) throws Exception {
-        var result = mockMvc.perform(post("/api/admin/categories")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new CategoryRequest(name, new BigDecimal("5.00")))))
-                .andReturn();
-        return objectMapper.readTree(result.getResponse().getContentAsString())
-                .path("data").path("id").asLong();
-    }
 
     @Test
     void create_succeeds_withValidPayload() throws Exception {
         String token = adminToken();
-        Long categoryId = createCategory(token, "Kitchen Gadgets");
+        Long categoryId = createCategoryId(token, "Kitchen Gadgets");
         ProductRequest request = new ProductRequest(
                 "Air Fryer", "A compact 4-quart air fryer.", categoryId, null,
                 new BigDecimal("79.99"), "https://amazon.com/dp/example", true, false, true);
@@ -1885,7 +1898,7 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
     @Test
     void create_returns400_withNegativePrice() throws Exception {
         String token = adminToken();
-        Long categoryId = createCategory(token, "Negative Price Category");
+        Long categoryId = createCategoryId(token, "Negative Price Category");
         ProductRequest request = new ProductRequest(
                 "Bad Product", "Invalid price.", categoryId, null,
                 new BigDecimal("-1.00"), "https://amazon.com/dp/example", false, false, true);
@@ -1900,7 +1913,7 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
     @Test
     void create_returns400_withNonHttpsLink() throws Exception {
         String token = adminToken();
-        Long categoryId = createCategory(token, "Insecure Link Category");
+        Long categoryId = createCategoryId(token, "Insecure Link Category");
         ProductRequest request = new ProductRequest(
                 "Bad Link Product", "Invalid link.", categoryId, null,
                 new BigDecimal("10.00"), "http://amazon.com/dp/example", false, false, true);
@@ -1929,7 +1942,7 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
     @Test
     void delete_softDeletes_settingActiveFalse() throws Exception {
         String token = adminToken();
-        Long categoryId = createCategory(token, "Soft Delete Category");
+        Long categoryId = createCategoryId(token, "Soft Delete Category");
         ProductRequest request = new ProductRequest(
                 "Deletable Product", "Will be soft-deleted.", categoryId, null,
                 new BigDecimal("20.00"), "https://amazon.com/dp/example", false, false, true);
@@ -1942,13 +1955,11 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         Long productId = objectMapper.readTree(createResult.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .delete("/api/admin/products/{id}", productId)
+        mockMvc.perform(delete("/api/admin/products/{id}", productId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .get("/api/admin/products/{id}", productId)
+        mockMvc.perform(get("/api/admin/products/{id}", productId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(jsonPath("$.data.active").value(false));
     }
@@ -1959,15 +1970,9 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
 ```java
 package com.twogofindz.backend.controller.publicapi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twogofindz.backend.AbstractIntegrationTest;
-import com.twogofindz.backend.dto.request.CategoryRequest;
-import com.twogofindz.backend.dto.request.LoginRequest;
 import com.twogofindz.backend.dto.request.ProductRequest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 
@@ -1977,34 +1982,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
 class PublicProductControllerTest extends AbstractIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private String adminToken() throws Exception {
-        var result = mockMvc.perform(post("/api/auth/login")
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new LoginRequest("johnrovs", "admin123"))))
-                .andReturn();
-        return objectMapper.readTree(result.getResponse().getContentAsString())
-                .path("data").path("token").asText();
-    }
 
     @Test
     void search_neverReturnsInactiveProducts() throws Exception {
         String token = adminToken();
-        var categoryResult = mockMvc.perform(post("/api/admin/categories")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new CategoryRequest("Public Test Category", new BigDecimal("5.00")))))
-                .andReturn();
-        Long categoryId = objectMapper.readTree(categoryResult.getResponse().getContentAsString())
-                .path("data").path("id").asLong();
+        Long categoryId = createCategoryId(token, "Public Test Category");
 
         ProductRequest inactiveProduct = new ProductRequest(
                 "Hidden Product", "Should never show publicly.", categoryId, null,
@@ -2596,7 +2579,7 @@ git commit -m "feat: add product CRUD with Specification-based search/filter/sor
 - Test: `backend/src/test/java/com/twogofindz/backend/controller/admin/CategoryDeleteTest.java`
 
 **Interfaces:**
-- Consumes: `CategoryService`/`CategoryServiceImpl` (Task 4), `ProductRepository.existsByCategoryId(Long): boolean` (Task 5), `CategoryInUseException` (Task 3)
+- Consumes: `CategoryService`/`CategoryServiceImpl` (Task 4), `ProductRepository.existsByCategoryId(Long): boolean` (Task 5), `CategoryInUseException` (Task 3), `AbstractIntegrationTest.adminToken()` / `.createCategoryId(String, String)` (Task 4)
 - Produces: `CategoryService.delete(Long id): void`; `DELETE /api/admin/categories/{id}`
 
 - [ ] **Step 1: Write the failing test**
@@ -2604,15 +2587,9 @@ git commit -m "feat: add product CRUD with Specification-based search/filter/sor
 ```java
 package com.twogofindz.backend.controller.admin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twogofindz.backend.AbstractIntegrationTest;
-import com.twogofindz.backend.dto.request.CategoryRequest;
-import com.twogofindz.backend.dto.request.LoginRequest;
 import com.twogofindz.backend.dto.request.ProductRequest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 
@@ -2621,38 +2598,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
 class CategoryDeleteTest extends AbstractIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private String adminToken() throws Exception {
-        var result = mockMvc.perform(post("/api/auth/login")
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new LoginRequest("johnrovs", "admin123"))))
-                .andReturn();
-        return objectMapper.readTree(result.getResponse().getContentAsString())
-                .path("data").path("token").asText();
-    }
-
-    private Long createCategory(String token, String name) throws Exception {
-        var result = mockMvc.perform(post("/api/admin/categories")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new CategoryRequest(name, new BigDecimal("5.00")))))
-                .andReturn();
-        return objectMapper.readTree(result.getResponse().getContentAsString())
-                .path("data").path("id").asLong();
-    }
 
     @Test
     void delete_succeeds_whenNoProductsAssigned() throws Exception {
         String token = adminToken();
-        Long categoryId = createCategory(token, "Empty Category");
+        Long categoryId = createCategoryId(token, "Empty Category");
 
         mockMvc.perform(delete("/api/admin/categories/{id}", categoryId)
                         .header("Authorization", "Bearer " + token))
@@ -2662,7 +2613,7 @@ class CategoryDeleteTest extends AbstractIntegrationTest {
     @Test
     void delete_returns409_whenProductsAssigned() throws Exception {
         String token = adminToken();
-        Long categoryId = createCategory(token, "In Use Category");
+        Long categoryId = createCategoryId(token, "In Use Category");
         ProductRequest product = new ProductRequest(
                 "Blocking Product", "Keeps the category in use.", categoryId, null,
                 new BigDecimal("25.00"), "https://amazon.com/dp/blocking", false, false, true);
@@ -2772,18 +2723,11 @@ package com.twogofindz.backend.controller;
 
 import com.twogofindz.backend.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc
 class AuthorizationTest extends AbstractIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
 
     @Test
     void adminEndpoint_rejectsRequestWithoutToken() throws Exception {
