@@ -54,4 +54,22 @@ class AuthControllerTest extends AbstractIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.username").exists());
     }
+
+    @Test
+    void login_succeeds_evenWithMalformedBearerToken() throws Exception {
+        // JwtAuthFilter runs on every request (added via addFilterBefore, ahead of the
+        // authorization decision), so a garbage bearer token must not crash the filter
+        // chain on a permitAll route like /api/auth/login. JwtTokenProvider.validateToken
+        // must swallow all jjwt parsing failures (MalformedJwtException, etc.) and return
+        // false rather than letting an uncaught exception escape the filter.
+        LoginRequest request = new LoginRequest("johnrovs", "admin123");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .header("Authorization", "Bearer not-a-valid-jwt")
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.token").isNotEmpty());
+    }
 }
