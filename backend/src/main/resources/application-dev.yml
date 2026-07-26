@@ -1,0 +1,3 @@
+logging:
+  level:
+    com.twogofindz.backend: DEBUG

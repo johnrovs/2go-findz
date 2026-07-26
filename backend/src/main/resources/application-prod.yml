@@ -1,0 +1,4 @@
+logging:
+  level:
+    com.twogofindz.backend: INFO
+    org.hibernate.SQL: WARN
