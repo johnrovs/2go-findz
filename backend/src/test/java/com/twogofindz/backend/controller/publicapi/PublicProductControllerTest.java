@@ -66,4 +66,52 @@ class PublicProductControllerTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.active").value(false));
     }
+
+    @Test
+    void recordClick_succeeds_forExistingProduct() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Click Tracking Category");
+        var createResult = mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/admin/products")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new ProductRequest(
+                                        "Clickable Product", "Tracks clicks.", categoryId, null,
+                                        new java.math.BigDecimal("30.00"), "https://amazon.com/dp/clickable",
+                                        false, false, true))))
+                .andReturn();
+        Long productId = objectMapper.readTree(createResult.getResponse().getContentAsString())
+                .path("data").path("id").asLong();
+
+        mockMvc.perform(post("/api/public/products/{id}/click", productId)
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"sessionId\":\"test-session-123\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void recordClick_succeeds_withoutSessionIdInBody() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "No Session Click Category");
+        var createResult = mockMvc.perform(
+                        org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/admin/products")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(new ProductRequest(
+                                        "No Session Product", "No session id sent.", categoryId, null,
+                                        new java.math.BigDecimal("15.00"), "https://amazon.com/dp/nosession",
+                                        false, false, true))))
+                .andReturn();
+        Long productId = objectMapper.readTree(createResult.getResponse().getContentAsString())
+                .path("data").path("id").asLong();
+
+        mockMvc.perform(post("/api/public/products/{id}/click", productId))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void recordClick_returns404_forUnknownProduct() throws Exception {
+        mockMvc.perform(post("/api/public/products/{id}/click", 999999L))
+                .andExpect(status().isNotFound());
+    }
 }

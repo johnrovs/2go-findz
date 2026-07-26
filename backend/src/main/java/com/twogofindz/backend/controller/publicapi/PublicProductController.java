@@ -1,7 +1,9 @@
 package com.twogofindz.backend.controller.publicapi;
 
+import com.twogofindz.backend.dto.request.ClickRequest;
 import com.twogofindz.backend.dto.response.ApiResponse;
 import com.twogofindz.backend.dto.response.ProductResponse;
+import com.twogofindz.backend.service.ClickTrackingService;
 import com.twogofindz.backend.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +11,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,9 +24,11 @@ import java.math.BigDecimal;
 public class PublicProductController {
 
     private final ProductService productService;
+    private final ClickTrackingService clickTrackingService;
 
-    public PublicProductController(ProductService productService) {
+    public PublicProductController(ProductService productService, ClickTrackingService clickTrackingService) {
         this.productService = productService;
+        this.clickTrackingService = clickTrackingService;
     }
 
     @GetMapping
@@ -42,5 +48,13 @@ public class PublicProductController {
     @GetMapping("/{id}")
     public ApiResponse<ProductResponse> getById(@PathVariable Long id) {
         return ApiResponse.success("Product retrieved successfully.", productService.getActiveById(id));
+    }
+
+    @PostMapping("/{id}/click")
+    public ApiResponse<Void> recordClick(
+            @PathVariable Long id,
+            @RequestBody(required = false) ClickRequest request) {
+        clickTrackingService.recordClick(id, request);
+        return ApiResponse.success("Click recorded.");
     }
 }
