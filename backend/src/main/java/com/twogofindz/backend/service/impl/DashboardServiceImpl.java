@@ -11,6 +11,7 @@ import com.twogofindz.backend.repository.ProductClickRepository;
 import com.twogofindz.backend.repository.ProductRepository;
 import com.twogofindz.backend.repository.WebsiteViewRepository;
 import com.twogofindz.backend.service.DashboardService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +19,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.AbstractMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class DashboardServiceImpl implements DashboardService {
@@ -36,7 +32,6 @@ public class DashboardServiceImpl implements DashboardService {
     private static final LocalDateTime MIN_DATETIME = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
     private static final LocalDateTime MAX_DATETIME = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
 
-    private static final DateTimeFormatter YEAR_MONTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
     private static final int MOST_CLICKED_LIMIT = 10;
 
     private final WebsiteViewRepository websiteViewRepository;
@@ -62,7 +57,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         long totalViews = websiteViewRepository.countByViewedAtBetween(start, end);
         long totalClicks = productClickRepository.countByClickedAtBetween(start, end);
-        BigDecimal estimatedTotalCommission = sumCommission(productClickRepository.findClickDetailsBetween(start, end));
+        BigDecimal estimatedTotalCommission = round(productClickRepository.sumEstimatedCommission(start, end));
 
         // Rules 3/4: totals reflect every product/category ever created, never filtered by the range.
         long totalProducts = productRepository.count();
@@ -83,14 +78,28 @@ public class DashboardServiceImpl implements DashboardService {
         LocalDateTime start = effectiveFrom(from);
         LocalDateTime end = effectiveTo(to);
 
-        List<DailyCountResponse> viewsByDay = viewsByDay(start, end);
-        List<DailyCountResponse> clicksByDay = clicksByDay(start, end);
+        List<DailyCountResponse> viewsByDay = websiteViewRepository.countViewsByDay(start, end).stream()
+                .map(p -> new DailyCountResponse(p.getDay(), p.getCnt()))
+                .toList();
 
-        List<ProductClickRepository.ClickDetail> clickDetails = productClickRepository.findClickDetailsBetween(start, end);
-        List<ProductClickCountResponse> mostClickedProducts = mostClickedProducts(clickDetails);
-        List<CategoryCommissionResponse> commissionByCategory = commissionByCategory(clickDetails);
+        List<DailyCountResponse> clicksByDay = productClickRepository.countClicksByDay(start, end).stream()
+                .map(p -> new DailyCountResponse(p.getDay(), p.getCnt()))
+                .toList();
 
-        List<MonthlyCountResponse> productsAddedByMonth = productsAddedByMonth(start, end);
+        List<ProductClickCountResponse> mostClickedProducts = productClickRepository
+                .findMostClickedProducts(start, end, PageRequest.of(0, MOST_CLICKED_LIMIT)).stream()
+                .map(p -> new ProductClickCountResponse(p.getProductId(), p.getProductName(), p.getClickCount()))
+                .toList();
+
+        List<CategoryCommissionResponse> commissionByCategory = productClickRepository
+                .sumCommissionByCategory(start, end).stream()
+                .map(p -> new CategoryCommissionResponse(
+                        p.getCategoryId(), p.getCategoryName(), p.getCommission().setScale(2, RoundingMode.HALF_UP)))
+                .toList();
+
+        List<MonthlyCountResponse> productsAddedByMonth = productRepository.countProductsByMonth(start, end).stream()
+                .map(p -> new MonthlyCountResponse(p.getYm(), p.getCnt()))
+                .toList();
 
         return new DashboardAnalyticsResponse(
                 viewsByDay, clicksByDay, mostClickedProducts, commissionByCategory, productsAddedByMonth);
@@ -104,81 +113,11 @@ public class DashboardServiceImpl implements DashboardService {
         return to != null ? to.atTime(23, 59, 59) : MAX_DATETIME;
     }
 
-    private List<DailyCountResponse> viewsByDay(LocalDateTime start, LocalDateTime end) {
-        Map<LocalDate, Long> counts = websiteViewRepository.findByViewedAtBetween(start, end).stream()
-                .collect(Collectors.groupingBy(v -> v.getViewedAt().toLocalDate(), Collectors.counting()));
-        return toSortedDailyCounts(counts);
-    }
-
-    private List<DailyCountResponse> clicksByDay(LocalDateTime start, LocalDateTime end) {
-        Map<LocalDate, Long> counts = productClickRepository.findByClickedAtBetween(start, end).stream()
-                .collect(Collectors.groupingBy(c -> c.getClickedAt().toLocalDate(), Collectors.counting()));
-        return toSortedDailyCounts(counts);
-    }
-
-    private List<DailyCountResponse> toSortedDailyCounts(Map<LocalDate, Long> counts) {
-        return counts.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> new DailyCountResponse(e.getKey(), e.getValue()))
-                .toList();
-    }
-
     /**
-     * Per-click commission contribution: productPrice * (categoryCommissionRate / 100).
-     * Dividing by 100 is an exact power-of-ten shift, so no rounding mode is needed here —
-     * rounding is only applied once, to the final aggregated totals (rule 9).
+     * Rule 9: round once, at the end, HALF_UP to 2dp. {@code sum(...)} returns null (rather than
+     * zero) when there are no matching rows, so that's coalesced to zero first.
      */
-    private BigDecimal commissionContribution(ProductClickRepository.ClickDetail detail) {
-        return detail.getProductPrice().multiply(detail.getCommissionRate()).divide(BigDecimal.valueOf(100));
-    }
-
-    private BigDecimal sumCommission(List<ProductClickRepository.ClickDetail> details) {
-        BigDecimal total = BigDecimal.ZERO;
-        for (ProductClickRepository.ClickDetail detail : details) {
-            total = total.add(commissionContribution(detail));
-        }
-        return total.setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private List<ProductClickCountResponse> mostClickedProducts(List<ProductClickRepository.ClickDetail> details) {
-        Map<Map.Entry<Long, String>, Long> counts = details.stream()
-                .collect(Collectors.groupingBy(
-                        d -> new AbstractMap.SimpleEntry<>(d.getProductId(), d.getProductName()),
-                        LinkedHashMap::new,
-                        Collectors.counting()));
-
-        return counts.entrySet().stream()
-                .sorted(Map.Entry.<Map.Entry<Long, String>, Long>comparingByValue().reversed())
-                .limit(MOST_CLICKED_LIMIT)
-                .map(e -> new ProductClickCountResponse(e.getKey().getKey(), e.getKey().getValue(), e.getValue()))
-                .toList();
-    }
-
-    private List<CategoryCommissionResponse> commissionByCategory(List<ProductClickRepository.ClickDetail> details) {
-        Map<Long, String> categoryNames = new LinkedHashMap<>();
-        Map<Long, BigDecimal> commissionByCategoryId = new LinkedHashMap<>();
-
-        for (ProductClickRepository.ClickDetail detail : details) {
-            categoryNames.putIfAbsent(detail.getCategoryId(), detail.getCategoryName());
-            commissionByCategoryId.merge(detail.getCategoryId(), commissionContribution(detail), BigDecimal::add);
-        }
-
-        return commissionByCategoryId.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> new CategoryCommissionResponse(
-                        e.getKey(), categoryNames.get(e.getKey()), e.getValue().setScale(2, RoundingMode.HALF_UP)))
-                .toList();
-    }
-
-    private List<MonthlyCountResponse> productsAddedByMonth(LocalDateTime start, LocalDateTime end) {
-        Map<String, Long> counts = productRepository.findByCreatedAtBetween(start, end).stream()
-                .collect(Collectors.groupingBy(
-                        p -> p.getCreatedAt().format(YEAR_MONTH_FORMATTER),
-                        Collectors.counting()));
-
-        return counts.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> new MonthlyCountResponse(e.getKey(), e.getValue()))
-                .toList();
+    private BigDecimal round(BigDecimal value) {
+        return (value != null ? value : BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
     }
 }
