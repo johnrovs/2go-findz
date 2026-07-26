@@ -19,9 +19,17 @@ class ProductPlaceholderImageTest extends AbstractIntegrationTest {
     void productWithoutImage_fallsBackToConfiguredPlaceholder() throws Exception {
         String token = adminToken();
 
+        // A complete request, as the real admin settings form always submits every field
+        // (a settings PUT is a full-replace upsert, not a partial patch). This avoids
+        // wiping other settings fields to null for later tests sharing this single row
+        // across the same Testcontainers JVM run.
         SettingsRequest settingsRequest = new SettingsRequest(
-                null, null, "configured-placeholder.png", null, null, null, null,
-                null, null, null, null, null);
+                "logo.png", "hero.jpg", "configured-placeholder.png",
+                "https://tiktok.com/@2gofindz", "https://pinterest.com/2gofindz",
+                "https://instagram.com/2gofindz", "https://youtube.com/@2gofindz",
+                "Shop bio for placeholder test.", "Placeholder Test Headline",
+                "Placeholder test description.", "Placeholder test disclosure.",
+                "placeholder-test@2gofindz.com");
         mockMvc.perform(put("/api/admin/settings")
                 .header("Authorization", "Bearer " + token)
                 .contentType(APPLICATION_JSON)

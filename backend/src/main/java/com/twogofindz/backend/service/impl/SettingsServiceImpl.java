@@ -33,31 +33,19 @@ public class SettingsServiceImpl implements SettingsService {
     @Transactional
     public SettingsResponse updateSettings(SettingsRequest request) {
         SystemSettings settings = findSettings();
-        applyIfPresent(request.logoImageFilename(), settings::setLogoImageFilename);
-        applyIfPresent(request.heroImageFilename(), settings::setHeroImageFilename);
-        applyIfPresent(request.placeholderImageFilename(), settings::setPlaceholderImageFilename);
-        applyIfPresent(request.tiktokUrl(), settings::setTiktokUrl);
-        applyIfPresent(request.pinterestUrl(), settings::setPinterestUrl);
-        applyIfPresent(request.instagramUrl(), settings::setInstagramUrl);
-        applyIfPresent(request.youtubeUrl(), settings::setYoutubeUrl);
-        applyIfPresent(request.shopBio(), settings::setShopBio);
-        applyIfPresent(request.heroHeadline(), settings::setHeroHeadline);
-        applyIfPresent(request.heroDescription(), settings::setHeroDescription);
-        applyIfPresent(request.affiliateDisclosure(), settings::setAffiliateDisclosure);
-        applyIfPresent(request.contactEmail(), settings::setContactEmail);
+        settings.setLogoImageFilename(request.logoImageFilename());
+        settings.setHeroImageFilename(request.heroImageFilename());
+        settings.setPlaceholderImageFilename(request.placeholderImageFilename());
+        settings.setTiktokUrl(request.tiktokUrl());
+        settings.setPinterestUrl(request.pinterestUrl());
+        settings.setInstagramUrl(request.instagramUrl());
+        settings.setYoutubeUrl(request.youtubeUrl());
+        settings.setShopBio(request.shopBio());
+        settings.setHeroHeadline(request.heroHeadline());
+        settings.setHeroDescription(request.heroDescription());
+        settings.setAffiliateDisclosure(request.affiliateDisclosure());
+        settings.setContactEmail(request.contactEmail());
         return settingsMapper.toResponse(settingsRepository.save(settings));
-    }
-
-    /**
-     * Applies a merge-style (PATCH-like) update: a null field in the request means
-     * "leave this field unchanged" rather than "clear it". This keeps the single shared
-     * settings row from losing previously configured values whenever a caller updates
-     * only one or two fields (e.g. just the placeholder image filename).
-     */
-    private void applyIfPresent(String value, java.util.function.Consumer<String> setter) {
-        if (value != null) {
-            setter.accept(value);
-        }
     }
 
     @Override
