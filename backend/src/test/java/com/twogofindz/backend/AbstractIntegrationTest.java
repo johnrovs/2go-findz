@@ -73,4 +73,17 @@ public abstract class AbstractIntegrationTest {
         return objectMapper.readTree(result.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
     }
+
+    /** Uploads a small valid JPEG via the admin image upload endpoint and returns the stored filename. */
+    protected String uploadTestImage(String token) throws Exception {
+        org.springframework.mock.web.MockMultipartFile file = new org.springframework.mock.web.MockMultipartFile(
+                "file", "photo.jpg", "image/jpeg", new byte[]{1, 2, 3, 4});
+        var result = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .multipart("/api/admin/images")
+                        .file(file)
+                        .header("Authorization", "Bearer " + token))
+                .andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("data").path("filename").asText();
+    }
 }

@@ -5,6 +5,10 @@
 target/
 *.class
 
+# Uploaded files (local storage backend + test runs)
+backend/uploads/
+backend/uploads-test/
+
 # Node
 node_modules/
 dist/

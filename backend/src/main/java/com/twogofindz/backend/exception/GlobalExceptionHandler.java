@@ -27,10 +27,19 @@ import java.util.Map;
  * Central exception-to-HTTP-response translator.
  *
  * <p>Extends {@link ResponseEntityExceptionHandler} so that standard Spring MVC exceptions
- * (wrong HTTP method, malformed JSON, unsupported media type, unmapped paths, etc.) are wrapped
- * in this project's {@link ApiResponse}/{@link ValidationErrorResponse} envelope with the correct
- * HTTP status, instead of falling through to a generic 500 or Spring's default HTML error page.
+ * (wrong HTTP method, malformed JSON, unsupported media type, unmapped paths, oversized multipart
+ * uploads via {@code MaxUploadSizeExceededException}, etc.) are wrapped in this project's
+ * {@link ApiResponse}/{@link ValidationErrorResponse} envelope with the correct HTTP status, instead
+ * of falling through to a generic 500 or Spring's default HTML error page.
  * The single override point for all of those is {@link #handleExceptionInternal}.</p>
+ *
+ * <p><b>Note:</b> {@code MaxUploadSizeExceededException} is intentionally <em>not</em> given its own
+ * {@code @ExceptionHandler} method here — as of Spring Framework 6.1 it is already resolved by the
+ * base class's internal composite {@code handleException(Exception, WebRequest)} handler (it
+ * implements {@link org.springframework.web.ErrorResponse} with a 413 status). Declaring a second,
+ * separate {@code @ExceptionHandler} for the same exception type throws an "Ambiguous
+ * {@code @ExceptionHandler} method" {@link IllegalStateException} at context startup. Its message is
+ * customized via {@link #messageForStatus} (status 413) instead.</p>
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -83,6 +92,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(ApiResponse.failure("Invalid sort field: '" + ex.getPropertyName() + "'."));
     }
 
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidFile(InvalidFileException ex) {
+        return ResponseEntity.badRequest().body(ApiResponse.failure(ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception ex) {
         log.error("Unhandled exception", ex);
@@ -116,6 +130,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             case 404 -> "The requested resource was not found.";
             case 405 -> "This HTTP method is not supported for this endpoint.";
             case 415 -> "The specified Content-Type is not supported.";
+            case 413 -> "Uploaded file exceeds the maximum allowed size.";
             default -> "The request could not be processed.";
         };
     }
