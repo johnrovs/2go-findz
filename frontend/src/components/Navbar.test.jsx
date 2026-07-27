@@ -3,12 +3,15 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import Navbar from './Navbar.jsx';
+import { CompareProvider } from '../context/CompareContext.jsx';
 import * as categoryService from '../services/categoryService.js';
 
 function renderNavbar(initialEntries = ['/']) {
   return render(
     <MemoryRouter initialEntries={initialEntries}>
-      <Navbar />
+      <CompareProvider>
+        <Navbar />
+      </CompareProvider>
     </MemoryRouter>
   );
 }
@@ -16,6 +19,7 @@ function renderNavbar(initialEntries = ['/']) {
 describe('Navbar', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    localStorage.clear();
     vi.spyOn(categoryService, 'getCategories').mockResolvedValue([{ id: 1, productCategoryName: 'Electronics' }]);
   });
 
@@ -24,6 +28,7 @@ describe('Navbar', () => {
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Trending' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Best Sellers' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Compare' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Categories' })).toBeInTheDocument();
   });
 
@@ -68,5 +73,18 @@ describe('Navbar', () => {
     renderNavbar();
 
     expect(screen.getByRole('link', { name: 'Browse all products' })).toHaveAttribute('href', '/#catalog');
+  });
+
+  it('shows no compare count badge when nothing is selected', () => {
+    renderNavbar();
+    expect(screen.getByRole('link', { name: 'Compare' })).not.toHaveTextContent(/\d/);
+  });
+
+  it('shows the compare count badge once products are selected', () => {
+    localStorage.setItem('compareProductIds', JSON.stringify([1, 2]));
+    renderNavbar();
+    // The badge digit is rendered inside the same link, so its accessible name becomes
+    // "Compare2" -- an exact "Compare" match would no longer find it once the badge shows.
+    expect(screen.getByRole('link', { name: /compare/i })).toHaveTextContent('2');
   });
 });

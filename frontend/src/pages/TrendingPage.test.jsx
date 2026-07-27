@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import TrendingPage from './TrendingPage.jsx';
+import { CompareProvider } from '../context/CompareContext.jsx';
 import * as settingsService from '../services/settingsService.js';
 import * as categoryService from '../services/categoryService.js';
 import * as productService from '../services/productService.js';
@@ -17,7 +18,9 @@ describe('TrendingPage', () => {
   it('renders the Trending Finds title and seeds the trending filter', async () => {
     render(
       <MemoryRouter initialEntries={['/trending']}>
-        <TrendingPage />
+        <CompareProvider>
+          <TrendingPage />
+        </CompareProvider>
       </MemoryRouter>
     );
 

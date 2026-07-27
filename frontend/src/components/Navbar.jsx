@@ -4,11 +4,13 @@ import { ChevronDown, Menu, Search } from 'lucide-react';
 import logo from '../assets/2gofindz.png';
 import MobileMenu from './MobileMenu.jsx';
 import { getCategories } from '../services/categoryService.js';
+import { useCompare } from '../hooks/useCompare.js';
 
 const navLinkClassName = ({ isActive }) =>
   `text-sm font-medium transition ${isActive ? 'text-indigo-600' : 'text-slate-700 hover:text-indigo-600'}`;
 
 function Navbar() {
+  const { ids } = useCompare();
   const [categories, setCategories] = useState([]);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -93,6 +95,14 @@ function Navbar() {
                 </div>
               )}
             </div>
+            <NavLink to="/compare" className={navLinkClassName}>
+              Compare
+              {ids.length > 0 && (
+                <span className="ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
+                  {ids.length}
+                </span>
+              )}
+            </NavLink>
             <NavLink to="/best-sellers" className={navLinkClassName}>
               Best Sellers
             </NavLink>
@@ -118,7 +128,11 @@ function Navbar() {
         </div>
       </header>
 
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        compareCount={ids.length}
+      />
     </>
   );
 }

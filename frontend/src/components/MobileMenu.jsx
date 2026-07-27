@@ -7,10 +7,11 @@ const NAV_ITEMS = [
   { to: '/', label: 'Home', end: true },
   { to: '/trending', label: 'Trending' },
   { to: '/categories', label: 'Categories' },
+  { to: '/compare', label: 'Compare' },
   { to: '/best-sellers', label: 'Best Sellers' },
 ];
 
-function MobileMenu({ isOpen, onClose }) {
+function MobileMenu({ isOpen, onClose, compareCount = 0 }) {
   useEffect(() => {
     if (!isOpen) return undefined;
 
@@ -50,6 +51,11 @@ function MobileMenu({ isOpen, onClose }) {
                   }
                 >
                   {label}
+                  {to === '/compare' && compareCount > 0 && (
+                    <span className="ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
+                      {compareCount}
+                    </span>
+                  )}
                 </NavLink>
               </li>
             ))}

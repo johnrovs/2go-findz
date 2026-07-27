@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import BestSellersPage from './BestSellersPage.jsx';
+import { CompareProvider } from '../context/CompareContext.jsx';
 import * as settingsService from '../services/settingsService.js';
 import * as categoryService from '../services/categoryService.js';
 import * as productService from '../services/productService.js';
@@ -17,7 +18,9 @@ describe('BestSellersPage', () => {
   it('renders the Best Sellers title and seeds the bestSeller filter', async () => {
     render(
       <MemoryRouter initialEntries={['/best-sellers']}>
-        <BestSellersPage />
+        <CompareProvider>
+          <BestSellersPage />
+        </CompareProvider>
       </MemoryRouter>
     );
 

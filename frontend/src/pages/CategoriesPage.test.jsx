@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import CategoriesPage from './CategoriesPage.jsx';
+import { CompareProvider } from '../context/CompareContext.jsx';
 import * as settingsService from '../services/settingsService.js';
 import * as categoryService from '../services/categoryService.js';
 import * as productService from '../services/productService.js';
@@ -12,7 +13,9 @@ const categories = [{ id: 1, productCategoryName: 'Electronics' }];
 function renderPage(initialEntries = ['/categories']) {
   return render(
     <MemoryRouter initialEntries={initialEntries}>
-      <CategoriesPage />
+      <CompareProvider>
+        <CategoriesPage />
+      </CompareProvider>
     </MemoryRouter>
   );
 }
