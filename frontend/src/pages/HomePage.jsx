@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar.jsx';
 import HeroCarousel from '../components/HeroCarousel.jsx';
 import SocialLinks from '../components/SocialLinks.jsx';
@@ -16,6 +17,21 @@ import { getCategories } from '../services/categoryService.js';
 import { searchProducts } from '../services/productService.js';
 import { recordView } from '../services/trackingService.js';
 import { getHeroBanners } from '../services/heroBannerService.js';
+
+const WHY_SHOP_ITEMS = [
+  {
+    title: 'Handpicked Selections',
+    description: 'Every product is carefully chosen to save you time and help you shop smarter.',
+  },
+  {
+    title: 'Always Up to Date',
+    description: 'New trending finds and best sellers are added regularly.',
+  },
+  {
+    title: 'Trusted Recommendations',
+    description: 'Transparent, honest picks — no gimmicks, just genuinely useful products.',
+  },
+];
 
 function useTeaserProducts(params) {
   const [products, setProducts] = useState([]);
@@ -189,22 +205,18 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <SectionHeading title="Why Shop with 2Go Findz" />
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <div>
-              <h3 className="text-base font-semibold text-slate-900">Handpicked Selections</h3>
-              <p className="mt-2 text-sm text-slate-600">
-                Every product is carefully chosen to save you time and help you shop smarter.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-slate-900">Always Up to Date</h3>
-              <p className="mt-2 text-sm text-slate-600">New trending finds and best sellers are added regularly.</p>
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-slate-900">Trusted Recommendations</h3>
-              <p className="mt-2 text-sm text-slate-600">
-                Transparent, honest picks — no gimmicks, just genuinely useful products.
-              </p>
-            </div>
+            {WHY_SHOP_ITEMS.map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
+                <p className="mt-2 text-sm text-slate-600">{item.description}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
