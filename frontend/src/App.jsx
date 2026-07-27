@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import DashboardPage from './pages/admin/DashboardPage.jsx';
 import ProductsPage from './pages/admin/ProductsPage.jsx';
+import ProductFormPage from './pages/admin/ProductFormPage.jsx';
 import CategoriesPage from './pages/admin/CategoriesPage.jsx';
 import SettingsPage from './pages/admin/SettingsPage.jsx';
 
@@ -25,8 +26,8 @@ function App() {
                 <Route element={<AdminLayout />}>
                   <Route path="/admin" element={<DashboardPage />} />
                   <Route path="/admin/products" element={<ProductsPage />} />
-                  <Route path="/admin/products/new" element={<ProductsPage />} />
-                  <Route path="/admin/products/:id" element={<ProductsPage />} />
+                  <Route path="/admin/products/new" element={<ProductFormPage />} />
+                  <Route path="/admin/products/:id" element={<ProductFormPage />} />
                   <Route path="/admin/categories" element={<CategoriesPage />} />
                   <Route path="/admin/settings" element={<SettingsPage />} />
                 </Route>
