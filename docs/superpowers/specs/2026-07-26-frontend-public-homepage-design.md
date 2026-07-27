@@ -13,6 +13,7 @@
 
 ## Page structure (in order)
 
+0. **Navbar** — sticky top bar: shop name/logo (links to `/`). Minimal for this stage since `/` is currently the only public route.
 1. **Hero Banner** — shop name, headline, description, two CTAs, all sourced from `GET /api/public/settings` (`heroHeadline`, `heroDescription`, `shopBio`, `heroImageFilename`). Framer Motion entrance animation.
 2. **Social Media Links** — TikTok/Pinterest/Instagram/YouTube icon links from settings; hover animation; `target="_blank" rel="noopener noreferrer"`.
 3. **Curated teasers** — Featured Products, Trending Finds, Best Sellers: small previews (first N results of a scoped, unpaginated query each), no filter UI of their own.
@@ -21,6 +22,39 @@
 6. **Why Shop with 2Go Findz** — static content section.
 7. **Social CTA** — a second, more prominent social-links call to action.
 8. **Footer** — site links + the required affiliate disclosure text (from settings' `affiliateDisclosure` field).
+
+## Visual design system
+
+Explicit direction: **readable, eye-catching, clean and modern, details that stand out — and deliberately not "scammy."** Affiliate sites often erode trust with loud red urgency banners, autoplay carousels, countdown timers, and cluttered layouts; this design avoids all of that in favor of restraint, whitespace, and one coherent brand carried over from the admin shell (Frontend Stage 1's indigo/slate palette), rather than fragmenting into a separate "storefront" visual language.
+
+**Color palette** (Tailwind's default palette, disciplined usage — no custom theme needed):
+- **Brand/primary — `indigo`**: `indigo-600` for primary buttons/links/active states, `indigo-700` on hover, `indigo-50` for tinted section backgrounds. Same family as the admin shell — one brand, not two.
+- **Neutrals — `slate`**: `slate-900` headings, `slate-600` body text, `slate-400` muted/meta text (dates, counts), `slate-200` borders, `slate-50` alternating section backgrounds, white cards.
+- **Trending badge — `amber`**: `amber-100` background / `amber-800` text. Warm and energetic, not alarmist.
+- **Best Seller badge — `emerald`**: `emerald-100` background / `emerald-800` text. Positive and trustworthy — same family as the success toast from Stage 1.
+- **Error (genuine errors only) — `red`**: kept from Stage 1's error states; **never** used for manufactured urgency (no "only 2 left!", no red countdown timers).
+- No neon, no flashing, no gradient-heavy "deal site" aesthetic.
+
+**Typography:** System font stack (Tailwind's default `font-sans` — no webfont download, instant render). Clear hierarchy, generous line-height, no dense text blocks:
+- Hero headline: `text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900`
+- Section headings (`SectionHeading` component): `text-2xl sm:text-3xl font-bold text-slate-900`
+- Product card title: `text-base font-semibold text-slate-900`
+- Body/description copy: `text-sm text-slate-600 leading-relaxed`
+- Price: `text-lg font-bold text-slate-900` — deliberately *not* colored green/red like a manufactured "deal"; price is information, not a pressure tactic.
+
+**Layout & spacing:**
+- Page container: `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`
+- Consistent vertical rhythm between major sections: `py-16 sm:py-20`
+- Product grid: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6` — responsive from mobile to desktop
+- Cards: `rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-200`, generous internal padding
+- Product images: locked aspect ratio (`aspect-square`) with `object-cover` so the grid never looks jittery regardless of source image dimensions
+
+**Trust cues ("not scammy"):**
+- Badges are small rounded pills (`rounded-full px-2.5 py-0.5 text-xs font-medium`) placed unobtrusively on the image corner — never full-width shouting banners.
+- No autoplay carousels, no blinking attention-grabbers. Motion is restrained: fade/slide-up entrance on scroll (`whileInView`), 200–300ms hover transitions, nothing looping or jarring.
+- The affiliate disclosure is genuinely legible in the footer (`text-sm text-slate-500`, not 6px fine print).
+- "View on Amazon" is a clear, confident primary button (`indigo-600`) — not an oversized red "BUY NOW" alarm button.
+- Consistent photography treatment: locked aspect ratio, subtle `hover:scale-105` zoom scoped to the image only (`overflow-hidden` on the frame) so the card itself never shifts layout.
 
 ## State management
 
@@ -40,7 +74,7 @@
 
 ## New reusable components (per spec's explicit list)
 
-`HeroSection`, `SocialLinks`, `SearchInput`, `FilterDropdown`, `ProductFilters`, `ProductGrid`, `ProductCard`, `CategoryCard`, `SectionHeading`, `Pagination`, `AffiliateDisclosure`, `Footer`.
+`Navbar`, `HeroSection`, `SocialLinks`, `SearchInput`, `FilterDropdown`, `ProductFilters`, `ProductGrid`, `ProductCard`, `CategoryCard`, `SectionHeading`, `Pagination`, `AffiliateDisclosure`, `Footer`.
 
 Reused from Frontend Stage 1: `LoadingSpinner`, `EmptyState`, `ErrorState`.
 
