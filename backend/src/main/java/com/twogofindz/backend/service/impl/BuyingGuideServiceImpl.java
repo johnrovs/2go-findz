@@ -2,6 +2,8 @@ package com.twogofindz.backend.service.impl;
 
 import com.twogofindz.backend.dto.request.BuyingGuideRequest;
 import com.twogofindz.backend.dto.response.BuyingGuideResponse;
+import com.twogofindz.backend.dto.response.PublicBuyingGuideDetailResponse;
+import com.twogofindz.backend.dto.response.PublicBuyingGuideSummaryResponse;
 import com.twogofindz.backend.entity.BuyingGuide;
 import com.twogofindz.backend.entity.Product;
 import com.twogofindz.backend.exception.ResourceNotFoundException;
@@ -75,6 +77,26 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         return buyingGuideRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(buyingGuideMapper::toResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PublicBuyingGuideSummaryResponse> getAllForPublic() {
+        return buyingGuideRepository.findByActiveTrueOrderByCreatedAtDesc().stream()
+                .map(buyingGuideMapper::toPublicSummary)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PublicBuyingGuideDetailResponse getByIdForPublic(Long id) {
+        BuyingGuide guide = findEntityById(id);
+        // Deliberately identical to the "not found" outcome below: a draft guide must not
+        // be distinguishable from a nonexistent one via the public API (no information leak).
+        if (!guide.getActive()) {
+            throw new ResourceNotFoundException("Buying guide not found with id: " + id);
+        }
+        return buyingGuideMapper.toPublicDetail(guide);
     }
 
     private List<Product> resolveProducts(List<Long> ids) {
