@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.js';
 
 function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = location.state?.from?.pathname ?? '/admin';
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +32,7 @@ function LoginPage() {
     setIsSubmitting(true);
     try {
       await login(username, password);
-      navigate('/admin', { replace: true });
+      navigate(redirectTo, { replace: true });
     } catch (error) {
       setFormError(error.message ?? 'Invalid username or password.');
     } finally {
