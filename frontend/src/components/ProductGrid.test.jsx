@@ -37,4 +37,9 @@ describe('ProductGrid', () => {
     render(<ProductGrid products={[product]} isLoading={false} error={null} />);
     expect(screen.getByText('Wireless Earbuds')).toBeInTheDocument();
   });
+
+  it('uses a 2-column grid on mobile', () => {
+    const { container } = render(<ProductGrid products={[product]} isLoading={false} error={null} />);
+    expect(container.firstChild).toHaveClass('grid-cols-2');
+  });
 });

@@ -61,4 +61,20 @@ describe('ProductCard', () => {
 
     expect(screen.getByText('No image available')).toBeInTheDocument();
   });
+
+  it('hides the badges, category, description, price, and date on mobile, showing them from sm: up', () => {
+    render(<ProductCard product={baseProduct} />);
+
+    expect(screen.getByText('Trending').parentElement).toHaveClass('hidden', 'sm:flex');
+    expect(screen.getByText('Electronics')).toHaveClass('hidden', 'sm:block');
+    expect(screen.getByText(baseProduct.description)).toHaveClass('hidden', 'sm:block');
+    expect(screen.getByText('$49.99').parentElement).toHaveClass('hidden', 'sm:flex');
+  });
+
+  it('always shows the product name and "View on Amazon" button, regardless of screen size', () => {
+    render(<ProductCard product={baseProduct} />);
+
+    expect(screen.getByText('Wireless Earbuds')).not.toHaveClass('hidden');
+    expect(screen.getByRole('link', { name: /view on amazon/i })).not.toHaveClass('hidden');
+  });
 });

@@ -38,7 +38,7 @@ function ProductCard({ product }) {
             No image available
           </div>
         )}
-        <div className="absolute left-2 top-2 flex gap-1.5">
+        <div className="absolute left-2 top-2 hidden gap-1.5 sm:flex">
           {product.trending && (
             <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
               Trending
@@ -53,10 +53,14 @@ function ProductCard({ product }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <span className="text-xs font-medium uppercase tracking-wide text-indigo-600">{product.categoryName}</span>
+        <span className="hidden text-xs font-medium uppercase tracking-wide text-indigo-600 sm:block">
+          {product.categoryName}
+        </span>
         <h3 className="text-base font-semibold text-slate-900">{product.name}</h3>
-        <p className="line-clamp-2 flex-1 text-sm leading-relaxed text-slate-600">{product.description}</p>
-        <div className="flex items-center justify-between pt-1">
+        <p className="hidden line-clamp-2 flex-1 text-sm leading-relaxed text-slate-600 sm:block">
+          {product.description}
+        </p>
+        <div className="hidden items-center justify-between pt-1 sm:flex">
           <span className="text-lg font-bold text-slate-900">${Number(product.productPrice).toFixed(2)}</span>
           <span className="text-xs text-slate-400">Added {formatDate(product.createdAt)}</span>
         </div>
