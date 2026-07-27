@@ -53,12 +53,12 @@ function Modal({ isOpen, onClose, title, children, role = 'dialog' }) {
         role={role}
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-lg"
+        className="relative flex max-h-[90vh] w-full max-w-md flex-col rounded-xl bg-white p-6 shadow-lg"
       >
-        <h2 id="modal-title" className="mb-4 text-lg font-semibold text-slate-900">
+        <h2 id="modal-title" className="mb-4 shrink-0 text-lg font-semibold text-slate-900">
           {title}
         </h2>
-        {children}
+        <div className="overflow-y-auto">{children}</div>
       </div>
     </div>
   );
