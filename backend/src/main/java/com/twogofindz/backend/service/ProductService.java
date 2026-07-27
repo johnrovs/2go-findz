@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface ProductService {
     ProductResponse create(ProductRequest request);
@@ -16,4 +17,5 @@ public interface ProductService {
     Page<ProductResponse> search(
             String term, Long categoryId, Boolean trending, Boolean bestSeller, Boolean active,
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+    List<ProductResponse> getComparableByIds(List<Long> ids);
 }

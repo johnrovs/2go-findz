@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/public/products")
@@ -50,11 +52,27 @@ public class PublicProductController {
         return ApiResponse.success("Product retrieved successfully.", productService.getActiveById(id));
     }
 
+    @GetMapping("/compare")
+    public ApiResponse<List<ProductResponse>> compare(@RequestParam(required = false) String ids) {
+        return ApiResponse.success("Products retrieved successfully.", productService.getComparableByIds(parseIds(ids)));
+    }
+
     @PostMapping("/{id}/click")
     public ApiResponse<Void> recordClick(
             @PathVariable Long id,
             @RequestBody(required = false) ClickRequest request) {
         clickTrackingService.recordClick(id, request);
         return ApiResponse.success("Click recorded.");
+    }
+
+    private List<Long> parseIds(String ids) {
+        if (ids == null || ids.isBlank()) {
+            return List.of();
+        }
+        return Arrays.stream(ids.split(","))
+                .map(String::trim)
+                .filter(token -> token.matches("\\d+"))
+                .map(Long::parseLong)
+                .toList();
     }
 }

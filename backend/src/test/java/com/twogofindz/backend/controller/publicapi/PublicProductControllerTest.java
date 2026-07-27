@@ -114,4 +114,65 @@ class PublicProductControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(post("/api/public/products/{id}/click", 999999L))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void compare_returnsRequestedProductsInRequestedOrder() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Compare Order Category");
+        Long firstId = createProductId(token, categoryId, "Compare First", true);
+        Long secondId = createProductId(token, categoryId, "Compare Second", true);
+
+        mockMvc.perform(get("/api/public/products/compare").param("ids", secondId + "," + firstId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].id").value(secondId))
+                .andExpect(jsonPath("$.data[0].name").value("Compare Second"))
+                .andExpect(jsonPath("$.data[1].id").value(firstId))
+                .andExpect(jsonPath("$.data[1].name").value("Compare First"));
+    }
+
+    @Test
+    void compare_dropsInactiveAndMissingIds_silently() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Compare Filter Category");
+        Long activeId = createProductId(token, categoryId, "Compare Active", true);
+        Long inactiveId = createProductId(token, categoryId, "Compare Inactive", false);
+
+        mockMvc.perform(get("/api/public/products/compare")
+                        .param("ids", activeId + "," + inactiveId + ",999999"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].id").value(activeId));
+    }
+
+    @Test
+    void compare_withNoIds_returnsEmptyList() throws Exception {
+        mockMvc.perform(get("/api/public/products/compare"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @Test
+    void compare_toleratesNonNumericTokens_byIgnoringThem() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Compare Malformed Category");
+        Long productId = createProductId(token, categoryId, "Compare Valid Token", true);
+
+        mockMvc.perform(get("/api/public/products/compare").param("ids", "abc," + productId + ",xyz"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].id").value(productId));
+    }
+
+    private Long createProductId(String token, Long categoryId, String name, boolean active) throws Exception {
+        var result = mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ProductRequest(
+                                name, "Compare test product.", categoryId, null,
+                                new BigDecimal("10.00"), "https://amazon.com/dp/" + name.replace(" ", "-"),
+                                false, false, active))))
+                .andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("data").path("id").asLong();
+    }
 }

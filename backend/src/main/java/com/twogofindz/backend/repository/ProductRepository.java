@@ -16,6 +16,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     long countByActiveTrueAndBestSellerTrue();
 
+    List<Product> findAllByIdInAndActiveTrue(List<Long> ids);
+
     /**
      * One row per calendar month with at least one product created in range, grouped and
      * counted at the DB level (native SQL — MySQL-only project) rather than fetching every

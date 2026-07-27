@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -109,6 +110,21 @@ public class ProductServiceImpl implements ProductService {
                 .and(ProductSpecifications.priceBetween(minPrice, maxPrice));
 
         return productRepository.findAll(spec, pageable).map(productMapper::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getComparableByIds(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        List<Product> found = productRepository.findAllByIdInAndActiveTrue(ids);
+        // Preserve the caller's requested order rather than whatever order the DB returns,
+        // since the frontend uses this order as the comparison table's column order.
+        return ids.stream()
+                .flatMap(id -> found.stream().filter(product -> product.getId().equals(id)))
+                .map(productMapper::toResponse)
+                .toList();
     }
 
     private Product findProduct(Long id) {
