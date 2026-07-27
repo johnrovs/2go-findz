@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
@@ -45,7 +46,12 @@ function Modal({ isOpen, onClose, title, children, role = 'dialog' }) {
 
   if (!isOpen) return null;
 
-  return (
+  // Portaled to document.body rather than rendered in place: any caller that opens this
+  // Modal from inside its own <form> (e.g. SettingsPage's single save-everything form)
+  // would otherwise nest this component's <form> inside that outer <form>, which is
+  // invalid HTML. Browsers silently break the inner form's submit behavior in that case
+  // rather than erroring, so the bug is invisible without opening real dev tools.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
       <div
@@ -60,7 +66,8 @@ function Modal({ isOpen, onClose, title, children, role = 'dialog' }) {
         </h2>
         <div className="overflow-y-auto">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

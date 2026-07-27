@@ -26,12 +26,14 @@ describe('Modal', () => {
   it('calls onClose when the backdrop is clicked', async () => {
     const onClose = vi.fn();
     const user = userEvent.setup();
-    const { container } = render(
+    render(
       <Modal isOpen onClose={onClose} title="Test Modal">
         <p>Content</p>
       </Modal>
     );
-    await user.click(container.querySelector('[aria-hidden="true"]'));
+    // Modal portals to document.body, so its backdrop isn't inside the local render
+    // container -- query the document instead.
+    await user.click(document.querySelector('[aria-hidden="true"]'));
     expect(onClose).toHaveBeenCalled();
   });
 
