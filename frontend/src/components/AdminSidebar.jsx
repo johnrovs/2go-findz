@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Package, Tags, Settings, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth.js';
+import logo from '../assets/2gofindz.png';
 
 const NAV_ITEMS = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -29,7 +30,9 @@ function AdminSidebar({ isOpen, onClose }) {
 
   const content = (
     <nav aria-label="Main navigation" className="flex h-full flex-col bg-slate-900 px-3 py-6 text-slate-200">
-      <span className="mb-8 px-3 text-lg font-bold text-white">2Go Findz</span>
+      <div className="mb-8 px-3">
+        <img src={logo} alt="2Go Findz" className="h-10 w-10" />
+      </div>
       <ul className="flex-1 space-y-1">
         {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
           <li key={to}>
