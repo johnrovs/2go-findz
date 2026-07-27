@@ -4,11 +4,13 @@ import { ToastProvider } from './context/ToastContext.jsx';
 import { CompareProvider } from './context/CompareContext.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import CompareBar from './components/CompareBar.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
 import HomePage from './pages/HomePage.jsx';
 import TrendingPage from './pages/TrendingPage.jsx';
 import BestSellersPage from './pages/BestSellersPage.jsx';
 import PublicCategoriesPage from './pages/CategoriesPage.jsx';
+import ComparePage from './pages/ComparePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import DashboardPage from './pages/admin/DashboardPage.jsx';
@@ -29,6 +31,7 @@ function App() {
                 <Route path="/trending" element={<TrendingPage />} />
                 <Route path="/categories" element={<PublicCategoriesPage />} />
                 <Route path="/best-sellers" element={<BestSellersPage />} />
+                <Route path="/compare" element={<ComparePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route element={<ProtectedRoute />}>
                   <Route element={<AdminLayout />}>
@@ -42,6 +45,7 @@ function App() {
                 </Route>
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
+              <CompareBar />
             </BrowserRouter>
           </CompareProvider>
         </AuthProvider>
