@@ -63,7 +63,6 @@ function SettingsPage() {
     // is a dependency of this effect.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handleChange(key, value) {
