@@ -6,7 +6,7 @@ describe('App', () => {
   it('renders the homepage at the root route', () => {
     window.history.pushState({}, '', '/');
     render(<App />);
-    expect(screen.getByText('2Go Findz')).toBeInTheDocument();
+    expect(screen.getAllByText('2Go Findz').length).toBeGreaterThan(0);
   });
 
   it('renders the not found page for an unmatched route', () => {
