@@ -41,6 +41,10 @@ function CategoriesPage() {
   }
 
   useEffect(() => {
+    // loadCategories resets loading/error state synchronously before fetching; this is
+    // the standard reset-before-async-work pattern and can't cascade since neither value
+    // is a dependency of this effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortKey, sortDirection]);
