@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
+import { CompareProvider } from './context/CompareContext.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
@@ -21,26 +22,28 @@ function App() {
     <ErrorBoundary>
       <ToastProvider>
         <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/trending" element={<TrendingPage />} />
-              <Route path="/categories" element={<PublicCategoriesPage />} />
-              <Route path="/best-sellers" element={<BestSellersPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route element={<ProtectedRoute />}>
-                <Route element={<AdminLayout />}>
-                  <Route path="/admin" element={<DashboardPage />} />
-                  <Route path="/admin/products" element={<ProductsPage />} />
-                  <Route path="/admin/products/new" element={<ProductFormPage />} />
-                  <Route path="/admin/products/:id" element={<ProductFormPage />} />
-                  <Route path="/admin/categories" element={<CategoriesPage />} />
-                  <Route path="/admin/settings" element={<SettingsPage />} />
+          <CompareProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/trending" element={<TrendingPage />} />
+                <Route path="/categories" element={<PublicCategoriesPage />} />
+                <Route path="/best-sellers" element={<BestSellersPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<AdminLayout />}>
+                    <Route path="/admin" element={<DashboardPage />} />
+                    <Route path="/admin/products" element={<ProductsPage />} />
+                    <Route path="/admin/products/new" element={<ProductFormPage />} />
+                    <Route path="/admin/products/:id" element={<ProductFormPage />} />
+                    <Route path="/admin/categories" element={<CategoriesPage />} />
+                    <Route path="/admin/settings" element={<SettingsPage />} />
+                  </Route>
                 </Route>
-              </Route>
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </BrowserRouter>
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </BrowserRouter>
+          </CompareProvider>
         </AuthProvider>
       </ToastProvider>
     </ErrorBoundary>
