@@ -33,8 +33,29 @@ describe('AdminLayout', () => {
     const user = userEvent.setup();
     renderLayout();
 
+    // Before opening: only the always-mounted desktop nav renders "Products".
+    expect(screen.getAllByText('Products').length).toBe(1);
+
     await user.click(screen.getByLabelText('Open menu'));
 
-    expect(screen.getAllByText('Products').length).toBeGreaterThanOrEqual(2);
+    // After opening: desktop nav + the mobile drawer's nav both render "Products".
+    expect(screen.getAllByText('Products').length).toBe(2);
+  });
+
+  it('closes the mobile drawer when a nav link inside it is clicked', async () => {
+    const user = userEvent.setup();
+    const { container } = renderLayout();
+
+    await user.click(screen.getByLabelText('Open menu'));
+
+    const drawer = container.querySelector('.fixed.inset-0.z-40');
+    expect(drawer).toBeInTheDocument();
+
+    // The second "Products" link is the one rendered inside the open mobile drawer.
+    const drawerProductsLink = screen.getAllByText('Products')[1];
+    await user.click(drawerProductsLink);
+
+    expect(container.querySelector('.fixed.inset-0.z-40')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Products').length).toBe(1);
   });
 });
