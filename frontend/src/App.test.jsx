@@ -8,4 +8,10 @@ describe('App', () => {
     render(<App />);
     expect(screen.getByText('2Go Findz')).toBeInTheDocument();
   });
+
+  it('renders the not found page for an unmatched route', () => {
+    window.history.pushState({}, '', '/this-route-does-not-exist');
+    render(<App />);
+    expect(screen.getByText('Page not found')).toBeInTheDocument();
+  });
 });
