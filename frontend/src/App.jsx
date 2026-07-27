@@ -5,6 +5,9 @@ import ErrorBoundary from './components/ErrorBoundary.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
 import HomePage from './pages/HomePage.jsx';
+import TrendingPage from './pages/TrendingPage.jsx';
+import BestSellersPage from './pages/BestSellersPage.jsx';
+import PublicCategoriesPage from './pages/CategoriesPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import DashboardPage from './pages/admin/DashboardPage.jsx';
@@ -21,6 +24,9 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/trending" element={<TrendingPage />} />
+              <Route path="/categories" element={<PublicCategoriesPage />} />
+              <Route path="/best-sellers" element={<BestSellersPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route element={<ProtectedRoute />}>
                 <Route element={<AdminLayout />}>
