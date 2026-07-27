@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import HomePage from './HomePage.jsx';
+import { CompareProvider } from '../context/CompareContext.jsx';
 import * as settingsService from '../services/settingsService.js';
 import * as categoryService from '../services/categoryService.js';
 import * as productService from '../services/productService.js';
@@ -35,7 +36,9 @@ const product = {
 function renderHomePage(initialEntries = ['/']) {
   return render(
     <MemoryRouter initialEntries={initialEntries}>
-      <HomePage />
+      <CompareProvider>
+        <HomePage />
+      </CompareProvider>
     </MemoryRouter>
   );
 }
@@ -43,6 +46,7 @@ function renderHomePage(initialEntries = ['/']) {
 describe('HomePage', () => {
   beforeEach(() => {
     sessionStorage.clear();
+    localStorage.clear();
     vi.restoreAllMocks();
     vi.spyOn(settingsService, 'getSettings').mockResolvedValue(settings);
     vi.spyOn(categoryService, 'getCategories').mockResolvedValue(categories);

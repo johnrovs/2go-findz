@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import ProductGrid from './ProductGrid.jsx';
+import { CompareProvider } from '../context/CompareContext.jsx';
 
 const product = {
   id: 1,
@@ -34,12 +35,20 @@ describe('ProductGrid', () => {
   });
 
   it('renders a product card for each product', () => {
-    render(<ProductGrid products={[product]} isLoading={false} error={null} />);
+    render(
+      <CompareProvider>
+        <ProductGrid products={[product]} isLoading={false} error={null} />
+      </CompareProvider>
+    );
     expect(screen.getByText('Wireless Earbuds')).toBeInTheDocument();
   });
 
   it('uses a 2-column grid on mobile', () => {
-    const { container } = render(<ProductGrid products={[product]} isLoading={false} error={null} />);
+    const { container } = render(
+      <CompareProvider>
+        <ProductGrid products={[product]} isLoading={false} error={null} />
+      </CompareProvider>
+    );
     expect(container.firstChild).toHaveClass('grid-cols-2');
   });
 });

@@ -1,9 +1,13 @@
 import { motion } from 'framer-motion';
+import { Check, GitCompare } from 'lucide-react';
 import { getImageUrl } from '../utils/imageUrl.js';
 import { recordClick } from '../services/trackingService.js';
+import { useCompare } from '../hooks/useCompare.js';
 
 function ProductCard({ product }) {
   const imageUrl = getImageUrl(product.imageFileName);
+  const { isSelected, isFull, toggle } = useCompare();
+  const selected = isSelected(product.id);
 
   function handleViewOnAmazon() {
     const sessionId = sessionStorage.getItem('sessionId');
@@ -45,6 +49,19 @@ function ProductCard({ product }) {
             </span>
           )}
         </div>
+        <button
+          type="button"
+          onClick={() => toggle(product.id)}
+          disabled={!selected && isFull}
+          aria-pressed={selected}
+          aria-label={selected ? `Remove ${product.name} from Compare` : `Add ${product.name} to Compare`}
+          title={!selected && isFull ? 'Compare is full — remove an item to add another' : undefined}
+          className={`absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full shadow-sm transition disabled:cursor-not-allowed disabled:opacity-50 ${
+            selected ? 'bg-indigo-600 text-white' : 'bg-white/90 text-slate-600 hover:bg-white'
+          }`}
+        >
+          {selected ? <Check size={16} /> : <GitCompare size={16} />}
+        </button>
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">

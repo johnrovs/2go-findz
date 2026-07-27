@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import CatalogPage from './CatalogPage.jsx';
+import { CompareProvider } from '../context/CompareContext.jsx';
 import * as settingsService from '../services/settingsService.js';
 import * as categoryService from '../services/categoryService.js';
 import * as productService from '../services/productService.js';
@@ -24,7 +25,9 @@ const product = {
 function renderCatalog(props, initialEntries = ['/trending']) {
   return render(
     <MemoryRouter initialEntries={initialEntries}>
-      <CatalogPage title="Trending Finds" {...props} />
+      <CompareProvider>
+        <CatalogPage title="Trending Finds" {...props} />
+      </CompareProvider>
     </MemoryRouter>
   );
 }

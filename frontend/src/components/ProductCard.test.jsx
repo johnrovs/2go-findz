@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import ProductCard from './ProductCard.jsx';
+import { CompareProvider } from '../context/CompareContext.jsx';
 import * as trackingService from '../services/trackingService.js';
 
 const baseProduct = {
@@ -20,14 +21,23 @@ const baseProduct = {
   updatedAt: '2026-07-20T10:00:00',
 };
 
+function renderCard(product = baseProduct) {
+  return render(
+    <CompareProvider>
+      <ProductCard product={product} />
+    </CompareProvider>
+  );
+}
+
 describe('ProductCard', () => {
   beforeEach(() => {
     sessionStorage.clear();
+    localStorage.clear();
     vi.restoreAllMocks();
   });
 
   it('renders the product name, category, and the trending badge only', () => {
-    render(<ProductCard product={baseProduct} />);
+    renderCard();
 
     expect(screen.getByText('Wireless Earbuds')).toBeInTheDocument();
     expect(screen.getByText('Electronics')).toBeInTheDocument();
@@ -36,7 +46,7 @@ describe('ProductCard', () => {
   });
 
   it('never renders the description, price, or added date', () => {
-    render(<ProductCard product={baseProduct} />);
+    renderCard();
 
     expect(screen.queryByText(baseProduct.description)).not.toBeInTheDocument();
     expect(screen.queryByText('$49.99')).not.toBeInTheDocument();
@@ -44,7 +54,7 @@ describe('ProductCard', () => {
   });
 
   it('renders the "View on Amazon" link with the correct href and rel attributes', () => {
-    render(<ProductCard product={baseProduct} />);
+    renderCard();
 
     const link = screen.getByRole('link', { name: /view on amazon/i });
     expect(link).toHaveAttribute('href', baseProduct.productLink);
@@ -56,7 +66,7 @@ describe('ProductCard', () => {
     sessionStorage.setItem('sessionId', 'test-session-abc');
     vi.spyOn(trackingService, 'recordClick').mockResolvedValue(undefined);
     const user = userEvent.setup();
-    render(<ProductCard product={baseProduct} />);
+    renderCard();
 
     await user.click(screen.getByRole('link', { name: /view on amazon/i }));
 
@@ -64,22 +74,44 @@ describe('ProductCard', () => {
   });
 
   it('renders a placeholder message when there is no product image', () => {
-    render(<ProductCard product={{ ...baseProduct, imageFileName: null }} />);
+    renderCard({ ...baseProduct, imageFileName: null });
 
     expect(screen.getByText('No image available')).toBeInTheDocument();
   });
 
   it('hides the badges on mobile, showing them from sm: up', () => {
-    render(<ProductCard product={baseProduct} />);
+    renderCard();
 
     expect(screen.getByText('Trending').parentElement).toHaveClass('hidden', 'sm:flex');
   });
 
   it('always shows the image, category, name, and "View on Amazon" button, regardless of screen size', () => {
-    render(<ProductCard product={baseProduct} />);
+    renderCard();
 
     expect(screen.getByText('Electronics')).not.toHaveClass('hidden');
     expect(screen.getByText('Wireless Earbuds')).not.toHaveClass('hidden');
     expect(screen.getByRole('link', { name: /view on amazon/i })).not.toHaveClass('hidden');
+  });
+
+  it('toggles the compare selection when the compare button is clicked', async () => {
+    const user = userEvent.setup();
+    renderCard();
+
+    const compareButton = screen.getByRole('button', { name: 'Add Wireless Earbuds to Compare' });
+    expect(compareButton).toHaveAttribute('aria-pressed', 'false');
+
+    await user.click(compareButton);
+
+    expect(screen.getByRole('button', { name: 'Remove Wireless Earbuds from Compare' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+  });
+
+  it('disables the compare button once 4 other products are already selected', () => {
+    localStorage.setItem('compareProductIds', JSON.stringify([10, 20, 30, 40]));
+    renderCard();
+
+    expect(screen.getByRole('button', { name: 'Add Wireless Earbuds to Compare' })).toBeDisabled();
   });
 });
