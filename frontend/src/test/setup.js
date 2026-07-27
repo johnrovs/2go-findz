@@ -30,3 +30,30 @@ class IntersectionObserverStub {
   }
 }
 globalThis.IntersectionObserver = IntersectionObserverStub;
+
+// Recharts' ResponsiveContainer measures its container via ResizeObserver and
+// getBoundingClientRect before rendering any chart content, and renders nothing if the
+// measured size comes back zero. jsdom does not implement ResizeObserver and never
+// performs real layout (every element reports a 0x0 rect by default), so both need
+// stubbing for any chart to render its children during tests.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+globalThis.ResizeObserver = ResizeObserverStub;
+
+Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
+  configurable: true,
+  value: () => ({
+    width: 400,
+    height: 240,
+    top: 0,
+    left: 0,
+    bottom: 240,
+    right: 400,
+    x: 0,
+    y: 0,
+    toJSON() {},
+  }),
+});
