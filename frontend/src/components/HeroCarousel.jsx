@@ -13,6 +13,10 @@ function usePrefersReducedMotion() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    // Syncing the current value of an external system (the browser's media query) into
+    // state on mount, then subscribing to future changes, is the canonical use of this
+    // effect shape -- it fires once on mount, not on every render, so it can't cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPrefersReducedMotion(mediaQuery.matches);
     function handleChange(event) {
       setPrefersReducedMotion(event.matches);
