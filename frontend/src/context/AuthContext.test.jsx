@@ -70,6 +70,34 @@ describe('AuthContext', () => {
     expect(localStorage.getItem('token')).toBe('new-token');
   });
 
+  it('falls back to anonymous and clears storage when the stored user is corrupted JSON', () => {
+    localStorage.setItem('token', 'existing-token');
+    localStorage.setItem('user', '{not-valid-json');
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>
+    );
+
+    expect(screen.getByTestId('auth-status')).toHaveTextContent('anonymous');
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(localStorage.getItem('user')).toBeNull();
+  });
+
+  it('clears an orphaned token when there is no stored user', () => {
+    localStorage.setItem('token', 'orphaned-token');
+
+    render(
+      <AuthProvider>
+        <TestConsumer />
+      </AuthProvider>
+    );
+
+    expect(screen.getByTestId('auth-status')).toHaveTextContent('anonymous');
+    expect(localStorage.getItem('token')).toBeNull();
+  });
+
   it('logout() clears the session', async () => {
     localStorage.setItem('token', 'existing-token');
     localStorage.setItem(

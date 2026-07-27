@@ -1,6 +1,7 @@
 import { createContext, useEffect, useReducer } from 'react';
 import { loginRequest } from '../services/authService.js';
 
+// eslint-disable-next-line react-refresh/only-export-components -- context and provider are intentionally co-located
 export const AuthContext = createContext(null);
 
 const initialState = {
@@ -30,10 +31,19 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
     if (token && storedUser) {
-      dispatch({ type: 'HYDRATE', payload: { token, user: JSON.parse(storedUser), isAuthenticated: true } });
-    } else {
-      dispatch({ type: 'HYDRATE', payload: {} });
+      try {
+        dispatch({
+          type: 'HYDRATE',
+          payload: { token, user: JSON.parse(storedUser), isAuthenticated: true },
+        });
+        return;
+      } catch {
+        // Corrupted session — fall through and reset to anonymous below.
+      }
     }
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    dispatch({ type: 'HYDRATE', payload: {} });
   }, []);
 
   async function login(username, password) {
