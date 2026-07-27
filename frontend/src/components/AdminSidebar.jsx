@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Package, Tags, Settings, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -13,8 +14,21 @@ const NAV_ITEMS = [
 function AdminSidebar({ isOpen, onClose }) {
   const { logout } = useAuth();
 
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   const content = (
-    <nav className="flex h-full flex-col bg-slate-900 px-3 py-6 text-slate-200">
+    <nav aria-label="Main navigation" className="flex h-full flex-col bg-slate-900 px-3 py-6 text-slate-200">
       <span className="mb-8 px-3 text-lg font-bold text-white">2Go Findz</span>
       <ul className="flex-1 space-y-1">
         {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
@@ -50,12 +64,11 @@ function AdminSidebar({ isOpen, onClose }) {
       <div className="hidden md:block md:w-64 md:shrink-0">{content}</div>
 
       {isOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
+        <div className="fixed inset-0 z-40 md:hidden" role="dialog" aria-modal="true">
           <div className="absolute inset-0 bg-black/40" onClick={onClose} />
           <motion.div
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
             transition={{ type: 'tween', duration: 0.2 }}
             className="absolute inset-y-0 left-0 w-64"
           >

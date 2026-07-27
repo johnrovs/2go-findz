@@ -8,7 +8,10 @@ const STYLES = {
 function ToastNotification({ message, type = 'success', onDismiss }) {
   const Icon = type === 'error' ? XCircle : CheckCircle;
   return (
-    <div role="status" className={`flex items-center gap-2 rounded-lg border px-4 py-3 shadow-sm ${STYLES[type]}`}>
+    <div
+      role="status"
+      className={`flex items-center gap-2 rounded-lg border px-4 py-3 shadow-sm ${STYLES[type] ?? STYLES.success}`}
+    >
       <Icon size={18} />
       <span className="text-sm font-medium">{message}</span>
       <button onClick={onDismiss} aria-label="Dismiss notification" className="ml-2 opacity-60 hover:opacity-100">

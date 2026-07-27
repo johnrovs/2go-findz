@@ -44,18 +44,29 @@ describe('AdminLayout', () => {
 
   it('closes the mobile drawer when a nav link inside it is clicked', async () => {
     const user = userEvent.setup();
-    const { container } = renderLayout();
+    renderLayout();
 
     await user.click(screen.getByLabelText('Open menu'));
 
-    const drawer = container.querySelector('.fixed.inset-0.z-40');
-    expect(drawer).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
 
     // The second "Products" link is the one rendered inside the open mobile drawer.
     const drawerProductsLink = screen.getAllByText('Products')[1];
     await user.click(drawerProductsLink);
 
-    expect(container.querySelector('.fixed.inset-0.z-40')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.getAllByText('Products').length).toBe(1);
+  });
+
+  it('closes the mobile drawer when Escape is pressed', async () => {
+    const user = userEvent.setup();
+    renderLayout();
+
+    await user.click(screen.getByLabelText('Open menu'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
