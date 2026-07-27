@@ -1,0 +1,29 @@
+package com.twogofindz.backend.mapper;
+
+import com.twogofindz.backend.dto.response.BuyingGuideResponse;
+import com.twogofindz.backend.entity.BuyingGuide;
+import org.springframework.stereotype.Component;
+
+@Component
+public class BuyingGuideMapper {
+
+    private final ProductMapper productMapper;
+
+    public BuyingGuideMapper(ProductMapper productMapper) {
+        this.productMapper = productMapper;
+    }
+
+    public BuyingGuideResponse toResponse(BuyingGuide guide) {
+        return new BuyingGuideResponse(
+                guide.getId(),
+                guide.getTitle(),
+                guide.getExcerpt(),
+                guide.getContent(),
+                guide.getCoverImageFilename(),
+                guide.getActive(),
+                guide.getRecommendedProducts().stream().map(productMapper::toResponse).toList(),
+                guide.getCreatedAt(),
+                guide.getUpdatedAt()
+        );
+    }
+}
