@@ -1,6 +1,7 @@
 import { createContext, useCallback, useState } from 'react';
 import ToastNotification from '../components/ToastNotification.jsx';
 
+// eslint-disable-next-line react-refresh/only-export-components -- context and provider are intentionally co-located
 export const ToastContext = createContext(null);
 
 let nextId = 1;
