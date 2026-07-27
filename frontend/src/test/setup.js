@@ -15,3 +15,18 @@ if (typeof globalThis.jsdom !== 'undefined') {
     get: () => globalThis.jsdom.window.sessionStorage,
   });
 }
+
+// jsdom does not implement IntersectionObserver, which Framer Motion's `whileInView`
+// prop (used for scroll-triggered entrance animation on ProductCard/CategoryCard) needs
+// at mount time. A no-op stub is sufficient for tests: Framer Motion animates via
+// opacity/transform styles, never `display:none`, so content stays queryable by
+// Testing Library regardless of whether the "in view" callback ever fires.
+class IntersectionObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() {
+    return [];
+  }
+}
+globalThis.IntersectionObserver = IntersectionObserverStub;
