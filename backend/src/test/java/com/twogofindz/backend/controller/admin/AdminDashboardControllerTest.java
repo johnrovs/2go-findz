@@ -104,25 +104,35 @@ class AdminDashboardControllerTest extends AbstractIntegrationTest {
         Long categoryId = createCategoryId(token, "Boundary Category");
         Long productId = createProductId(token, "Boundary Product", categoryId, new BigDecimal("20.00"), false, false, true);
 
-        LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.minusDays(1);
+        // The click's clicked_at is a DB-generated TIMESTAMP evaluated in the MySQL container's
+        // session timezone (UTC), while LocalDate.now() below runs in the JVM's local timezone.
+        // A plain "today"/"yesterday" split can therefore land on the wrong side of the boundary
+        // depending on the developer's machine timezone and time of day. Use a generous 2-day
+        // buffer on each side of "now" so the range comparisons are correct regardless of any
+        // JVM/DB timezone offset, while still proving both that an out-of-range query excludes
+        // the click and that an in-range query includes it.
+        LocalDate now = LocalDate.now();
+        LocalDate excludeFrom = now.minusDays(10);
+        LocalDate excludeTo = now.minusDays(2);
+        LocalDate includeFrom = now.minusDays(2);
+        LocalDate includeTo = now.plusDays(2);
 
-        long yesterdayClicksBefore = fetchSummaryData(token, yesterday.toString(), yesterday.toString())
+        long excludedClicksBefore = fetchSummaryData(token, excludeFrom.toString(), excludeTo.toString())
                 .path("totalClicks").asLong();
-        long todayClicksBefore = fetchSummaryData(token, today.toString(), today.toString())
+        long includedClicksBefore = fetchSummaryData(token, includeFrom.toString(), includeTo.toString())
                 .path("totalClicks").asLong();
 
         mockMvc.perform(post("/api/public/products/{id}/click", productId));
 
-        long yesterdayClicksAfter = fetchSummaryData(token, yesterday.toString(), yesterday.toString())
+        long excludedClicksAfter = fetchSummaryData(token, excludeFrom.toString(), excludeTo.toString())
                 .path("totalClicks").asLong();
-        long todayClicksAfter = fetchSummaryData(token, today.toString(), today.toString())
+        long includedClicksAfter = fetchSummaryData(token, includeFrom.toString(), includeTo.toString())
                 .path("totalClicks").asLong();
 
-        assertEquals(yesterdayClicksBefore, yesterdayClicksAfter,
-                "a click recorded today must not appear in a from/to range of yesterday only");
-        assertEquals(todayClicksBefore + 1, todayClicksAfter,
-                "a click recorded today must appear in a from/to range covering today");
+        assertEquals(excludedClicksBefore, excludedClicksAfter,
+                "a click recorded just now must not appear in a from/to range that ends well in the past");
+        assertEquals(includedClicksBefore + 1, includedClicksAfter,
+                "a click recorded just now must appear in a from/to range that safely spans the present moment");
     }
 
     @Test
