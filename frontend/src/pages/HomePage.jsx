@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar.jsx';
-import HeroSection from '../components/HeroSection.jsx';
+import HeroCarousel from '../components/HeroCarousel.jsx';
 import SocialLinks from '../components/SocialLinks.jsx';
 import SectionHeading from '../components/SectionHeading.jsx';
 import ProductGrid from '../components/ProductGrid.jsx';
@@ -14,6 +14,7 @@ import { getSettings } from '../services/settingsService.js';
 import { getCategories } from '../services/categoryService.js';
 import { searchProducts } from '../services/productService.js';
 import { recordView } from '../services/trackingService.js';
+import { getHeroBanners } from '../services/heroBannerService.js';
 
 function useTeaserProducts(params) {
   const [products, setProducts] = useState([]);
@@ -45,6 +46,7 @@ function useTeaserProducts(params) {
 function HomePage() {
   const [settings, setSettings] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [heroBanners, setHeroBanners] = useState([]);
   const productSearch = useProductSearch();
   const featured = useTeaserProducts({ sort: 'createdAt,desc' });
   const trending = useTeaserProducts({ trending: true, sort: 'createdAt,desc' });
@@ -57,6 +59,9 @@ function HomePage() {
     getCategories()
       .then(setCategories)
       .catch(() => setCategories([]));
+    getHeroBanners()
+      .then(setHeroBanners)
+      .catch(() => setHeroBanners([]));
   }, []);
 
   useEffect(() => {
@@ -82,16 +87,18 @@ function HomePage() {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      <HeroSection
-        headline={settings?.heroHeadline ?? 'Smart Finds. Better Buys. All in One Place.'}
-        description={
-          settings?.heroDescription ??
-          'Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.'
-        }
-        onExploreClick={scrollToCatalog}
-        onTrendingClick={() => {
-          productSearch.setFilter('trending');
-          scrollToCatalog();
+      <HeroCarousel
+        banners={heroBanners}
+        heroSectionProps={{
+          headline: settings?.heroHeadline ?? 'Smart Finds. Better Buys. All in One Place.',
+          description:
+            settings?.heroDescription ??
+            'Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.',
+          onExploreClick: scrollToCatalog,
+          onTrendingClick: () => {
+            productSearch.setFilter('trending');
+            scrollToCatalog();
+          },
         }}
       />
 

@@ -6,6 +6,7 @@ import * as settingsService from '../services/settingsService.js';
 import * as categoryService from '../services/categoryService.js';
 import * as productService from '../services/productService.js';
 import * as trackingService from '../services/trackingService.js';
+import * as heroBannerService from '../services/heroBannerService.js';
 
 const settings = {
   heroHeadline: 'Smart Finds. Better Buys. All in One Place.',
@@ -51,6 +52,7 @@ describe('HomePage', () => {
       totalElements: 1,
     });
     vi.spyOn(trackingService, 'recordView').mockResolvedValue({ sessionId: 'session-abc' });
+    vi.spyOn(heroBannerService, 'getHeroBanners').mockResolvedValue([]);
   });
 
   it('renders the hero headline from settings', async () => {
@@ -83,5 +85,30 @@ describe('HomePage', () => {
   it('renders the affiliate disclosure in the footer', async () => {
     renderHomePage();
     expect(await screen.findByText(settings.affiliateDisclosure)).toBeInTheDocument();
+  });
+
+  it('renders the default HeroSection when there are no hero banners', async () => {
+    renderHomePage();
+    expect(await screen.findByRole('heading', { name: settings.heroHeadline })).toBeInTheDocument();
+  });
+
+  it('renders the hero carousel when hero banners are configured', async () => {
+    heroBannerService.getHeroBanners.mockResolvedValue([
+      {
+        id: 1,
+        imageFilename: 'img_1.webp',
+        imageAlt: 'Trending gadgets',
+        badge: 'Trending Today',
+        headline: 'Amazon Finds Everyone Is Talking About',
+        description: 'Discover trending products.',
+        buttonText: 'Explore Trending Finds',
+        buttonLink: '/trending',
+      },
+    ]);
+    renderHomePage();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Amazon Finds Everyone Is Talking About' })
+    ).toBeInTheDocument();
   });
 });
