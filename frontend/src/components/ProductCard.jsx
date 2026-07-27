@@ -2,11 +2,6 @@ import { motion } from 'framer-motion';
 import { getImageUrl } from '../utils/imageUrl.js';
 import { recordClick } from '../services/trackingService.js';
 
-function formatDate(isoString) {
-  if (!isoString) return '';
-  return new Date(isoString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
 function ProductCard({ product }) {
   const imageUrl = getImageUrl(product.imageFileName);
 
@@ -53,23 +48,14 @@ function ProductCard({ product }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <span className="hidden text-xs font-medium uppercase tracking-wide text-indigo-600 sm:block">
-          {product.categoryName}
-        </span>
+        <span className="text-xs font-medium uppercase tracking-wide text-indigo-600">{product.categoryName}</span>
         <h3 className="text-base font-semibold text-slate-900">{product.name}</h3>
-        <p className="hidden line-clamp-2 flex-1 text-sm leading-relaxed text-slate-600 sm:block">
-          {product.description}
-        </p>
-        <div className="hidden items-center justify-between pt-1 sm:flex">
-          <span className="text-lg font-bold text-slate-900">${Number(product.productPrice).toFixed(2)}</span>
-          <span className="text-xs text-slate-400">Added {formatDate(product.createdAt)}</span>
-        </div>
         <a
           href={product.productLink}
           onClick={handleViewOnAmazon}
           target="_blank"
           rel="nofollow sponsored noopener noreferrer"
-          className="mt-2 inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          className="mt-auto inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
         >
           View on Amazon
         </a>

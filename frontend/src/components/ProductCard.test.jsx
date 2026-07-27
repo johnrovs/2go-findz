@@ -26,14 +26,21 @@ describe('ProductCard', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders product details and the trending badge only', () => {
+  it('renders the product name, category, and the trending badge only', () => {
     render(<ProductCard product={baseProduct} />);
 
     expect(screen.getByText('Wireless Earbuds')).toBeInTheDocument();
     expect(screen.getByText('Electronics')).toBeInTheDocument();
-    expect(screen.getByText('$49.99')).toBeInTheDocument();
     expect(screen.getByText('Trending')).toBeInTheDocument();
     expect(screen.queryByText('Best Seller')).not.toBeInTheDocument();
+  });
+
+  it('never renders the description, price, or added date', () => {
+    render(<ProductCard product={baseProduct} />);
+
+    expect(screen.queryByText(baseProduct.description)).not.toBeInTheDocument();
+    expect(screen.queryByText('$49.99')).not.toBeInTheDocument();
+    expect(screen.queryByText(/added/i)).not.toBeInTheDocument();
   });
 
   it('renders the "View on Amazon" link with the correct href and rel attributes', () => {
@@ -62,18 +69,16 @@ describe('ProductCard', () => {
     expect(screen.getByText('No image available')).toBeInTheDocument();
   });
 
-  it('hides the badges, category, description, price, and date on mobile, showing them from sm: up', () => {
+  it('hides the badges on mobile, showing them from sm: up', () => {
     render(<ProductCard product={baseProduct} />);
 
     expect(screen.getByText('Trending').parentElement).toHaveClass('hidden', 'sm:flex');
-    expect(screen.getByText('Electronics')).toHaveClass('hidden', 'sm:block');
-    expect(screen.getByText(baseProduct.description)).toHaveClass('hidden', 'sm:block');
-    expect(screen.getByText('$49.99').parentElement).toHaveClass('hidden', 'sm:flex');
   });
 
-  it('always shows the product name and "View on Amazon" button, regardless of screen size', () => {
+  it('always shows the image, category, name, and "View on Amazon" button, regardless of screen size', () => {
     render(<ProductCard product={baseProduct} />);
 
+    expect(screen.getByText('Electronics')).not.toHaveClass('hidden');
     expect(screen.getByText('Wireless Earbuds')).not.toHaveClass('hidden');
     expect(screen.getByRole('link', { name: /view on amazon/i })).not.toHaveClass('hidden');
   });
