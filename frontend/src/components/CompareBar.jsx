@@ -11,6 +11,9 @@ function CompareBar() {
 
   useEffect(() => {
     if (ids.length === 0) {
+      // Clearing thumbnails when the list empties out is the standard reset-on-external-change
+      // pattern; it can't cascade since `ids` itself isn't touched here.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setProducts([]);
       return undefined;
     }
