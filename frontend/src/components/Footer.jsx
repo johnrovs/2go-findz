@@ -13,6 +13,8 @@ function Footer({ settings }) {
             {settings.contactEmail}
           </a>
         )}
+        {/* TODO: Enable newsletter functionality in a future deployment. */}
+        {/* <NewsletterSignup /> */}
         <p className="text-xs text-slate-400">&copy; {new Date().getFullYear()} 2Go Findz. All rights reserved.</p>
       </div>
     </footer>
