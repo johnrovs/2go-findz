@@ -3,11 +3,13 @@ import { Search } from 'lucide-react';
 
 function SearchInput({ value, onChange, placeholder = 'Search products...' }) {
   const [localValue, setLocalValue] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
   const debounceRef = useRef(null);
 
-  useEffect(() => {
+  if (value !== prevValue) {
+    setPrevValue(value);
     setLocalValue(value);
-  }, [value]);
+  }
 
   useEffect(() => {
     return () => {

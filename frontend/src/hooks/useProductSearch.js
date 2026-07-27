@@ -29,6 +29,10 @@ export function useProductSearch() {
 
   useEffect(() => {
     let isCancelled = false;
+    // Resetting loading/error state at the start of each fetch is the standard
+    // reset-before-async-work pattern; it can't cascade because neither value
+    // is a dependency of this effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true);
     setError(null);
 
