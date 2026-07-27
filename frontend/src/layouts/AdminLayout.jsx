@@ -1,11 +1,20 @@
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import AdminSidebar from '../components/AdminSidebar.jsx';
+import AdminTopbar from '../components/AdminTopbar.jsx';
 
 function AdminLayout() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-slate-50">
-      <main className="p-6">
-        <Outlet />
-      </main>
+    <div className="flex min-h-screen bg-slate-50">
+      <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <div className="flex flex-1 flex-col">
+        <AdminTopbar onMenuClick={() => setIsSidebarOpen(true)} />
+        <main className="flex-1 p-6">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
