@@ -1,18 +1,23 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Trash2, X } from 'lucide-react';
 import { useCompare } from '../hooks/useCompare.js';
 import { compareProducts } from '../services/productService.js';
 import { getImageUrl } from '../utils/imageUrl.js';
 
 function CompareBar() {
+  const location = useLocation();
   const { ids, remove, clear } = useCompare();
   const [products, setProducts] = useState([]);
+  // Compare is a public shopping feature; it has no place on the admin login screen or
+  // anywhere inside the admin console.
+  const isPublicRoute = !location.pathname.startsWith('/admin') && location.pathname !== '/login';
 
   useEffect(() => {
-    if (ids.length === 0) {
-      // Clearing thumbnails when the list empties out is the standard reset-on-external-change
-      // pattern; it can't cascade since `ids` itself isn't touched here.
+    if (ids.length === 0 || !isPublicRoute) {
+      // Clearing thumbnails when the list empties out (or the bar is hidden on a
+      // non-public route) is the standard reset-on-external-change pattern; it can't
+      // cascade since neither `ids` nor `isPublicRoute` is touched here.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setProducts([]);
       return undefined;
@@ -30,9 +35,9 @@ function CompareBar() {
     return () => {
       isCancelled = true;
     };
-  }, [ids]);
+  }, [ids, isPublicRoute]);
 
-  if (ids.length === 0) return null;
+  if (ids.length === 0 || !isPublicRoute) return null;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white shadow-lg">
