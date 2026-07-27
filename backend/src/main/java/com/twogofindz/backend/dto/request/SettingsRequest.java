@@ -1,6 +1,7 @@
 package com.twogofindz.backend.dto.request;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 public record SettingsRequest(
         String logoImageFilename,
@@ -13,7 +14,7 @@ public record SettingsRequest(
         String shopBio,
         String heroHeadline,
         String heroDescription,
-        String affiliateDisclosure,
+        @NotBlank(message = "Affiliate disclosure is required.") String affiliateDisclosure,
         @Email(message = "Contact email must be a valid email address.") String contactEmail
 ) {
 }

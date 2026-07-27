@@ -61,4 +61,20 @@ class AdminSettingsControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/admin/settings"))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void update_returns400_forBlankAffiliateDisclosure() throws Exception {
+        String token = adminToken();
+        // affiliateDisclosure omitted (null) — since PUT is a full-replace, this would otherwise
+        // silently null out the Amazon Associates compliance disclosure served by the public API.
+        SettingsRequest request = new SettingsRequest(
+                null, null, null, null, null, null, null, null, null, null, null, "contact@2gofindz.com");
+
+        mockMvc.perform(put("/api/admin/settings")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.affiliateDisclosure").exists());
+    }
 }
