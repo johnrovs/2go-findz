@@ -80,7 +80,7 @@ function ComparePage() {
           )}
           {!isLoading && !error && products.length >= 2 && (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] border-collapse text-left">
+              <table className="w-full min-w-[640px] table-fixed border-collapse text-left">
                 <thead>
                   <tr>
                     <th scope="col" className="w-32 p-3 text-sm font-medium text-slate-500"></th>
