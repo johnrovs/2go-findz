@@ -18,6 +18,8 @@ import ProductsPage from './pages/admin/ProductsPage.jsx';
 import ProductFormPage from './pages/admin/ProductFormPage.jsx';
 import CategoriesPage from './pages/admin/CategoriesPage.jsx';
 import SettingsPage from './pages/admin/SettingsPage.jsx';
+import BuyingGuidesPage from './pages/admin/BuyingGuidesPage.jsx';
+import BuyingGuideFormPage from './pages/admin/BuyingGuideFormPage.jsx';
 
 function App() {
   return (
@@ -41,6 +43,9 @@ function App() {
                     <Route path="/admin/products/:id" element={<ProductFormPage />} />
                     <Route path="/admin/categories" element={<CategoriesPage />} />
                     <Route path="/admin/settings" element={<SettingsPage />} />
+                    <Route path="/admin/buying-guides" element={<BuyingGuidesPage />} />
+                    <Route path="/admin/buying-guides/new" element={<BuyingGuideFormPage />} />
+                    <Route path="/admin/buying-guides/:id" element={<BuyingGuideFormPage />} />
                   </Route>
                 </Route>
                 <Route path="*" element={<NotFoundPage />} />
