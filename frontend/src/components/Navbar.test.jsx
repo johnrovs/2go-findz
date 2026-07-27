@@ -64,12 +64,9 @@ describe('Navbar', () => {
     expect(screen.getAllByRole('link', { name: 'Trending' }).length).toBeGreaterThan(1);
   });
 
-  it('opens the search modal when the search button is clicked', async () => {
-    const user = userEvent.setup();
+  it('links the search button to browse all products', () => {
     renderNavbar();
 
-    await user.click(screen.getByRole('button', { name: 'Open search' }));
-
-    expect(await screen.findByRole('dialog', { name: 'Search Products' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Browse all products' })).toHaveAttribute('href', '/#catalog');
   });
 });

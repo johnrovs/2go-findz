@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { to: '/best-sellers', label: 'Best Sellers' },
 ];
 
-function MobileMenu({ isOpen, onClose, onSearchClick }) {
+function MobileMenu({ isOpen, onClose }) {
   useEffect(() => {
     if (!isOpen) return undefined;
 
@@ -54,17 +54,14 @@ function MobileMenu({ isOpen, onClose, onSearchClick }) {
               </li>
             ))}
             <li>
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onSearchClick();
-                }}
+              <Link
+                to="/#catalog"
+                onClick={onClose}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
               >
                 <Search size={16} />
                 Search
-              </button>
+              </Link>
             </li>
           </ul>
         </nav>

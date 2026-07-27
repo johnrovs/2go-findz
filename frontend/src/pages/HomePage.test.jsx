@@ -32,9 +32,9 @@ const product = {
   createdAt: '2026-07-20T10:00:00',
 };
 
-function renderHomePage() {
+function renderHomePage(initialEntries = ['/']) {
   return render(
-    <MemoryRouter initialEntries={['/']}>
+    <MemoryRouter initialEntries={initialEntries}>
       <HomePage />
     </MemoryRouter>
   );
@@ -110,5 +110,15 @@ describe('HomePage', () => {
     expect(
       await screen.findByRole('heading', { name: 'Amazon Finds Everyone Is Talking About' })
     ).toBeInTheDocument();
+  });
+
+  it('scrolls to the catalog section when arriving with a #catalog hash', async () => {
+    const scrollIntoViewSpy = vi.fn();
+    vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(scrollIntoViewSpy);
+
+    renderHomePage(['/#catalog']);
+
+    await screen.findByRole('heading', { name: settings.heroHeadline });
+    await waitFor(() => expect(scrollIntoViewSpy).toHaveBeenCalledWith({ behavior: 'smooth' }));
   });
 });

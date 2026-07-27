@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar.jsx';
 import HeroCarousel from '../components/HeroCarousel.jsx';
 import SocialLinks from '../components/SocialLinks.jsx';
@@ -44,6 +45,7 @@ function useTeaserProducts(params) {
 }
 
 function HomePage() {
+  const location = useLocation();
   const [settings, setSettings] = useState(null);
   const [categories, setCategories] = useState([]);
   const [heroBanners, setHeroBanners] = useState([]);
@@ -77,6 +79,15 @@ function HomePage() {
   function scrollToCatalog() {
     document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
   }
+
+  useEffect(() => {
+    if (location.hash !== '#catalog') return;
+    // Re-running the scroll as each async section finishes loading corrects for the
+    // layout shift its content causes above the catalog section; a single scroll on
+    // mount lands short because the hero banner and teaser grids are still collapsed
+    // to their loading-spinner height at that point.
+    scrollToCatalog();
+  }, [location.hash, heroBanners, featured.isLoading, trending.isLoading, bestSellers.isLoading]);
 
   function handleCategorySelect(categoryId) {
     productSearch.setCategoryId(String(categoryId));

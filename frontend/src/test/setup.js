@@ -71,3 +71,8 @@ globalThis.matchMedia = (query) => ({
   addListener: () => {},
   removeListener: () => {},
 });
+
+// jsdom does not implement Element.scrollIntoView, which HomePage calls when arriving
+// with a #catalog hash or when a category card is selected. A no-op stub lets tests spy
+// on/mock it instead of erroring; it never performs real layout anyway.
+Element.prototype.scrollIntoView = function scrollIntoView() {};

@@ -3,7 +3,6 @@ import { Link, NavLink } from 'react-router-dom';
 import { ChevronDown, Menu, Search } from 'lucide-react';
 import logo from '../assets/2gofindz.png';
 import MobileMenu from './MobileMenu.jsx';
-import SearchModal from './SearchModal.jsx';
 import { getCategories } from '../services/categoryService.js';
 
 const navLinkClassName = ({ isActive }) =>
@@ -13,7 +12,6 @@ function Navbar() {
   const [categories, setCategories] = useState([]);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const categoriesRef = useRef(null);
 
   useEffect(() => {
@@ -101,14 +99,13 @@ function Navbar() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setIsSearchOpen(true)}
-              aria-label="Open search"
+            <Link
+              to="/#catalog"
+              aria-label="Browse all products"
               className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
             >
               <Search size={20} />
-            </button>
+            </Link>
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(true)}
@@ -121,12 +118,7 @@ function Navbar() {
         </div>
       </header>
 
-      <MobileMenu
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-        onSearchClick={() => setIsSearchOpen(true)}
-      />
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
     </>
   );
 }
