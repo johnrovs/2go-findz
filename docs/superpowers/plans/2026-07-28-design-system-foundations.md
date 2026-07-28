@@ -200,7 +200,7 @@ Change it to:
 
 - [ ] **Step 2: Temporary smoke-check that the tokens are usable, then revert it**
 
-Tailwind only emits CSS for utility classes it finds referenced in `content` files, so an unused color token produces no output in a plain build — checking the compiled CSS directly isn't meaningful yet. Confirm the tokens are wired up correctly instead by temporarily adding `className="bg-primary"` to the root `<div>` in `frontend/src/App.jsx`, running `npm run build`, confirming `grep -o "#2563eb" dist/assets/*.css` matches (Tailwind lowercases hex values in output), then reverting the temporary className change (`git checkout frontend/src/App.jsx`) before committing this task.
+Tailwind only emits CSS for utility classes it finds referenced in `content` files, so an unused color token produces no output in a plain build — checking the compiled CSS directly isn't meaningful yet. Confirm the tokens are wired up correctly instead by temporarily adding `class="bg-primary"` to the root `<div id="root">` in `frontend/index.html` (there's no plain `<div>` in `App.jsx` — its root element is `<ErrorBoundary>`), running `npm run build`, then checking for the *rule*, not a literal hex string: Tailwind decomposes hex colors into `rgb(r g b / <alpha>)` form for opacity-variant support, so `#2563EB` compiles to `rgb(37 99 235 / ...)`, never the literal hex. Confirm with `grep -o "\.bg-primary{[^}]*}" dist/assets/*.css` — expect it to print the full rule, containing `rgb(37 99 235`. Then revert the temporary class change (`git checkout frontend/index.html`) before committing this task.
 
 - [ ] **Step 3: Run the full frontend test suite**
 
@@ -361,13 +361,13 @@ After Task 2, `frontend/tailwind.config.js`'s `theme.extend` block ends with the
 
 - [ ] **Step 2: Temporary smoke-check that the tokens are usable, then revert it**
 
-Same reasoning as Task 2 Step 3 — these are utility-generating tokens, only emitted when referenced. Temporarily add `className="rounded-card shadow-card max-w-content"` to the root `<div>` in `frontend/src/App.jsx`, run `npm run build`, confirm all three of these succeed:
+Same reasoning as Task 2's smoke-check — these are utility-generating tokens, only emitted when referenced. Temporarily add `class="rounded-card shadow-card max-w-content"` to the root `<div id="root">` in `frontend/index.html`, run `npm run build`, confirm all three of these succeed (radius and shadow values are preserved literally in the output, unlike colors, since they aren't subject to Tailwind's opacity-decomposition):
 
 - `grep -c "border-radius: 18px" dist/assets/*.css` → non-zero
 - `grep -c "0 4px 20px rgba(0,0,0,0.06)" dist/assets/*.css` → non-zero
 - `grep -c "max-width: 1280px" dist/assets/*.css` → non-zero
 
-Then revert the temporary className change: `git checkout frontend/src/App.jsx`.
+Then revert the temporary class change: `git checkout frontend/index.html`.
 
 - [ ] **Step 3: Run the full frontend test suite**
 
