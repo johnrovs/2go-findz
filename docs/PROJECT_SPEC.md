@@ -983,6 +983,138 @@ Follow these rules:
 * Ensure imports and dependencies are complete.
 * Ensure the project compiles and runs.
 
+# Post-Launch Features
+
+The following features were added after the initial four-stage build above. Each shipped as its own backend → admin UI → public page (→ SEO/UX polish, where applicable) cycle, fully tested, and does not modify the original MVP scope described above.
+
+## Buying Guides
+
+Curated, blog-style editorial content that recommends a set of existing products for a specific shopping need (e.g. "Best Gifts Under $50").
+
+### Data Model
+
+Table `buying_guides`:
+
+```text
+id
+title                   VARCHAR(200) NOT NULL
+excerpt                 VARCHAR(500) NOT NULL
+content                 TEXT NOT NULL
+cover_image_filename    VARCHAR(255) NULL
+active                  BOOLEAN NOT NULL DEFAULT TRUE
+created_at / updated_at
+```
+
+Table `buying_guide_products` (join table, ordered):
+
+```text
+buying_guide_id  BIGINT NOT NULL  (FK -> buying_guides.id, ON DELETE CASCADE)
+product_id       BIGINT NOT NULL  (FK -> products.id, ON DELETE CASCADE)
+display_order    INT NOT NULL
+PRIMARY KEY (buying_guide_id, display_order)
+```
+
+### API Endpoints
+
+```text
+GET    /api/public/buying-guides           List active buying guides
+GET    /api/public/buying-guides/{id}      Buying guide detail with recommended products
+
+GET    /api/admin/buying-guides            List all buying guides (admin)
+GET    /api/admin/buying-guides/{id}       Buying guide detail (admin)
+POST   /api/admin/buying-guides            Create buying guide
+PUT    /api/admin/buying-guides/{id}       Update buying guide
+DELETE /api/admin/buying-guides/{id}       Delete buying guide
+```
+
+Validation: title required (max 200 chars), excerpt required (max 500 chars), content required, active flag required, recommended product IDs list required.
+
+### Frontend Routes
+
+```text
+/buying-guides              Public buying guides list
+/buying-guides/:id          Public buying guide detail
+
+/admin/buying-guides        Admin buying guides list
+/admin/buying-guides/new    Create buying guide
+/admin/buying-guides/:id    Edit buying guide
+```
+
+## Comparisons
+
+Wirecutter/RTINGS-style curated comparison pages that pit a small set of existing products against each other with a structured spec table, per-product breakdowns, and supporting editorial content. Distinct from and does not replace the existing ad-hoc `/compare` tool (client-side, user-selected product comparison).
+
+### Data Model
+
+Table `comparisons` (root):
+
+```text
+id
+title                   VARCHAR(200) NOT NULL
+slug                    VARCHAR(220) NOT NULL UNIQUE
+description             VARCHAR(500) NOT NULL
+cover_image_filename    VARCHAR(255) NULL
+product_category_id     BIGINT NOT NULL (FK -> product_categories.id)
+seo_title               VARCHAR(200) NULL
+seo_description         VARCHAR(300) NULL
+published               BOOLEAN NOT NULL DEFAULT FALSE
+created_at / updated_at
+```
+
+Owned child tables (`@OneToMany`, cascade delete with the parent comparison, each with an ordered `display_order`):
+
+```text
+comparison_products     comparison_id, product_id, display_order, badge, recommendation,
+                         best_for, main_strength, main_weakness, pros, cons, editors_score
+comparison_spec_rows    comparison_id, group_label, row_label, display_order
+comparison_spec_values  spec_row_id, product_id, value, tier (BEST | GOOD | STANDARD),
+                         UNIQUE (spec_row_id, product_id)
+comparison_sections     comparison_id, heading, body, display_order
+comparison_faqs         comparison_id, question, answer, display_order
+```
+
+Join tables (`@ManyToMany`, ordered, no cascade delete of the referenced row):
+
+```text
+comparison_related_comparisons   comparison_id, related_comparison_id, display_order
+comparison_related_products      comparison_id, product_id, display_order
+```
+
+### API Endpoints
+
+```text
+GET    /api/public/comparisons              List published comparisons
+GET    /api/public/comparisons/{slug}       Comparison detail by slug
+
+GET    /api/admin/comparisons               List all comparisons (admin)
+GET    /api/admin/comparisons/{id}          Comparison detail (admin)
+POST   /api/admin/comparisons               Create comparison
+PUT    /api/admin/comparisons/{id}          Update comparison (full nested replace)
+DELETE /api/admin/comparisons/{id}          Delete comparison
+```
+
+Validation: title, slug (auto-generated from title when left blank, must be unique), description, and category are required; each compared product's pros/cons must both be present or both blank (cross-field validation).
+
+### Frontend Routes
+
+```text
+/comparisons                 Public comparisons list
+/comparisons/:slug           Public comparison detail
+
+/admin/comparisons           Admin comparisons list
+/admin/comparisons/new       Create comparison (tabbed form: Basic Info, Products,
+                              Spec Table, Sections, FAQ, Related)
+/admin/comparisons/:id       Edit comparison
+```
+
+### Public Page Structure
+
+Comparison detail page renders: Hero, sticky section nav (jump links to populated regions only), Comparison Table (tier-highlighted cells), Product Breakdown cards (badge, recommendation, best-for, strength/weakness, pros/cons, editor's score, Amazon CTA), Sections, FAQ (accordion), Related Comparisons, Related Products.
+
+### SEO
+
+Per-page `<title>`, `<meta name="description">`, and `<link rel="canonical">` are injected client-side via a reusable `useDocumentHead` hook (no new dependency — matches this app's existing small-hook pattern). JSON-LD `BreadcrumbList` (always) and `FAQPage` (when FAQs exist) schemas are injected the same way. Open Graph tags are intentionally omitted app-wide: this is a client-rendered SPA, and social-preview crawlers do not execute JavaScript, so OG tags injected this way would never be read.
+
 # Expected Output
 
 Generate the project in organized stages.
