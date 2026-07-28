@@ -5,7 +5,6 @@ import { ToastProvider } from '../../context/ToastContext.jsx';
 import SettingsPage from './SettingsPage.jsx';
 import * as adminSettingsService from '../../services/adminSettingsService.js';
 import * as adminImageService from '../../services/adminImageService.js';
-import * as adminHeroBannerService from '../../services/adminHeroBannerService.js';
 
 const settings = {
   logoImageFilename: 'img_logo.webp',
@@ -34,7 +33,6 @@ describe('SettingsPage', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.spyOn(adminSettingsService, 'getSettings').mockResolvedValue(settings);
-    vi.spyOn(adminHeroBannerService, 'getHeroBanners').mockResolvedValue([]);
   });
 
   it('loads and pre-fills the existing settings', async () => {
@@ -159,12 +157,5 @@ describe('SettingsPage', () => {
     await user.click(screen.getByRole('button', { name: 'Try again' }));
 
     expect(await screen.findByLabelText('Hero Headline')).toBeInTheDocument();
-  });
-
-  it('renders the Hero Banner Slides section', async () => {
-    renderPage();
-    await screen.findByLabelText('Hero Headline');
-
-    expect(await screen.findByText('Hero Banner Slides')).toBeInTheDocument();
   });
 });

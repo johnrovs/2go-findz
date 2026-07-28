@@ -58,10 +58,9 @@ Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
   }),
 });
 
-// jsdom does not implement window.matchMedia, which HeroCarousel's reduced-motion
-// detection needs at mount time (and which Framer Motion also checks internally via
-// the legacy addListener/removeListener API, not just the modern
-// addEventListener/removeEventListener pair). `matches: false` is a safe default —
+// jsdom does not implement window.matchMedia, which Framer Motion checks internally
+// via the legacy addListener/removeListener API, not just the modern
+// addEventListener/removeEventListener pair. `matches: false` is a safe default —
 // tests that specifically need reduced-motion behavior stub this themselves.
 globalThis.matchMedia = (query) => ({
   matches: false,

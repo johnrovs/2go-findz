@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar.jsx';
-import HeroCarousel from '../components/HeroCarousel.jsx';
+import HeroSection from '../components/HeroSection.jsx';
 import SocialLinks from '../components/SocialLinks.jsx';
 import SectionHeading from '../components/SectionHeading.jsx';
 import ProductGrid from '../components/ProductGrid.jsx';
@@ -16,7 +16,6 @@ import { getSettings } from '../services/settingsService.js';
 import { getCategories } from '../services/categoryService.js';
 import { searchProducts } from '../services/productService.js';
 import { recordView } from '../services/trackingService.js';
-import { getHeroBanners } from '../services/heroBannerService.js';
 
 const WHY_SHOP_ITEMS = [
   {
@@ -64,7 +63,6 @@ function HomePage() {
   const location = useLocation();
   const [settings, setSettings] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [heroBanners, setHeroBanners] = useState([]);
   const productSearch = useProductSearch();
   const featured = useTeaserProducts({ sort: 'createdAt,desc' });
   const trending = useTeaserProducts({ trending: true, sort: 'createdAt,desc' });
@@ -77,9 +75,6 @@ function HomePage() {
     getCategories()
       .then(setCategories)
       .catch(() => setCategories([]));
-    getHeroBanners()
-      .then(setHeroBanners)
-      .catch(() => setHeroBanners([]));
   }, []);
 
   useEffect(() => {
@@ -100,10 +95,10 @@ function HomePage() {
     if (location.hash !== '#catalog') return;
     // Re-running the scroll as each async section finishes loading corrects for the
     // layout shift its content causes above the catalog section; a single scroll on
-    // mount lands short because the hero banner and teaser grids are still collapsed
-    // to their loading-spinner height at that point.
+    // mount lands short because the teaser grids are still collapsed to their
+    // loading-spinner height at that point.
     scrollToCatalog();
-  }, [location.hash, heroBanners, featured.isLoading, trending.isLoading, bestSellers.isLoading]);
+  }, [location.hash, featured.isLoading, trending.isLoading, bestSellers.isLoading]);
 
   function handleCategorySelect(categoryId) {
     productSearch.setCategoryId(String(categoryId));
@@ -114,18 +109,16 @@ function HomePage() {
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      <HeroCarousel
-        banners={heroBanners}
-        heroSectionProps={{
-          headline: settings?.heroHeadline ?? 'Smart Finds. Better Buys. All in One Place.',
-          description:
-            settings?.heroDescription ??
-            'Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.',
-          onExploreClick: scrollToCatalog,
-          onTrendingClick: () => {
-            productSearch.setFilter('trending');
-            scrollToCatalog();
-          },
+      <HeroSection
+        headline={settings?.heroHeadline ?? 'Smart Finds. Better Buys. All in One Place.'}
+        description={
+          settings?.heroDescription ??
+          'Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.'
+        }
+        onExploreClick={scrollToCatalog}
+        onTrendingClick={() => {
+          productSearch.setFilter('trending');
+          scrollToCatalog();
         }}
       />
 

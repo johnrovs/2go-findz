@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import ImageUploader from '../../components/ImageUploader.jsx';
-import HeroBannerManager from '../../components/HeroBannerManager.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import { useToast } from '../../hooks/useToast.js';
@@ -138,9 +137,6 @@ function SettingsPage() {
                 imageFileName={settings.heroImageFilename}
                 onChange={(filename) => handleChange('heroImageFilename', filename)}
               />
-              <p className="mt-1 text-sm text-slate-500">
-                This image is used only when no hero banner slides are configured below.
-              </p>
             </div>
             <div>
               <span className="mb-1 block text-sm font-medium text-slate-700">Product Placeholder Image</span>
@@ -150,10 +146,6 @@ function SettingsPage() {
               />
             </div>
           </div>
-        </section>
-
-        <section>
-          <HeroBannerManager />
         </section>
 
         <section>
