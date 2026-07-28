@@ -40,14 +40,13 @@ Expected: both packages added to `frontend/package.json` dependencies and `front
 
 - [ ] **Step 2: Import the font weights in `main.jsx`**
 
-Add these four lines to `frontend/src/main.jsx`, after the existing `import './index.css';` line:
+Add these lines to `frontend/src/main.jsx`, after the existing `import './index.css';` line. Note: `@fontsource/space-grotesk` only ships weights 300–700 (no 800 cut exists for this font), so only `700.css` is imported — `font-extrabold` (800) in the typography scale (Task 3) still applies in CSS; the browser falls back to its best-available loaded weight (700).
 
 ```js
 import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/space-grotesk/700.css';
-import '@fontsource/space-grotesk/800.css';
 ```
 
 The full file should read:
@@ -61,7 +60,6 @@ import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/space-grotesk/700.css';
-import '@fontsource/space-grotesk/800.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
