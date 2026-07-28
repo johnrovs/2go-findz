@@ -52,7 +52,7 @@ describe('EntityPicker', () => {
     const user = userEvent.setup();
     renderPicker({ selectedItems: [itemA, itemB], onChange, search: vi.fn() });
 
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Remove Item A' }));
+    await user.click(screen.getByRole('button', { name: 'Remove Item A' }));
 
     expect(onChange).toHaveBeenCalledWith([itemB]);
   });
