@@ -80,6 +80,11 @@ describe('Navbar', () => {
     expect(screen.getByRole('link', { name: 'Buying Guides' })).toHaveAttribute('href', '/buying-guides');
   });
 
+  it('renders the Comparisons link between Buying Guides and Best Sellers', () => {
+    renderNavbar();
+    expect(screen.getByRole('link', { name: 'Comparisons' })).toHaveAttribute('href', '/comparisons');
+  });
+
   it('shows no compare count badge when nothing is selected', () => {
     renderNavbar();
     expect(screen.getByRole('link', { name: 'Compare' })).not.toHaveTextContent(/\d/);

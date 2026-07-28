@@ -37,6 +37,11 @@ describe('MobileMenu', () => {
     expect(screen.getByRole('link', { name: 'Buying Guides' })).toHaveAttribute('href', '/buying-guides');
   });
 
+  it('renders the Comparisons link', () => {
+    renderMenu();
+    expect(screen.getByRole('link', { name: 'Comparisons' })).toHaveAttribute('href', '/comparisons');
+  });
+
   it('calls onClose when a nav link is clicked', async () => {
     const onClose = vi.fn();
     const user = userEvent.setup();

@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { to: '/categories', label: 'Categories' },
   { to: '/compare', label: 'Compare' },
   { to: '/buying-guides', label: 'Buying Guides' },
+  { to: '/comparisons', label: 'Comparisons' },
   { to: '/best-sellers', label: 'Best Sellers' },
 ];
 

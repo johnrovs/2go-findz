@@ -106,6 +106,9 @@ function Navbar() {
             <NavLink to="/buying-guides" className={navLinkClassName}>
               Buying Guides
             </NavLink>
+            <NavLink to="/comparisons" className={navLinkClassName}>
+              Comparisons
+            </NavLink>
             <NavLink to="/best-sellers" className={navLinkClassName}>
               Best Sellers
             </NavLink>

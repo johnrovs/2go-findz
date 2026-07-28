@@ -13,6 +13,8 @@ import PublicCategoriesPage from './pages/CategoriesPage.jsx';
 import ComparePage from './pages/ComparePage.jsx';
 import PublicBuyingGuidesPage from './pages/BuyingGuidesPage.jsx';
 import BuyingGuideDetailPage from './pages/BuyingGuideDetailPage.jsx';
+import PublicComparisonsPage from './pages/ComparisonsPage.jsx';
+import ComparisonDetailPage from './pages/ComparisonDetailPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import DashboardPage from './pages/admin/DashboardPage.jsx';
@@ -40,6 +42,8 @@ function App() {
                 <Route path="/compare" element={<ComparePage />} />
                 <Route path="/buying-guides" element={<PublicBuyingGuidesPage />} />
                 <Route path="/buying-guides/:id" element={<BuyingGuideDetailPage />} />
+                <Route path="/comparisons" element={<PublicComparisonsPage />} />
+                <Route path="/comparisons/:slug" element={<ComparisonDetailPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route element={<ProtectedRoute />}>
                   <Route element={<AdminLayout />}>
