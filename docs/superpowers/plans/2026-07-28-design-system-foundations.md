@@ -278,15 +278,11 @@ Append this block at the end of the file:
 }
 ```
 
-- [ ] **Step 2: Build and confirm the classes compiled**
+- [ ] **Step 2: Temporary smoke-check that the classes are usable, then revert it**
 
-Run: `npm run build`
+`@layer components` (and `@layer utilities`) classes are subject to the same content-based purging as regular utility classes — only `@layer base` is exempt, since it targets element selectors rather than class names. An unused class in this file produces no output, so checking the compiled CSS directly isn't meaningful until something references it.
 
-Expected: build succeeds. `@layer components` classes are always emitted regardless of whether they're referenced elsewhere (unlike Task 2's color utilities), because they're written directly as CSS rules, not generated from the `content` scan.
-
-Run: `grep -c "text-hero" dist/assets/*.css`
-
-Expected: non-zero count.
+Temporarily add `class="text-hero"` to the root `<div id="root">` in `frontend/index.html`, run `npm run build`, confirm with `grep -o "\.text-hero{[^}]*}" dist/assets/*.css` (expect the full rule to print), then revert the temporary class change (`git checkout frontend/index.html`) before committing this task.
 
 - [ ] **Step 3: Run the full frontend test suite**
 

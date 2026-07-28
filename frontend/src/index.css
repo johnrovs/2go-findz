@@ -7,3 +7,33 @@
     font-family: theme(fontFamily.heading);
   }
 }
+
+@layer components {
+  .text-hero {
+    @apply text-[36px] font-extrabold leading-[1.6] sm:text-[44px] lg:text-[56px];
+  }
+  .text-page-heading {
+    @apply text-[32px] font-bold leading-[1.6] sm:text-[40px] lg:text-[48px];
+  }
+  .text-section-heading {
+    @apply text-[28px] font-bold leading-[1.6] sm:text-[34px] lg:text-[40px];
+  }
+  .text-card-title {
+    @apply text-[20px] font-bold leading-[1.6] lg:text-[24px];
+  }
+  .text-subtitle {
+    @apply text-[18px] font-medium leading-[1.6] lg:text-[20px];
+  }
+  .text-body {
+    @apply text-[16px] font-normal leading-[1.6] lg:text-[18px];
+  }
+  .text-small {
+    @apply text-[14px] font-normal leading-[1.6] lg:text-[15px];
+  }
+  .text-btn {
+    @apply text-[16px] font-semibold leading-[1.6];
+  }
+  .text-nav {
+    @apply text-[16px] font-medium leading-[1.6];
+  }
+}
