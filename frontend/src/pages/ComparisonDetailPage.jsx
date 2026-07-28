@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar.jsx';
 import Footer from '../components/Footer.jsx';
 import ProductGrid from '../components/ProductGrid.jsx';
+import Button from '../components/Button.jsx';
 import SectionHeading from '../components/SectionHeading.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import ErrorState from '../components/ErrorState.jsx';
@@ -126,13 +127,13 @@ function ComparisonDetailPage() {
                 <img
                   src={getImageUrl(comparison.coverImageFilename)}
                   alt={comparison.title}
-                  className="mb-6 aspect-video w-full rounded-xl object-cover"
+                  className="mb-6 aspect-video w-full rounded-image object-cover"
                 />
               )}
-              <p className="mb-2 text-sm font-medium text-indigo-600">{comparison.categoryName}</p>
-              <h1 className="mb-4 text-3xl font-bold text-slate-900">{comparison.title}</h1>
-              <p className="mb-2 text-base leading-relaxed text-slate-700">{comparison.description}</p>
-              <p className="text-xs text-slate-400">
+              <p className="mb-2 text-sm font-medium text-primary">{comparison.categoryName}</p>
+              <h1 className="mb-4 text-page-heading text-heading">{comparison.title}</h1>
+              <p className="mb-2 text-body">{comparison.description}</p>
+              <p className="text-small text-muted">
                 Last updated{' '}
                 {new Date(comparison.createdAt).toLocaleDateString('en-US', {
                   year: 'numeric',
@@ -143,24 +144,24 @@ function ComparisonDetailPage() {
 
               <nav
                 aria-label="Comparison sections"
-                className="sticky top-16 z-20 -mx-4 mt-8 border-b border-slate-200 bg-white/90 px-4 py-2 backdrop-blur print:hidden sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+                className="sticky top-16 z-20 -mx-4 mt-8 border-b border-slate-200 bg-white/90 px-4 py-2 shadow-navbar backdrop-blur print:hidden sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
               >
-                <ul className="mx-auto flex max-w-5xl gap-4 overflow-x-auto text-sm font-medium text-slate-600">
+                <ul className="mx-auto flex max-w-5xl gap-4 overflow-x-auto text-body">
                   {comparison.specRows.length > 0 && (
                     <li>
-                      <a href="#comparison-table" className="hover:text-indigo-600">
+                      <a href="#comparison-table" className="hover:text-primary">
                         Comparison Table
                       </a>
                     </li>
                   )}
                   <li>
-                    <a href="#product-breakdown" className="hover:text-indigo-600">
+                    <a href="#product-breakdown" className="hover:text-primary">
                       Product Breakdown
                     </a>
                   </li>
                   {comparison.faqs.length > 0 && (
                     <li>
-                      <a href="#faq" className="hover:text-indigo-600">
+                      <a href="#faq" className="hover:text-primary">
                         FAQ
                       </a>
                     </li>
@@ -231,9 +232,12 @@ function ComparisonDetailPage() {
                 <SectionHeading title="Product Breakdown" />
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   {comparison.products.map((cp) => (
-                    <div key={cp.id} className="rounded-xl border border-slate-200 p-6">
+                    <div
+                      key={cp.id}
+                      className="rounded-card border border-slate-200 p-6 shadow-card transition-shadow duration-200 hover:shadow-card-hover"
+                    >
                       {cp.badge && (
-                        <span className="mb-3 inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
+                        <span className="mb-3 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                           {cp.badge}
                         </span>
                       )}
@@ -242,45 +246,43 @@ function ComparisonDetailPage() {
                           src={getImageUrl(cp.product.imageFileName)}
                           alt={cp.product.name}
                           loading="lazy"
-                          className="h-20 w-20 rounded-lg object-cover"
+                          className="h-20 w-20 rounded-image object-cover"
                         />
                         <div>
-                          <h3 className="text-lg font-semibold text-slate-900">{cp.product.name}</h3>
+                          <h3 className="text-card-title text-heading">{cp.product.name}</h3>
                           {cp.editorsScore !== null && cp.editorsScore !== undefined && (
-                            <span className="text-sm font-medium text-slate-600">
-                              {cp.editorsScore.toFixed(1)} / 10
-                            </span>
+                            <span className="text-small text-body">{cp.editorsScore.toFixed(1)} / 10</span>
                           )}
                         </div>
                       </div>
-                      <p className="mb-3 text-sm text-slate-700">{cp.recommendation}</p>
+                      <p className="mb-3 text-small text-body">{cp.recommendation}</p>
                       <dl className="mb-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
                         <div>
-                          <dt className="font-medium text-slate-500">Best For</dt>
-                          <dd className="text-slate-700">{cp.bestFor}</dd>
+                          <dt className="font-medium text-muted">Best For</dt>
+                          <dd className="text-body">{cp.bestFor}</dd>
                         </div>
                         <div>
-                          <dt className="font-medium text-slate-500">Strength</dt>
-                          <dd className="text-slate-700">{cp.mainStrength}</dd>
+                          <dt className="font-medium text-muted">Strength</dt>
+                          <dd className="text-body">{cp.mainStrength}</dd>
                         </div>
                         <div>
-                          <dt className="font-medium text-slate-500">Weakness</dt>
-                          <dd className="text-slate-700">{cp.mainWeakness}</dd>
+                          <dt className="font-medium text-muted">Weakness</dt>
+                          <dd className="text-body">{cp.mainWeakness}</dd>
                         </div>
                       </dl>
                       {cp.pros && cp.cons && (
                         <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                           <div>
-                            <h4 className="mb-1 text-sm font-semibold text-emerald-700">Pros</h4>
-                            <ul className="list-inside list-disc text-sm text-slate-700">
+                            <h4 className="mb-1 text-sm font-semibold text-success">Pros</h4>
+                            <ul className="list-inside list-disc text-small text-body">
                               {splitLines(cp.pros).map((line, index) => (
                                 <li key={index}>{line}</li>
                               ))}
                             </ul>
                           </div>
                           <div>
-                            <h4 className="mb-1 text-sm font-semibold text-red-700">Cons</h4>
-                            <ul className="list-inside list-disc text-sm text-slate-700">
+                            <h4 className="mb-1 text-sm font-semibold text-danger">Cons</h4>
+                            <ul className="list-inside list-disc text-small text-body">
                               {splitLines(cp.cons).map((line, index) => (
                                 <li key={index}>{line}</li>
                               ))}
@@ -288,14 +290,15 @@ function ComparisonDetailPage() {
                           </div>
                         </div>
                       )}
-                      <a
+                      <Button
+                        variant="amazon"
                         href={cp.product.productLink}
                         target="_blank"
                         rel="nofollow sponsored noopener noreferrer"
-                        className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 print:hidden"
+                        className="print:hidden"
                       >
                         View on Amazon
-                      </a>
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -305,8 +308,8 @@ function ComparisonDetailPage() {
                 <div className="mt-12 space-y-6">
                   {comparison.sections.map((section) => (
                     <div key={section.id}>
-                      <h3 className="mb-2 text-xl font-semibold text-slate-900">{section.heading}</h3>
-                      <p className="whitespace-pre-line text-base leading-relaxed text-slate-700">{section.body}</p>
+                      <h3 className="mb-2 text-card-title text-heading">{section.heading}</h3>
+                      <p className="whitespace-pre-line text-body">{section.body}</p>
                     </div>
                   ))}
                 </div>
@@ -319,12 +322,12 @@ function ComparisonDetailPage() {
                     {comparison.faqs.map((faq) => {
                       const isExpanded = expandedFaqIds.has(faq.id);
                       return (
-                        <div key={faq.id} className="border-b border-slate-200 pb-4">
+                        <div key={faq.id} className="border-b border-border pb-4">
                           <button
                             type="button"
                             onClick={() => toggleFaq(faq.id)}
                             aria-expanded={isExpanded}
-                            className="flex w-full items-center justify-between text-left text-base font-semibold text-slate-900"
+                            className="flex w-full items-center justify-between text-left text-card-title text-heading"
                           >
                             {faq.question}
                             <ChevronDown
@@ -332,7 +335,7 @@ function ComparisonDetailPage() {
                               className={`shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                             />
                           </button>
-                          {isExpanded && <p className="mt-2 text-sm text-slate-700">{faq.answer}</p>}
+                          {isExpanded && <p className="mt-2 text-small text-body">{faq.answer}</p>}
                         </div>
                       );
                     })}
@@ -348,7 +351,7 @@ function ComparisonDetailPage() {
                       <Link
                         key={related.id}
                         to={`/comparisons/${related.slug}`}
-                        className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md"
+                        className="group flex flex-col overflow-hidden rounded-card border border-slate-200 bg-white shadow-card transition-shadow duration-200 hover:shadow-card-hover"
                       >
                         <div className="aspect-video overflow-hidden bg-slate-100">
                           {getImageUrl(related.coverImageFilename) ? (
@@ -365,7 +368,7 @@ function ComparisonDetailPage() {
                           )}
                         </div>
                         <div className="p-3">
-                          <h4 className="text-sm font-semibold text-slate-900">{related.title}</h4>
+                          <h4 className="text-sm font-semibold text-heading">{related.title}</h4>
                         </div>
                       </Link>
                     ))}
