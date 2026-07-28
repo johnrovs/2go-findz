@@ -92,6 +92,8 @@ function ComparisonDetailPage() {
     });
   }
 
+  const groupedSpecRows = useMemo(() => groupSpecRows(comparison?.specRows ?? []), [comparison]);
+
   useEffect(() => {
     getSettings()
       .then(setSettings)
@@ -169,7 +171,7 @@ function ComparisonDetailPage() {
               {comparison.specRows.length > 0 && (
                 <div id="comparison-table" className="mt-12 scroll-mt-24">
                   <SectionHeading title="Comparison Table" />
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto print:overflow-visible">
                     <table className="w-full min-w-[640px] table-fixed border-collapse text-left">
                       <thead>
                         <tr>
@@ -182,7 +184,7 @@ function ComparisonDetailPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {groupSpecRows(comparison.specRows).map((group) => (
+                        {groupedSpecRows.map((group) => (
                           <Fragment key={group.groupLabel}>
                             <tr>
                               <th
@@ -230,6 +232,7 @@ function ComparisonDetailPage() {
                         <img
                           src={getImageUrl(cp.product.imageFileName)}
                           alt={cp.product.name}
+                          loading="lazy"
                           className="h-20 w-20 rounded-lg object-cover"
                         />
                         <div>
@@ -280,7 +283,7 @@ function ComparisonDetailPage() {
                         href={cp.product.productLink}
                         target="_blank"
                         rel="nofollow sponsored noopener noreferrer"
-                        className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 print:hidden"
                       >
                         View on Amazon
                       </a>

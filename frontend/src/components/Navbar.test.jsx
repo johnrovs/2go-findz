@@ -85,6 +85,11 @@ describe('Navbar', () => {
     expect(screen.getByRole('link', { name: 'Comparisons' })).toHaveAttribute('href', '/comparisons');
   });
 
+  it('hides the header when printing', () => {
+    renderNavbar();
+    expect(screen.getByRole('banner')).toHaveClass('print:hidden');
+  });
+
   it('shows no compare count badge when nothing is selected', () => {
     renderNavbar();
     expect(screen.getByRole('link', { name: 'Compare' })).not.toHaveTextContent(/\d/);

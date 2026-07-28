@@ -221,6 +221,23 @@ describe('ComparisonDetailPage', () => {
     expect(screen.queryByText('It depends on your budget.')).not.toBeInTheDocument();
   });
 
+  it('applies print-friendly styling to the Amazon CTA and comparison table', async () => {
+    vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue(fullComparison);
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'Best Portable Blenders Compared', level: 1 });
+    expect(screen.getAllByRole('link', { name: 'View on Amazon' })[0]).toHaveClass('print:hidden');
+    expect(screen.getByRole('table').parentElement).toHaveClass('print:overflow-visible');
+  });
+
+  it('lazy-loads product breakdown images', async () => {
+    vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue(fullComparison);
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'Best Portable Blenders Compared', level: 1 });
+    expect(screen.getByAltText('BlendJet 2')).toHaveAttribute('loading', 'lazy');
+  });
+
   it('shows an error state when the comparison is not found', async () => {
     vi.spyOn(comparisonService, 'getComparisonBySlug').mockRejectedValue({
       message: 'Comparison not found.',
