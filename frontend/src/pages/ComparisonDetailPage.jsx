@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar.jsx';
 import Footer from '../components/Footer.jsx';
@@ -9,6 +9,7 @@ import ErrorState from '../components/ErrorState.jsx';
 import { getComparisonBySlug } from '../services/comparisonService.js';
 import { getSettings } from '../services/settingsService.js';
 import { getImageUrl } from '../utils/imageUrl.js';
+import { useDocumentHead } from '../hooks/useDocumentHead.js';
 
 function groupSpecRows(specRows) {
   const groups = [];
@@ -33,12 +34,48 @@ function splitLines(text) {
   return text.split('\n').filter((line) => line.trim());
 }
 
+function buildJsonLd(comparison) {
+  if (!comparison) return [];
+  const origin = window.location.origin;
+  const schemas = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
+        { '@type': 'ListItem', position: 2, name: 'Comparisons', item: `${origin}/comparisons` },
+        { '@type': 'ListItem', position: 3, name: comparison.title, item: `${origin}/comparisons/${comparison.slug}` },
+      ],
+    },
+  ];
+  if (comparison.faqs.length > 0) {
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: comparison.faqs.map((faq) => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+      })),
+    });
+  }
+  return schemas;
+}
+
 function ComparisonDetailPage() {
   const { slug } = useParams();
   const [settings, setSettings] = useState(null);
   const [comparison, setComparison] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const jsonLd = useMemo(() => buildJsonLd(comparison), [comparison]);
+  useDocumentHead({
+    title: comparison ? `${comparison.seoTitle || comparison.title} | 2Go Findz` : undefined,
+    description: comparison ? comparison.seoDescription || comparison.description : undefined,
+    canonicalUrl: comparison ? `${window.location.origin}/comparisons/${comparison.slug}` : undefined,
+    jsonLd,
+  });
 
   useEffect(() => {
     getSettings()

@@ -121,6 +121,29 @@ describe('ComparisonDetailPage', () => {
     expect(screen.getByText('Nutribullet Pro')).toBeInTheDocument();
   });
 
+  it('sets the document title and injects JSON-LD for breadcrumb and FAQ', async () => {
+    vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue(fullComparison);
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'Best Portable Blenders Compared', level: 1 });
+    expect(document.title).toBe('Best Portable Blenders Compared | 2Go Findz');
+
+    const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+    expect(scripts).toHaveLength(2);
+    const types = Array.from(scripts).map((script) => JSON.parse(script.textContent)['@type']);
+    expect(types).toEqual(['BreadcrumbList', 'FAQPage']);
+  });
+
+  it('omits the FAQPage schema when there are no FAQs', async () => {
+    vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue({ ...fullComparison, faqs: [] });
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'Best Portable Blenders Compared', level: 1 });
+    const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+    const types = Array.from(scripts).map((script) => JSON.parse(script.textContent)['@type']);
+    expect(types).toEqual(['BreadcrumbList']);
+  });
+
   it('applies tier-based styling to spec table cells', async () => {
     vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue(fullComparison);
     renderPage();

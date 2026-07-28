@@ -46,6 +46,14 @@ describe('ComparisonsPage (public)', () => {
     );
   });
 
+  it('sets the page title', async () => {
+    vi.spyOn(comparisonService, 'getComparisons').mockResolvedValue([]);
+    renderPage();
+
+    await screen.findByText('No comparisons yet');
+    expect(document.title).toBe('Comparisons | 2Go Findz');
+  });
+
   it('shows an empty state when there are no comparisons', async () => {
     vi.spyOn(comparisonService, 'getComparisons').mockResolvedValue([]);
     renderPage();

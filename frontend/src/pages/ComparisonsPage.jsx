@@ -9,12 +9,18 @@ import ErrorState from '../components/ErrorState.jsx';
 import { getComparisons } from '../services/comparisonService.js';
 import { getSettings } from '../services/settingsService.js';
 import { getImageUrl } from '../utils/imageUrl.js';
+import { useDocumentHead } from '../hooks/useDocumentHead.js';
 
 function ComparisonsPage() {
   const [settings, setSettings] = useState(null);
   const [comparisons, setComparisons] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  useDocumentHead({
+    title: 'Comparisons | 2Go Findz',
+    description: 'Side-by-side breakdowns to help you pick the right product.',
+  });
 
   useEffect(() => {
     getSettings()
