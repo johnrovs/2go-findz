@@ -122,14 +122,14 @@ function HomePage() {
         }}
       />
 
-      <section className="py-10">
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SocialLinks settings={settings} />
         </div>
       </section>
 
       {featured.products.length > 0 && (
-        <section className="bg-slate-50 py-16 sm:py-20">
+        <section className="bg-surface-secondary py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <SectionHeading title="Featured Products" />
             <ProductGrid products={featured.products} isLoading={featured.isLoading} error={null} />
@@ -138,7 +138,7 @@ function HomePage() {
       )}
 
       {trending.products.length > 0 && (
-        <section className="py-16 sm:py-20">
+        <section className="py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <SectionHeading title="Trending Finds" />
             <ProductGrid products={trending.products} isLoading={trending.isLoading} error={null} />
@@ -147,7 +147,7 @@ function HomePage() {
       )}
 
       {bestSellers.products.length > 0 && (
-        <section className="bg-slate-50 py-16 sm:py-20">
+        <section className="bg-surface-secondary py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <SectionHeading title="Best Sellers" />
             <ProductGrid products={bestSellers.products} isLoading={bestSellers.isLoading} error={null} />
@@ -156,7 +156,7 @@ function HomePage() {
       )}
 
       {categories.length > 0 && (
-        <section className="py-16 sm:py-20">
+        <section className="py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <SectionHeading title="Shop by Category" />
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -168,7 +168,7 @@ function HomePage() {
         </section>
       )}
 
-      <section id="catalog" className="scroll-mt-20 bg-slate-50 py-16 sm:py-20">
+      <section id="catalog" className="scroll-mt-20 bg-surface-secondary py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading title="Browse All Products" description="Search, filter, and sort our full catalog." />
           <div className="mb-6">
@@ -194,7 +194,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 sm:py-20">
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <SectionHeading title="Why Shop with 2Go Findz" />
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
@@ -206,15 +206,15 @@ function HomePage() {
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
-                <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
-                <p className="mt-2 text-sm text-slate-600">{item.description}</p>
+                <h3 className="text-card-title text-heading">{item.title}</h3>
+                <p className="mt-2 text-small text-body">{item.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-indigo-50 py-16 sm:py-20">
+      <section className="bg-surface-secondary py-24">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <SectionHeading title="Follow Us for More Finds" description="Join our community for daily deals and new arrivals." />
           <SocialLinks settings={settings} />
