@@ -9,8 +9,8 @@ function SectionHeading({ title, description }) {
       transition={{ duration: 0.3 }}
       className="mb-8 text-center"
     >
-      <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">{title}</h2>
-      {description && <p className="mx-auto mt-2 max-w-2xl text-sm text-slate-600">{description}</p>}
+      <h2 className="text-section-heading text-heading">{title}</h2>
+      {description && <p className="mx-auto mt-2 max-w-2xl text-subtitle text-body">{description}</p>}
     </motion.div>
   );
 }
