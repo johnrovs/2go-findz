@@ -6,6 +6,7 @@ import ProductGrid from '../components/ProductGrid.jsx';
 import SectionHeading from '../components/SectionHeading.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import ErrorState from '../components/ErrorState.jsx';
+import { ChevronDown } from 'lucide-react';
 import { getComparisonBySlug } from '../services/comparisonService.js';
 import { getSettings } from '../services/settingsService.js';
 import { getImageUrl } from '../utils/imageUrl.js';
@@ -77,6 +78,20 @@ function ComparisonDetailPage() {
     jsonLd,
   });
 
+  const [expandedFaqIds, setExpandedFaqIds] = useState(() => new Set());
+
+  function toggleFaq(id) {
+    setExpandedFaqIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
   useEffect(() => {
     getSettings()
       .then(setSettings)
@@ -124,8 +139,35 @@ function ComparisonDetailPage() {
                 })}
               </p>
 
+              <nav
+                aria-label="Comparison sections"
+                className="sticky top-16 z-20 -mx-4 mt-8 border-b border-slate-200 bg-white/90 px-4 py-2 backdrop-blur print:hidden sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8"
+              >
+                <ul className="mx-auto flex max-w-5xl gap-4 overflow-x-auto text-sm font-medium text-slate-600">
+                  {comparison.specRows.length > 0 && (
+                    <li>
+                      <a href="#comparison-table" className="hover:text-indigo-600">
+                        Comparison Table
+                      </a>
+                    </li>
+                  )}
+                  <li>
+                    <a href="#product-breakdown" className="hover:text-indigo-600">
+                      Product Breakdown
+                    </a>
+                  </li>
+                  {comparison.faqs.length > 0 && (
+                    <li>
+                      <a href="#faq" className="hover:text-indigo-600">
+                        FAQ
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </nav>
+
               {comparison.specRows.length > 0 && (
-                <div className="mt-12">
+                <div id="comparison-table" className="mt-12 scroll-mt-24">
                   <SectionHeading title="Comparison Table" />
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[640px] table-fixed border-collapse text-left">
@@ -174,7 +216,7 @@ function ComparisonDetailPage() {
                 </div>
               )}
 
-              <div className="mt-12">
+              <div id="product-breakdown" className="mt-12 scroll-mt-24">
                 <SectionHeading title="Product Breakdown" />
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                   {comparison.products.map((cp) => (
@@ -259,15 +301,29 @@ function ComparisonDetailPage() {
               )}
 
               {comparison.faqs.length > 0 && (
-                <div className="mt-12">
+                <div id="faq" className="mt-12 scroll-mt-24">
                   <SectionHeading title="Frequently Asked Questions" />
                   <div className="space-y-4">
-                    {comparison.faqs.map((faq) => (
-                      <div key={faq.id}>
-                        <h3 className="mb-1 text-base font-semibold text-slate-900">{faq.question}</h3>
-                        <p className="text-sm text-slate-700">{faq.answer}</p>
-                      </div>
-                    ))}
+                    {comparison.faqs.map((faq) => {
+                      const isExpanded = expandedFaqIds.has(faq.id);
+                      return (
+                        <div key={faq.id} className="border-b border-slate-200 pb-4">
+                          <button
+                            type="button"
+                            onClick={() => toggleFaq(faq.id)}
+                            aria-expanded={isExpanded}
+                            className="flex w-full items-center justify-between text-left text-base font-semibold text-slate-900"
+                          >
+                            {faq.question}
+                            <ChevronDown
+                              size={18}
+                              className={`shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                            />
+                          </button>
+                          {isExpanded && <p className="mt-2 text-sm text-slate-700">{faq.answer}</p>}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

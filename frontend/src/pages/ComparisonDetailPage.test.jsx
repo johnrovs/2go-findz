@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import ComparisonDetailPage from './ComparisonDetailPage.jsx';
@@ -171,6 +172,53 @@ describe('ComparisonDetailPage', () => {
     expect(screen.queryByText('Frequently Asked Questions')).not.toBeInTheDocument();
     expect(screen.queryByText('Related Comparisons')).not.toBeInTheDocument();
     expect(screen.queryByText('Related Products')).not.toBeInTheDocument();
+  });
+
+  it('renders a sticky section nav with links to the fixed regions', async () => {
+    vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue(fullComparison);
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'Best Portable Blenders Compared', level: 1 });
+    const nav = screen.getByRole('navigation', { name: 'Comparison sections' });
+    expect(within(nav).getByRole('link', { name: 'Comparison Table' })).toHaveAttribute(
+      'href',
+      '#comparison-table'
+    );
+    expect(within(nav).getByRole('link', { name: 'Product Breakdown' })).toHaveAttribute(
+      'href',
+      '#product-breakdown'
+    );
+    expect(within(nav).getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '#faq');
+  });
+
+  it('omits the Comparison Table and FAQ nav links when those regions are empty', async () => {
+    vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue({
+      ...fullComparison,
+      specRows: [],
+      faqs: [],
+    });
+    renderPage();
+
+    await screen.findByRole('heading', { name: 'Best Portable Blenders Compared', level: 1 });
+    const nav = screen.getByRole('navigation', { name: 'Comparison sections' });
+    expect(within(nav).queryByRole('link', { name: 'Comparison Table' })).not.toBeInTheDocument();
+    expect(within(nav).getByRole('link', { name: 'Product Breakdown' })).toBeInTheDocument();
+    expect(within(nav).queryByRole('link', { name: 'FAQ' })).not.toBeInTheDocument();
+  });
+
+  it('hides FAQ answers until their question is clicked', async () => {
+    vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue(fullComparison);
+    const user = userEvent.setup();
+    renderPage();
+
+    await screen.findByText('Which is better?');
+    expect(screen.queryByText('It depends on your budget.')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Which is better?' }));
+    expect(screen.getByText('It depends on your budget.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Which is better?' }));
+    expect(screen.queryByText('It depends on your budget.')).not.toBeInTheDocument();
   });
 
   it('shows an error state when the comparison is not found', async () => {
