@@ -7,6 +7,8 @@ import com.twogofindz.backend.dto.response.ComparisonSectionResponse;
 import com.twogofindz.backend.dto.response.ComparisonSpecRowResponse;
 import com.twogofindz.backend.dto.response.ComparisonSpecValueResponse;
 import com.twogofindz.backend.dto.response.ComparisonSummaryResponse;
+import com.twogofindz.backend.dto.response.PublicComparisonDetailResponse;
+import com.twogofindz.backend.dto.response.PublicComparisonSummaryResponse;
 import com.twogofindz.backend.entity.Comparison;
 import com.twogofindz.backend.entity.ComparisonFaq;
 import com.twogofindz.backend.entity.ComparisonProduct;
@@ -96,5 +98,42 @@ public class ComparisonMapper {
 
     ComparisonFaqResponse toFaqResponse(ComparisonFaq faq) {
         return new ComparisonFaqResponse(faq.getId(), faq.getQuestion(), faq.getAnswer());
+    }
+
+    public PublicComparisonSummaryResponse toPublicSummary(Comparison comparison) {
+        return new PublicComparisonSummaryResponse(
+                comparison.getId(),
+                comparison.getTitle(),
+                comparison.getSlug(),
+                comparison.getDescription(),
+                comparison.getCoverImageFilename(),
+                comparison.getCategory().getProductCategoryName(),
+                comparison.getCreatedAt()
+        );
+    }
+
+    public PublicComparisonDetailResponse toPublicDetail(Comparison comparison) {
+        return new PublicComparisonDetailResponse(
+                comparison.getId(),
+                comparison.getTitle(),
+                comparison.getSlug(),
+                comparison.getDescription(),
+                comparison.getCoverImageFilename(),
+                comparison.getCategory().getProductCategoryName(),
+                comparison.getSeoTitle(),
+                comparison.getSeoDescription(),
+                comparison.getProducts().stream().map(this::toProductResponse).toList(),
+                comparison.getSpecRows().stream().map(this::toSpecRowResponse).toList(),
+                comparison.getSections().stream().map(this::toSectionResponse).toList(),
+                comparison.getFaqs().stream().map(this::toFaqResponse).toList(),
+                // Only expose related comparisons that are themselves publicly visible, so a
+                // draft linked as "related" from the admin panel never renders as a dead link.
+                comparison.getRelatedComparisons().stream()
+                        .filter(Comparison::getPublished)
+                        .map(this::toSummary)
+                        .toList(),
+                comparison.getRelatedProducts().stream().map(productMapper::toResponse).toList(),
+                comparison.getCreatedAt()
+        );
     }
 }

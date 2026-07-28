@@ -8,6 +8,8 @@ import com.twogofindz.backend.dto.request.ComparisonSpecRowRequest;
 import com.twogofindz.backend.dto.request.ComparisonSpecValueRequest;
 import com.twogofindz.backend.dto.response.ComparisonResponse;
 import com.twogofindz.backend.dto.response.ComparisonSummaryResponse;
+import com.twogofindz.backend.dto.response.PublicComparisonDetailResponse;
+import com.twogofindz.backend.dto.response.PublicComparisonSummaryResponse;
 import com.twogofindz.backend.entity.Comparison;
 import com.twogofindz.backend.entity.ComparisonFaq;
 import com.twogofindz.backend.entity.ComparisonProduct;
@@ -120,6 +122,27 @@ public class ComparisonServiceImpl implements ComparisonService {
     @Transactional
     public void delete(Long id) {
         comparisonRepository.delete(findEntityById(id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PublicComparisonSummaryResponse> getAllForPublic() {
+        return comparisonRepository.findByPublishedTrueOrderByCreatedAtDesc().stream()
+                .map(comparisonMapper::toPublicSummary)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PublicComparisonDetailResponse getBySlugForPublic(String slug) {
+        Comparison comparison = comparisonRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Comparison not found with slug: " + slug));
+        // Deliberately identical to the "not found" outcome above: a draft comparison must not
+        // be distinguishable from a nonexistent one via the public API (no information leak).
+        if (!comparison.getPublished()) {
+            throw new ResourceNotFoundException("Comparison not found with slug: " + slug);
+        }
+        return comparisonMapper.toPublicDetail(comparison);
     }
 
     @Override
