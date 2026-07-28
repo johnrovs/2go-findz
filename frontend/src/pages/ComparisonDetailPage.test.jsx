@@ -236,7 +236,29 @@ describe('ComparisonDetailPage', () => {
     renderPage();
 
     await screen.findByRole('heading', { name: 'Best Portable Blenders Compared', level: 1 });
-    expect(screen.getByAltText('BlendJet 2')).toHaveAttribute('loading', 'lazy');
+    const blendJetImages = screen.getAllByAltText('BlendJet 2');
+    expect(blendJetImages.length).toBeGreaterThan(0);
+    blendJetImages.forEach((image) => expect(image).toHaveAttribute('loading', 'lazy'));
+  });
+
+  it('renders a product thumbnail in each comparison table header cell', async () => {
+    vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue(fullComparison);
+    renderPage();
+
+    const table = await screen.findByRole('table');
+    const headerImages = within(table).getAllByRole('img');
+    expect(headerImages).toHaveLength(2);
+  });
+
+  it('shows a check icon next to BEST-tier spec values', async () => {
+    vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue(fullComparison);
+    renderPage();
+
+    const bestCell = await screen.findByText('16 oz');
+    expect(bestCell.querySelector('svg')).toBeInTheDocument();
+
+    const goodCell = screen.getByText('20 oz');
+    expect(goodCell.querySelector('svg')).not.toBeInTheDocument();
   });
 
   it('shows an error state when the comparison is not found', async () => {

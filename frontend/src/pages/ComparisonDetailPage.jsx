@@ -6,7 +6,7 @@ import ProductGrid from '../components/ProductGrid.jsx';
 import SectionHeading from '../components/SectionHeading.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import ErrorState from '../components/ErrorState.jsx';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { getComparisonBySlug } from '../services/comparisonService.js';
 import { getSettings } from '../services/settingsService.js';
 import { getImageUrl } from '../utils/imageUrl.js';
@@ -173,11 +173,17 @@ function ComparisonDetailPage() {
                   <SectionHeading title="Comparison Table" />
                   <div className="overflow-x-auto print:overflow-visible">
                     <table className="w-full min-w-[640px] table-fixed border-collapse text-left">
-                      <thead>
+                      <thead className="sticky top-[104px] z-10 bg-white">
                         <tr>
                           <th scope="col" className="w-40 p-3 text-sm font-medium text-slate-500"></th>
                           {comparison.products.map((cp) => (
                             <th key={cp.id} scope="col" className="p-3 text-sm font-semibold text-slate-900">
+                              <img
+                                src={getImageUrl(cp.product.imageFileName)}
+                                alt={cp.product.name}
+                                loading="lazy"
+                                className="mx-auto mb-1 h-10 w-10 rounded-image object-cover"
+                              />
                               {cp.product.name}
                             </th>
                           ))}
@@ -190,13 +196,13 @@ function ComparisonDetailPage() {
                               <th
                                 colSpan={comparison.products.length + 1}
                                 scope="colgroup"
-                                className="bg-slate-50 p-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
+                                className="bg-surface-secondary p-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
                               >
                                 {group.groupLabel}
                               </th>
                             </tr>
                             {group.rows.map((row) => (
-                              <tr key={row.id}>
+                              <tr key={row.id} className="odd:bg-white even:bg-surface-secondary hover:bg-primary/5">
                                 <th scope="row" className="p-3 text-sm font-medium text-slate-500">
                                   {row.rowLabel}
                                 </th>
@@ -204,6 +210,9 @@ function ComparisonDetailPage() {
                                   const value = row.values.find((v) => v.productId === cp.product.id);
                                   return (
                                     <td key={cp.id} className={`p-3 text-sm ${tierClassName(value?.tier)}`}>
+                                      {value?.tier === 'BEST' && (
+                                        <Check size={14} className="mr-1 inline-block text-emerald-700" />
+                                      )}
                                       {value?.value ?? '—'}
                                     </td>
                                   );
