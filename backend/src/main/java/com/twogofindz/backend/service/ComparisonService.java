@@ -10,6 +10,10 @@ public interface ComparisonService {
 
     ComparisonResponse create(ComparisonRequest request);
 
+    ComparisonResponse update(Long id, ComparisonRequest request);
+
+    void delete(Long id);
+
     ComparisonResponse getByIdForAdmin(Long id);
 
     List<ComparisonSummaryResponse> getAllForAdmin();

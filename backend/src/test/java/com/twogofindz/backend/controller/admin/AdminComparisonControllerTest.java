@@ -18,8 +18,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -201,6 +203,134 @@ class AdminComparisonControllerTest extends AbstractIntegrationTest {
                 .andReturn();
 
         assertThat(result.getResponse().getContentAsString()).contains("comparison-list-test");
+    }
+
+    @Test
+    void update_succeeds_andReplacesNestedState() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Comparison Update Category");
+        Long productAId = createProductId(token, categoryId, "Comparison Update Product A");
+        Long productBId = createProductId(token, categoryId, "Comparison Update Product B");
+        Long productCId = createProductId(token, categoryId, "Comparison Update Product C");
+
+        ComparisonRequest createRequest = validRequest(categoryId, productAId, productBId, "comparison-update-test");
+        MvcResult createResult = mockMvc.perform(post("/api/admin/comparisons")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andReturn();
+        Long id = objectMapper.readTree(createResult.getResponse().getContentAsString()).path("data").path("id").asLong();
+
+        ComparisonProductRequest reorderedFirst = new ComparisonProductRequest(
+                productCId, "New Badge", "Updated recommendation.", "New audience", "New strength", "New weakness",
+                "Pro one", "Con one", new BigDecimal("9.0"));
+        ComparisonProductRequest reorderedSecond = new ComparisonProductRequest(
+                productAId, null, "Still solid.", "Everyone", "Speed", "Price", null, null, null);
+
+        ComparisonSpecRowRequest updatedRow = new ComparisonSpecRowRequest(
+                "Build Quality", "Material",
+                List.of(
+                        new ComparisonSpecValueRequest(productCId, "Aluminum", SpecTier.BEST),
+                        new ComparisonSpecValueRequest(productAId, "Plastic", SpecTier.STANDARD)));
+
+        ComparisonRequest updateRequest = new ComparisonRequest(
+                "Comparison Update Test Updated", "comparison-update-test", "Updated description.", null, categoryId,
+                null, null, true,
+                List.of(reorderedFirst, reorderedSecond),
+                List.of(updatedRow),
+                List.of(new ComparisonSectionRequest("Final Verdict", "Product C wins overall.")),
+                List.of(),
+                List.of(), List.of());
+
+        mockMvc.perform(put("/api/admin/comparisons/" + id)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.title").value("Comparison Update Test Updated"))
+                .andExpect(jsonPath("$.data.products", hasSize(2)))
+                .andExpect(jsonPath("$.data.products[0].product.id").value(productCId))
+                .andExpect(jsonPath("$.data.products[1].product.id").value(productAId))
+                .andExpect(jsonPath("$.data.specRows", hasSize(1)))
+                .andExpect(jsonPath("$.data.specRows[0].rowLabel").value("Material"))
+                .andExpect(jsonPath("$.data.sections", hasSize(1)))
+                .andExpect(jsonPath("$.data.faqs", hasSize(0)));
+    }
+
+    @Test
+    void update_returns404_forUnknownComparison() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Comparison Update Missing Category");
+        Long productAId = createProductId(token, categoryId, "Comparison Update Missing Product A");
+        Long productBId = createProductId(token, categoryId, "Comparison Update Missing Product B");
+        ComparisonRequest request = validRequest(categoryId, productAId, productBId, "comparison-update-missing");
+
+        mockMvc.perform(put("/api/admin/comparisons/999999")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void update_returns400_whenComparisonRelatesToItself() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Comparison Self Relate Category");
+        Long productAId = createProductId(token, categoryId, "Comparison Self Relate Product A");
+        Long productBId = createProductId(token, categoryId, "Comparison Self Relate Product B");
+
+        ComparisonRequest createRequest = validRequest(categoryId, productAId, productBId, "comparison-self-relate");
+        MvcResult createResult = mockMvc.perform(post("/api/admin/comparisons")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andReturn();
+        Long id = objectMapper.readTree(createResult.getResponse().getContentAsString()).path("data").path("id").asLong();
+
+        ComparisonRequest full = validRequest(categoryId, productAId, productBId, "comparison-self-relate");
+        ComparisonRequest selfRelateRequest = new ComparisonRequest(
+                full.title(), full.slug(), full.description(), full.coverImageFilename(), full.categoryId(),
+                full.seoTitle(), full.seoDescription(), full.published(), full.products(),
+                full.specRows(), full.sections(), full.faqs(), List.of(id), List.of());
+
+        mockMvc.perform(put("/api/admin/comparisons/" + id)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(selfRelateRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void delete_succeeds_andRemovesFromGetAll() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Comparison Delete Category");
+        Long productAId = createProductId(token, categoryId, "Comparison Delete Product A");
+        Long productBId = createProductId(token, categoryId, "Comparison Delete Product B");
+        ComparisonRequest request = validRequest(categoryId, productAId, productBId, "comparison-delete-test");
+
+        MvcResult createResult = mockMvc.perform(post("/api/admin/comparisons")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andReturn();
+        Long id = objectMapper.readTree(createResult.getResponse().getContentAsString()).path("data").path("id").asLong();
+
+        mockMvc.perform(delete("/api/admin/comparisons/" + id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/admin/comparisons/" + id)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void delete_returns404_forUnknownComparison() throws Exception {
+        String token = adminToken();
+
+        mockMvc.perform(delete("/api/admin/comparisons/999999")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
     }
 
     private ComparisonRequest validRequest(Long categoryId, Long productAId, Long productBId, String slug) {

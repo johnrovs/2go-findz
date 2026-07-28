@@ -6,9 +6,11 @@ import com.twogofindz.backend.dto.response.ComparisonResponse;
 import com.twogofindz.backend.dto.response.ComparisonSummaryResponse;
 import com.twogofindz.backend.service.ComparisonService;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,5 +40,16 @@ public class AdminComparisonController {
     @PostMapping
     public ApiResponse<ComparisonResponse> create(@Valid @RequestBody ComparisonRequest request) {
         return ApiResponse.success("Comparison created successfully.", comparisonService.create(request));
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<ComparisonResponse> update(@PathVariable Long id, @Valid @RequestBody ComparisonRequest request) {
+        return ApiResponse.success("Comparison updated successfully.", comparisonService.update(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable Long id) {
+        comparisonService.delete(id);
+        return ApiResponse.success("Comparison deleted successfully.");
     }
 }

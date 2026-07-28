@@ -81,6 +81,48 @@ public class ComparisonServiceImpl implements ComparisonService {
     }
 
     @Override
+    @Transactional
+    public ComparisonResponse update(Long id, ComparisonRequest request) {
+        validateSpecRowsMatchProducts(request);
+
+        Comparison comparison = findEntityById(id);
+        ProductCategory category = findCategory(request.categoryId());
+        String slug = resolveSlug(request.slug(), request.title(), id);
+
+        comparison.setTitle(request.title());
+        comparison.setSlug(slug);
+        comparison.setDescription(request.description());
+        comparison.setCoverImageFilename(request.coverImageFilename());
+        comparison.setCategory(category);
+        comparison.setSeoTitle(request.seoTitle());
+        comparison.setSeoDescription(request.seoDescription());
+        comparison.setPublished(request.published());
+        // Unlike the @ManyToMany @OrderColumn collections below, these four are owned
+        // @OneToMany(cascade = ALL, orphanRemoval = true) children: Hibernate rejects reassigning
+        // their collection reference on an already-managed entity ("was no longer referenced by
+        // the owning entity instance"), so the replacement must mutate the existing collection
+        // in place rather than call the setter with a new list.
+        comparison.getProducts().clear();
+        comparison.getProducts().addAll(buildProducts(comparison, request.products()));
+        comparison.getSpecRows().clear();
+        comparison.getSpecRows().addAll(buildSpecRows(comparison, request.specRows()));
+        comparison.getSections().clear();
+        comparison.getSections().addAll(buildSections(comparison, request.sections()));
+        comparison.getFaqs().clear();
+        comparison.getFaqs().addAll(buildFaqs(comparison, request.faqs()));
+        comparison.setRelatedComparisons(resolveRelatedComparisons(request.relatedComparisonIds(), id));
+        comparison.setRelatedProducts(resolveRelatedProducts(request.relatedProductIds()));
+
+        return comparisonMapper.toResponse(comparisonRepository.save(comparison));
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        comparisonRepository.delete(findEntityById(id));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public ComparisonResponse getByIdForAdmin(Long id) {
         return comparisonMapper.toResponse(findEntityById(id));
