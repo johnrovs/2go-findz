@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, Tags, BookOpen, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, Tags, BookOpen, GitCompare, Settings, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth.js';
 import logo from '../assets/2gofindz.png';
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { to: '/admin/products', label: 'Products', icon: Package },
   { to: '/admin/categories', label: 'Product Categories', icon: Tags },
   { to: '/admin/buying-guides', label: 'Buying Guides', icon: BookOpen },
+  { to: '/admin/comparisons', label: 'Comparisons', icon: GitCompare },
   { to: '/admin/settings', label: 'System Settings', icon: Settings },
 ];
 

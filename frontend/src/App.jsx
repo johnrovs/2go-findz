@@ -22,6 +22,8 @@ import CategoriesPage from './pages/admin/CategoriesPage.jsx';
 import SettingsPage from './pages/admin/SettingsPage.jsx';
 import BuyingGuidesPage from './pages/admin/BuyingGuidesPage.jsx';
 import BuyingGuideFormPage from './pages/admin/BuyingGuideFormPage.jsx';
+import ComparisonsPage from './pages/admin/ComparisonsPage.jsx';
+import ComparisonFormPage from './pages/admin/ComparisonFormPage.jsx';
 
 function App() {
   return (
@@ -50,6 +52,9 @@ function App() {
                     <Route path="/admin/buying-guides" element={<BuyingGuidesPage />} />
                     <Route path="/admin/buying-guides/new" element={<BuyingGuideFormPage />} />
                     <Route path="/admin/buying-guides/:id" element={<BuyingGuideFormPage />} />
+                    <Route path="/admin/comparisons" element={<ComparisonsPage />} />
+                    <Route path="/admin/comparisons/new" element={<ComparisonFormPage />} />
+                    <Route path="/admin/comparisons/:id" element={<ComparisonFormPage />} />
                   </Route>
                 </Route>
                 <Route path="*" element={<NotFoundPage />} />
