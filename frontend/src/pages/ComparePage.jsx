@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import Navbar from '../components/Navbar.jsx';
+import Button from '../components/Button.jsx';
 import Footer from '../components/Footer.jsx';
 import SectionHeading from '../components/SectionHeading.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
@@ -73,7 +74,7 @@ function ComparePage() {
                 title="Add at least 2 products to compare"
                 description="Use the compare icon on any product card to add it here."
               />
-              <Link to="/#catalog" className="mt-4 inline-block text-sm font-medium text-indigo-600 hover:underline">
+              <Link to="/#catalog" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
                 Browse products
               </Link>
             </div>
@@ -81,7 +82,7 @@ function ComparePage() {
           {!isLoading && !error && products.length >= 2 && (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] table-fixed border-collapse text-left">
-                <thead>
+                <thead className="sticky top-16 z-10 bg-white">
                   <tr>
                     <th scope="col" className="w-32 p-3 text-sm font-medium text-slate-500"></th>
                     {products.map((product) => (
@@ -104,7 +105,7 @@ function ComparePage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  <tr>
+                  <tr className="odd:bg-white even:bg-surface-secondary hover:bg-primary/5">
                     <th scope="row" className="p-3 text-sm font-medium text-slate-500">
                       Name
                     </th>
@@ -114,7 +115,7 @@ function ComparePage() {
                       </td>
                     ))}
                   </tr>
-                  <tr>
+                  <tr className="odd:bg-white even:bg-surface-secondary hover:bg-primary/5">
                     <th scope="row" className="p-3 text-sm font-medium text-slate-500">
                       Category
                     </th>
@@ -124,7 +125,7 @@ function ComparePage() {
                       </td>
                     ))}
                   </tr>
-                  <tr>
+                  <tr className="odd:bg-white even:bg-surface-secondary hover:bg-primary/5">
                     <th scope="row" className="p-3 text-sm font-medium text-slate-500">
                       Price
                     </th>
@@ -134,7 +135,7 @@ function ComparePage() {
                       </td>
                     ))}
                   </tr>
-                  <tr>
+                  <tr className="odd:bg-white even:bg-surface-secondary hover:bg-primary/5">
                     <th scope="row" className="p-3 text-sm font-medium text-slate-500">
                       Badges
                     </th>
@@ -156,7 +157,7 @@ function ComparePage() {
                       </td>
                     ))}
                   </tr>
-                  <tr>
+                  <tr className="odd:bg-white even:bg-surface-secondary hover:bg-primary/5">
                     <th scope="row" className="p-3 text-sm font-medium text-slate-500">
                       Description
                     </th>
@@ -166,18 +167,18 @@ function ComparePage() {
                       </td>
                     ))}
                   </tr>
-                  <tr>
+                  <tr className="odd:bg-white even:bg-surface-secondary hover:bg-primary/5">
                     <th scope="row" className="p-3 text-sm font-medium text-slate-500"></th>
                     {products.map((product) => (
                       <td key={product.id} className="p-3">
-                        <a
+                        <Button
+                          variant="amazon"
                           href={product.productLink}
                           target="_blank"
                           rel="nofollow sponsored noopener noreferrer"
-                          className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                         >
                           View on Amazon
-                        </a>
+                        </Button>
                       </td>
                     ))}
                   </tr>
