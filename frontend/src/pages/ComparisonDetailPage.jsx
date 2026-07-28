@@ -174,7 +174,7 @@ function ComparisonDetailPage() {
                   <SectionHeading title="Comparison Table" />
                   <div className="overflow-x-auto print:overflow-visible">
                     <table className="w-full min-w-[640px] table-fixed border-collapse text-left">
-                      <thead className="sticky top-[104px] z-10 bg-white">
+                      <thead className="sticky top-[110px] z-10 bg-white">
                         <tr>
                           <th scope="col" className="w-40 p-3 text-sm font-medium text-slate-500"></th>
                           {comparison.products.map((cp) => (
