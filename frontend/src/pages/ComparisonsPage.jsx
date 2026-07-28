@@ -38,7 +38,7 @@ function ComparisonsPage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <section className="py-16 sm:py-20">
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             title="Comparisons"
@@ -56,7 +56,7 @@ function ComparisonsPage() {
                 <Link
                   key={comparison.id}
                   to={`/comparisons/${comparison.slug}`}
-                  className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  className="group flex flex-col overflow-hidden rounded-card border border-slate-200 bg-white shadow-card transition-shadow duration-200 hover:shadow-card-hover"
                 >
                   <div className="aspect-video overflow-hidden bg-slate-100">
                     {getImageUrl(comparison.coverImageFilename) ? (
@@ -73,8 +73,8 @@ function ComparisonsPage() {
                     )}
                   </div>
                   <div className="flex flex-1 flex-col gap-2 p-4">
-                    <h3 className="text-base font-semibold text-slate-900">{comparison.title}</h3>
-                    <p className="line-clamp-2 text-sm text-slate-600">{comparison.description}</p>
+                    <h3 className="text-card-title text-heading">{comparison.title}</h3>
+                    <p className="line-clamp-2 text-small text-body">{comparison.description}</p>
                   </div>
                 </Link>
               ))}

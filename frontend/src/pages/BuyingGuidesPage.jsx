@@ -32,7 +32,7 @@ function BuyingGuidesPage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <section className="py-16 sm:py-20">
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading title="Buying Guides" description="Curated advice to help you choose the right products." />
 
@@ -47,7 +47,7 @@ function BuyingGuidesPage() {
                 <Link
                   key={guide.id}
                   to={`/buying-guides/${guide.id}`}
-                  className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  className="group flex flex-col overflow-hidden rounded-card border border-slate-200 bg-white shadow-card transition-shadow duration-200 hover:shadow-card-hover"
                 >
                   <div className="aspect-video overflow-hidden bg-slate-100">
                     {getImageUrl(guide.coverImageFilename) ? (
@@ -64,8 +64,8 @@ function BuyingGuidesPage() {
                     )}
                   </div>
                   <div className="flex flex-1 flex-col gap-2 p-4">
-                    <h3 className="text-base font-semibold text-slate-900">{guide.title}</h3>
-                    <p className="line-clamp-2 text-sm text-slate-600">{guide.excerpt}</p>
+                    <h3 className="text-card-title text-heading">{guide.title}</h3>
+                    <p className="line-clamp-2 text-small text-body">{guide.excerpt}</p>
                   </div>
                 </Link>
               ))}
