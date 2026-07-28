@@ -97,6 +97,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(ApiResponse.failure(ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidComparisonException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidComparison(InvalidComparisonException ex) {
+        return ResponseEntity.badRequest().body(ApiResponse.failure(ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception ex) {
         log.error("Unhandled exception", ex);
