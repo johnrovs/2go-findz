@@ -1,0 +1,106 @@
+package com.twogofindz.backend.entity;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name = "comparisons")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Comparison {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 200)
+    private String title;
+
+    @Column(nullable = false, unique = true, length = 220)
+    private String slug;
+
+    @Column(nullable = false, length = 500)
+    private String description;
+
+    @Column(name = "cover_image_filename")
+    private String coverImageFilename;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "product_category_id", nullable = false)
+    private ProductCategory category;
+
+    @Column(name = "seo_title", length = 200)
+    private String seoTitle;
+
+    @Column(name = "seo_description", length = 300)
+    private String seoDescription;
+
+    @Column(nullable = false)
+    private Boolean published;
+
+    @OneToMany(mappedBy = "comparison", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "display_order")
+    private List<ComparisonProduct> products;
+
+    @OneToMany(mappedBy = "comparison", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "display_order")
+    private List<ComparisonSpecRow> specRows;
+
+    @OneToMany(mappedBy = "comparison", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "display_order")
+    private List<ComparisonSection> sections;
+
+    @OneToMany(mappedBy = "comparison", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "display_order")
+    private List<ComparisonFaq> faqs;
+
+    @ManyToMany
+    @JoinTable(
+            name = "comparison_related_comparisons",
+            joinColumns = @JoinColumn(name = "comparison_id"),
+            inverseJoinColumns = @JoinColumn(name = "related_comparison_id")
+    )
+    @OrderColumn(name = "display_order")
+    private List<Comparison> relatedComparisons;
+
+    @ManyToMany
+    @JoinTable(
+            name = "comparison_related_products",
+            joinColumns = @JoinColumn(name = "comparison_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    @OrderColumn(name = "display_order")
+    private List<Product> relatedProducts;
+
+    @Generated(event = {EventType.INSERT, EventType.UPDATE})
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
+    private LocalDateTime createdAt;
+
+    @Generated(event = {EventType.INSERT, EventType.UPDATE})
+    @Column(name = "updated_at", nullable = false, insertable = false, updatable = false)
+    private LocalDateTime updatedAt;
+}
