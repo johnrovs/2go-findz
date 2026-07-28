@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.js';
+import Button from '../components/Button.jsx';
 
 function LoginPage() {
   const { login } = useAuth();
@@ -41,12 +42,12 @@ function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <form onSubmit={handleSubmit} noValidate className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm">
-        <h1 className="mb-6 text-2xl font-bold text-slate-900">Admin Login</h1>
+    <main className="flex min-h-screen items-center justify-center bg-surface-secondary px-4">
+      <form onSubmit={handleSubmit} noValidate className="w-full max-w-sm rounded-card bg-white p-8 shadow-card">
+        <h1 className="mb-6 text-page-heading text-heading">Admin Login</h1>
 
         {formError && (
-          <p role="alert" className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p role="alert" className="mb-4 rounded-md bg-danger/10 px-3 py-2 text-sm text-danger">
             {formError}
           </p>
         )}
@@ -60,12 +61,12 @@ function LoginPage() {
             type="text"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
             aria-invalid={Boolean(fieldErrors.username)}
             aria-describedby={fieldErrors.username ? 'username-error' : undefined}
           />
           {fieldErrors.username && (
-            <p id="username-error" className="mt-1 text-sm text-red-600">
+            <p id="username-error" className="mt-1 text-sm text-danger">
               {fieldErrors.username}
             </p>
           )}
@@ -81,7 +82,7 @@ function LoginPage() {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 pr-10 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-btn border border-border px-3 py-2 pr-10 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
               aria-invalid={Boolean(fieldErrors.password)}
               aria-describedby={fieldErrors.password ? 'password-error' : undefined}
             />
@@ -95,19 +96,15 @@ function LoginPage() {
             </button>
           </div>
           {fieldErrors.password && (
-            <p id="password-error" className="mt-1 text-sm text-red-600">
+            <p id="password-error" className="mt-1 text-sm text-danger">
               {fieldErrors.password}
             </p>
           )}
         </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded-md bg-indigo-600 px-4 py-2 font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? 'Signing in...' : 'Sign In'}
-        </button>
+        </Button>
       </form>
     </main>
   );
