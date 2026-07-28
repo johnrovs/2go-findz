@@ -36,39 +36,44 @@ describe('ProductCard', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders the product name, category, and the trending badge only', () => {
+  it('renders only the image, product name, description, and "Check Price" button', () => {
     renderCard();
 
+    expect(screen.getByAltText('Wireless Earbuds')).toBeInTheDocument();
     expect(screen.getByText('Wireless Earbuds')).toBeInTheDocument();
-    expect(screen.getByText('Electronics')).toBeInTheDocument();
-    expect(screen.getByText('Trending')).toBeInTheDocument();
+    expect(screen.getByText(baseProduct.description)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Check Price' })).toBeInTheDocument();
+
+    expect(screen.queryByText('Electronics')).not.toBeInTheDocument();
+    expect(screen.queryByText('Trending')).not.toBeInTheDocument();
     expect(screen.queryByText('Best Seller')).not.toBeInTheDocument();
-  });
-
-  it('never renders the description, price, or added date', () => {
-    renderCard();
-
-    expect(screen.queryByText(baseProduct.description)).not.toBeInTheDocument();
     expect(screen.queryByText('$49.99')).not.toBeInTheDocument();
     expect(screen.queryByText(/added/i)).not.toBeInTheDocument();
   });
 
-  it('renders the "View on Amazon" link with the correct href and rel attributes', () => {
+  it('center-aligns the name, description, and button', () => {
     renderCard();
 
-    const link = screen.getByRole('link', { name: /view on amazon/i });
+    const details = screen.getByText(baseProduct.description).parentElement;
+    expect(details).toHaveClass('items-center', 'text-center');
+  });
+
+  it('renders the "Check Price" link with the correct href and rel attributes', () => {
+    renderCard();
+
+    const link = screen.getByRole('link', { name: 'Check Price' });
     expect(link).toHaveAttribute('href', baseProduct.productLink);
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'nofollow sponsored noopener noreferrer');
   });
 
-  it('records a click with the stored session id when "View on Amazon" is clicked', async () => {
+  it('records a click with the stored session id when "Check Price" is clicked', async () => {
     sessionStorage.setItem('sessionId', 'test-session-abc');
     vi.spyOn(trackingService, 'recordClick').mockResolvedValue(undefined);
     const user = userEvent.setup();
     renderCard();
 
-    await user.click(screen.getByRole('link', { name: /view on amazon/i }));
+    await user.click(screen.getByRole('link', { name: 'Check Price' }));
 
     expect(trackingService.recordClick).toHaveBeenCalledWith(baseProduct.id, 'test-session-abc');
   });
@@ -77,20 +82,6 @@ describe('ProductCard', () => {
     renderCard({ ...baseProduct, imageFileName: null });
 
     expect(screen.getByText('No image available')).toBeInTheDocument();
-  });
-
-  it('hides the badges on mobile, showing them from sm: up', () => {
-    renderCard();
-
-    expect(screen.getByText('Trending').parentElement).toHaveClass('hidden', 'sm:flex');
-  });
-
-  it('always shows the image, category, name, and "View on Amazon" button, regardless of screen size', () => {
-    renderCard();
-
-    expect(screen.getByText('Electronics')).not.toHaveClass('hidden');
-    expect(screen.getByText('Wireless Earbuds')).not.toHaveClass('hidden');
-    expect(screen.getByRole('link', { name: /view on amazon/i })).not.toHaveClass('hidden');
   });
 
   it('toggles the compare selection when the compare button is clicked', async () => {

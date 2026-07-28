@@ -115,11 +115,12 @@ describe('ComparisonDetailPage', () => {
     expect(screen.getAllByText('BlendJet 2').length).toBeGreaterThan(0);
     expect(screen.getByText('Best Overall')).toBeInTheDocument();
     expect(screen.getByText('Compact')).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: 'View on Amazon' })).toHaveLength(3);
+    expect(screen.getAllByRole('link', { name: 'View on Amazon' })).toHaveLength(2);
     expect(screen.getByText('Buying Tips')).toBeInTheDocument();
     expect(screen.getByText('Which is better?')).toBeInTheDocument();
     expect(screen.getByText('Best Countertop Blenders')).toBeInTheDocument();
     expect(screen.getByText('Nutribullet Pro')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Check Price' })).toBeInTheDocument();
   });
 
   it('sets the document title and injects JSON-LD for breadcrumb and FAQ', async () => {

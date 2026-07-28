@@ -9,7 +9,7 @@ function ProductCard({ product }) {
   const { isSelected, isFull, toggle } = useCompare();
   const selected = isSelected(product.id);
 
-  function handleViewOnAmazon() {
+  function handleCheckPrice() {
     const sessionId = sessionStorage.getItem('sessionId');
     recordClick(product.id, sessionId).catch(() => {
       // Click tracking is best-effort; never block the link's native navigation on a tracking failure.
@@ -37,18 +37,6 @@ function ProductCard({ product }) {
             No image available
           </div>
         )}
-        <div className="absolute left-2 top-2 hidden gap-1.5 sm:flex">
-          {product.trending && (
-            <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-              Trending
-            </span>
-          )}
-          {product.bestSeller && (
-            <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
-              Best Seller
-            </span>
-          )}
-        </div>
         <button
           type="button"
           onClick={() => toggle(product.id)}
@@ -64,17 +52,17 @@ function ProductCard({ product }) {
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <span className="text-xs font-medium uppercase tracking-wide text-indigo-600">{product.categoryName}</span>
+      <div className="flex flex-1 flex-col items-center gap-2 p-4 text-center">
         <h3 className="text-base font-semibold text-slate-900">{product.name}</h3>
+        <p className="line-clamp-3 text-sm text-slate-600">{product.description}</p>
         <a
           href={product.productLink}
-          onClick={handleViewOnAmazon}
+          onClick={handleCheckPrice}
           target="_blank"
           rel="nofollow sponsored noopener noreferrer"
           className="mt-auto inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
         >
-          View on Amazon
+          Check Price
         </a>
       </div>
     </motion.article>
