@@ -22,6 +22,22 @@ export default {
         info: '#0EA5E9',
         star: '#FACC15',
       },
+      borderRadius: {
+        btn: '12px',
+        card: '18px',
+        image: '18px',
+        search: '16px',
+      },
+      boxShadow: {
+        card: '0 4px 20px rgba(0,0,0,0.06)',
+        'card-hover': '0 10px 30px rgba(0,0,0,0.10)',
+        navbar: '0 1px 6px rgba(0,0,0,0.05)',
+        dropdown: '0 20px 50px rgba(0,0,0,0.08)',
+      },
+      maxWidth: {
+        content: '1280px',
+        reading: '720px',
+      },
     },
   },
   plugins: [],
