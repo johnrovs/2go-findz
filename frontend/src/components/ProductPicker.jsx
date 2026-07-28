@@ -10,6 +10,9 @@ function ProductPicker({ selectedProducts, onChange }) {
   useEffect(() => {
     const trimmed = query.trim();
     if (!trimmed) {
+      // Resetting to the empty state when the query clears is the standard
+      // reset-on-external-change pattern; it can't cascade since `query` itself isn't touched here.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setResults([]);
       return undefined;
     }
