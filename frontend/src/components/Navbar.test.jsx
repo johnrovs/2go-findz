@@ -34,8 +34,8 @@ describe('Navbar', () => {
 
   it('highlights the active route', () => {
     renderNavbar(['/trending']);
-    expect(screen.getByRole('link', { name: 'Trending' })).toHaveClass('text-indigo-600');
-    expect(screen.getByRole('link', { name: 'Home' })).not.toHaveClass('text-indigo-600');
+    expect(screen.getByRole('link', { name: 'Trending' })).toHaveClass('text-primary');
+    expect(screen.getByRole('link', { name: 'Home' })).not.toHaveClass('text-primary');
   });
 
   it('opens the categories dropdown and lists fetched categories', async () => {

@@ -3,11 +3,12 @@ import { Link, NavLink } from 'react-router-dom';
 import { ChevronDown, Menu, Search } from 'lucide-react';
 import logo from '../assets/2gofindz.png';
 import MobileMenu from './MobileMenu.jsx';
+import Badge from './Badge.jsx';
 import { getCategories } from '../services/categoryService.js';
 import { useCompare } from '../hooks/useCompare.js';
 
 const navLinkClassName = ({ isActive }) =>
-  `text-sm font-medium transition ${isActive ? 'text-indigo-600' : 'text-slate-700 hover:text-indigo-600'}`;
+  `text-nav transition ${isActive ? 'text-primary' : 'text-body hover:text-primary'}`;
 
 function Navbar() {
   const { ids } = useCompare();
@@ -44,7 +45,7 @@ function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur print:hidden">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 shadow-navbar backdrop-blur print:hidden">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link to="/" aria-label="2Go Findz home">
             <img src={logo} alt="2Go Findz" className="h-10 w-10" />
@@ -74,7 +75,7 @@ function Navbar() {
               {isCategoriesOpen && (
                 <div
                   role="menu"
-                  className="absolute left-0 top-full mt-2 w-56 rounded-md border border-slate-200 bg-white py-2 shadow-lg"
+                  className="absolute left-0 top-full mt-2 w-56 rounded-card border border-slate-200 bg-white py-2 shadow-dropdown"
                 >
                   <Link
                     to="/categories"
@@ -100,11 +101,7 @@ function Navbar() {
             </div>
             <NavLink to="/compare" className={navLinkClassName}>
               Compare
-              {ids.length > 0 && (
-                <span className="ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
-                  {ids.length}
-                </span>
-              )}
+              {ids.length > 0 && <Badge>{ids.length}</Badge>}
             </NavLink>
             <NavLink to="/buying-guides" className={navLinkClassName}>
               Buying Guides
