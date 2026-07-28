@@ -57,6 +57,9 @@ function Navbar() {
             <NavLink to="/trending" className={navLinkClassName}>
               Trending
             </NavLink>
+            <NavLink to="/best-sellers" className={navLinkClassName}>
+              Best Sellers
+            </NavLink>
             <div ref={categoriesRef} className="relative">
               <button
                 type="button"
@@ -108,9 +111,6 @@ function Navbar() {
             </NavLink>
             <NavLink to="/comparisons" className={navLinkClassName}>
               Comparisons
-            </NavLink>
-            <NavLink to="/best-sellers" className={navLinkClassName}>
-              Best Sellers
             </NavLink>
           </nav>
 

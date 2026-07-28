@@ -6,11 +6,11 @@ import { motion } from 'framer-motion';
 const NAV_ITEMS = [
   { to: '/', label: 'Home', end: true },
   { to: '/trending', label: 'Trending' },
+  { to: '/best-sellers', label: 'Best Sellers' },
   { to: '/categories', label: 'Categories' },
   { to: '/compare', label: 'Compare' },
   { to: '/buying-guides', label: 'Buying Guides' },
   { to: '/comparisons', label: 'Comparisons' },
-  { to: '/best-sellers', label: 'Best Sellers' },
 ];
 
 function MobileMenu({ isOpen, onClose, compareCount = 0 }) {

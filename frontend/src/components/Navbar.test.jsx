@@ -75,14 +75,19 @@ describe('Navbar', () => {
     expect(screen.getByRole('link', { name: 'Browse all products' })).toHaveAttribute('href', '/#catalog');
   });
 
-  it('renders the Buying Guides link between Compare and Best Sellers', () => {
+  it('renders the Buying Guides link after Compare', () => {
     renderNavbar();
     expect(screen.getByRole('link', { name: 'Buying Guides' })).toHaveAttribute('href', '/buying-guides');
   });
 
-  it('renders the Comparisons link between Buying Guides and Best Sellers', () => {
+  it('renders the Comparisons link after Buying Guides', () => {
     renderNavbar();
     expect(screen.getByRole('link', { name: 'Comparisons' })).toHaveAttribute('href', '/comparisons');
+  });
+
+  it('renders the Best Sellers link between Trending and Categories', () => {
+    renderNavbar();
+    expect(screen.getByRole('link', { name: 'Best Sellers' })).toHaveAttribute('href', '/best-sellers');
   });
 
   it('hides the header when printing', () => {
