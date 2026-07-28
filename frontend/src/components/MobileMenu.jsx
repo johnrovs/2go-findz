@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: '/trending', label: 'Trending' },
   { to: '/categories', label: 'Categories' },
   { to: '/compare', label: 'Compare' },
+  { to: '/buying-guides', label: 'Buying Guides' },
   { to: '/best-sellers', label: 'Best Sellers' },
 ];
 

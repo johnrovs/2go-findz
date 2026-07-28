@@ -11,6 +11,8 @@ import TrendingPage from './pages/TrendingPage.jsx';
 import BestSellersPage from './pages/BestSellersPage.jsx';
 import PublicCategoriesPage from './pages/CategoriesPage.jsx';
 import ComparePage from './pages/ComparePage.jsx';
+import PublicBuyingGuidesPage from './pages/BuyingGuidesPage.jsx';
+import BuyingGuideDetailPage from './pages/BuyingGuideDetailPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import DashboardPage from './pages/admin/DashboardPage.jsx';
@@ -34,6 +36,8 @@ function App() {
                 <Route path="/categories" element={<PublicCategoriesPage />} />
                 <Route path="/best-sellers" element={<BestSellersPage />} />
                 <Route path="/compare" element={<ComparePage />} />
+                <Route path="/buying-guides" element={<PublicBuyingGuidesPage />} />
+                <Route path="/buying-guides/:id" element={<BuyingGuideDetailPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route element={<ProtectedRoute />}>
                   <Route element={<AdminLayout />}>

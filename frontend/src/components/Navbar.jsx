@@ -103,6 +103,9 @@ function Navbar() {
                 </span>
               )}
             </NavLink>
+            <NavLink to="/buying-guides" className={navLinkClassName}>
+              Buying Guides
+            </NavLink>
             <NavLink to="/best-sellers" className={navLinkClassName}>
               Best Sellers
             </NavLink>
