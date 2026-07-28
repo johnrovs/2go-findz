@@ -39,8 +39,8 @@ function BuyingGuideDetailPage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <section className="py-16 sm:py-20">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+      <section className="py-24">
+        <div className="mx-auto max-w-reading px-4 sm:px-6 lg:px-8">
           {isLoading && <LoadingSpinner label="Loading buying guide..." />}
           {!isLoading && error && <ErrorState message={error} />}
           {!isLoading && !error && guide && (
@@ -49,11 +49,11 @@ function BuyingGuideDetailPage() {
                 <img
                   src={getImageUrl(guide.coverImageFilename)}
                   alt={guide.title}
-                  className="mb-6 aspect-video w-full rounded-xl object-cover"
+                  className="mb-6 aspect-video w-full rounded-image object-cover"
                 />
               )}
-              <h1 className="mb-4 text-3xl font-bold text-slate-900">{guide.title}</h1>
-              <p className="whitespace-pre-line text-base leading-relaxed text-slate-700">{guide.content}</p>
+              <h1 className="mb-4 text-page-heading text-heading">{guide.title}</h1>
+              <p className="whitespace-pre-line text-body">{guide.content}</p>
             </>
           )}
         </div>
