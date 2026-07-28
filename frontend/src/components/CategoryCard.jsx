@@ -9,9 +9,9 @@ function CategoryCard({ category, onClick }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.3 }}
-      className="rounded-xl border border-slate-200 bg-white px-6 py-8 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      className="rounded-card border border-slate-200 bg-white px-6 py-8 text-center shadow-card transition hover:-translate-y-1 hover:shadow-card-hover focus:outline-none focus:ring-2 focus:ring-primary"
     >
-      <span className="text-base font-semibold text-slate-900">{category.productCategoryName}</span>
+      <span className="text-card-title text-heading">{category.productCategoryName}</span>
     </motion.button>
   );
 }

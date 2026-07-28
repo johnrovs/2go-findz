@@ -31,7 +31,7 @@ function ProductFilters({ filter, onFilterChange, categoryId, categories, onCate
             onClick={() => onFilterChange(quickFilter.value)}
             aria-pressed={filter === quickFilter.value}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-              filter === quickFilter.value ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              filter === quickFilter.value ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
             {quickFilter.label}

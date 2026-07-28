@@ -24,7 +24,7 @@ function Pagination({ page, totalPages, onPageChange }) {
           onClick={() => onPageChange(pageNumber)}
           aria-current={pageNumber === page ? 'page' : undefined}
           className={`h-9 w-9 rounded-md text-sm font-medium transition ${
-            pageNumber === page ? 'bg-indigo-600 text-white' : 'text-slate-700 hover:bg-slate-100'
+            pageNumber === page ? 'bg-primary text-white' : 'text-slate-700 hover:bg-slate-100'
           }`}
         >
           {pageNumber}
