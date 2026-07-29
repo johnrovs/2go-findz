@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const BASE_CLASSES =
   'inline-flex items-center justify-center gap-2 rounded-btn text-btn transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60';
 
@@ -13,8 +15,16 @@ const SIZE_CLASSES = {
   sm: 'px-4 py-2',
 };
 
-function Button({ variant = 'primary', size = 'md', href, className = '', children, ...rest }) {
+function Button({ variant = 'primary', size = 'md', href, to, className = '', children, ...rest }) {
   const classes = `${BASE_CLASSES} ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`;
+
+  if (to) {
+    return (
+      <Link to={to} className={classes} {...rest}>
+        {children}
+      </Link>
+    );
+  }
 
   if (href) {
     return (

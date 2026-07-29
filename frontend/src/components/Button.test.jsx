@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import Button from './Button.jsx';
 
@@ -19,6 +20,17 @@ describe('Button', () => {
     expect(link).toHaveAttribute('href', 'https://example.com');
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('renders a react-router Link when given a to prop', () => {
+    render(
+      <MemoryRouter>
+        <Button to="/admin/products/new">Add Product</Button>
+      </MemoryRouter>
+    );
+    const link = screen.getByRole('link', { name: 'Add Product' });
+    expect(link).toHaveAttribute('href', '/admin/products/new');
+    expect(link).toHaveClass('bg-primary', 'text-white');
   });
 
   it('applies primary variant classes by default', () => {
