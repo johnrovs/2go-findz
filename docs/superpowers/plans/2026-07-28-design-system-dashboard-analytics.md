@@ -211,7 +211,7 @@ git commit -m "feat(design-system): add GaugeCard percentage-gauge component"
 Create `frontend/src/components/DualAreaChart.test.jsx`:
 
 ```jsx
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import DualAreaChart from './DualAreaChart.jsx';
 
@@ -236,11 +236,16 @@ describe('DualAreaChart', () => {
     expect(screen.getByText('Views & Clicks by Day')).toBeInTheDocument();
   });
 
-  it('renders both series as areas', () => {
+  it('renders both series as areas', async () => {
     const { container } = render(
       <DualAreaChart data={data} xKey="date" series={series} label="Views & Clicks by Day" />
     );
-    expect(container.querySelectorAll('.recharts-area')).toHaveLength(2);
+    // Recharts' ResponsiveContainer resolves its measured size asynchronously even with a
+    // stubbed getBoundingClientRect, and <Area> (unlike <Line>/<Bar>) only paints once that
+    // settles -- confirmed by isolated debugging -- so this needs waitFor, not a sync check.
+    await waitFor(() => {
+      expect(container.querySelectorAll('.recharts-area')).toHaveLength(2);
+    });
   });
 
   it('renders a legend entry for each series name', () => {
@@ -258,10 +263,12 @@ Expected: FAIL — `Cannot find module './DualAreaChart.jsx'`.
 
 - [ ] **Step 3: Write the implementation**
 
+**Deviation from the original design, found during implementation:** Recharts' `<Legend>` component never resolves alongside `<Area>` in this project's jsdom test environment — isolated debugging confirmed `<Area>` renders fine with `<CartesianGrid>` and `<Tooltip>` present, but adding `<Legend>` causes it to hang indefinitely (well past a 3-second `waitFor`), regardless of whether there's one or two `<Area>` elements. Rather than accept a fragile, possibly-slow-in-production dependency, this uses a small hand-built legend (colored dot + label, styled with this app's own tokens) instead of Recharts' `<Legend>`. This also gives more direct styling control consistent with the rest of the design system.
+
 Create `frontend/src/components/DualAreaChart.jsx`:
 
 ```jsx
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import ChartTooltip from './ChartTooltip.jsx';
 
 function DualAreaChart({ data, xKey, series, label }) {
@@ -275,14 +282,23 @@ function DualAreaChart({ data, xKey, series, label }) {
 
   return (
     <div className="rounded-card border border-slate-200 bg-white p-4 shadow-card">
-      <h3 className="mb-4 text-small font-semibold text-heading">{label}</h3>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-small font-semibold text-heading">{label}</h3>
+        <div className="flex items-center gap-3">
+          {series.map((s) => (
+            <span key={s.key} className="flex items-center gap-1.5 text-small text-body">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
+              {s.name}
+            </span>
+          ))}
+        </div>
+      </div>
       <ResponsiveContainer width="100%" height={240}>
         <AreaChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
           <XAxis dataKey={xKey} tick={{ fontSize: 12 }} />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip content={<ChartTooltip />} />
-          <Legend />
           {series.map((s) => (
             <Area
               key={s.key}
@@ -292,6 +308,7 @@ function DualAreaChart({ data, xKey, series, label }) {
               stroke={s.color}
               fill={s.color}
               fillOpacity={0.15}
+              isAnimationActive={false}
             />
           ))}
         </AreaChart>
