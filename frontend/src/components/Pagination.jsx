@@ -12,7 +12,7 @@ function Pagination({ page, totalPages, onPageChange }) {
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
         aria-label="Previous page"
-        className="rounded-md p-2 text-slate-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+        className="rounded-btn p-2 text-muted hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-40"
       >
         <ChevronLeft size={18} />
       </button>
@@ -23,8 +23,8 @@ function Pagination({ page, totalPages, onPageChange }) {
           type="button"
           onClick={() => onPageChange(pageNumber)}
           aria-current={pageNumber === page ? 'page' : undefined}
-          className={`h-9 w-9 rounded-md text-sm font-medium transition ${
-            pageNumber === page ? 'bg-primary text-white' : 'text-slate-700 hover:bg-slate-100'
+          className={`h-9 w-9 rounded-btn text-sm font-medium transition ${
+            pageNumber === page ? 'bg-primary text-white' : 'text-body hover:bg-surface-secondary'
           }`}
         >
           {pageNumber}
@@ -36,7 +36,7 @@ function Pagination({ page, totalPages, onPageChange }) {
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
         aria-label="Next page"
-        className="rounded-md p-2 text-slate-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+        className="rounded-btn p-2 text-muted hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-40"
       >
         <ChevronRight size={18} />
       </button>

@@ -5,7 +5,7 @@ function FilterDropdown({ label, value, options, onChange }) {
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="rounded-md border border-border bg-white px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+        className="rounded-btn border border-border bg-white px-3 py-2 text-heading focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
