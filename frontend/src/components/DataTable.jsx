@@ -13,7 +13,7 @@ function DataTable({ columns, rows, sortKey, sortDirection, onSortChange, isLoad
   return (
     <div className="overflow-x-auto rounded-card border border-slate-200 bg-white shadow-card">
       <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-surface-secondary">
+        <thead className="bg-primary">
           <tr>
             {columns.map((column) => {
               const isSorted = sortKey === column.key;
@@ -23,13 +23,13 @@ function DataTable({ columns, rows, sortKey, sortDirection, onSortChange, isLoad
                   key={column.key}
                   scope="col"
                   aria-sort={column.sortable ? ariaSort : undefined}
-                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted"
+                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-white"
                 >
                   {column.sortable ? (
                     <button
                       type="button"
                       onClick={() => onSortChange(column.key)}
-                      className="flex items-center gap-1 hover:text-primary"
+                      className="flex items-center gap-1 hover:text-white/80"
                     >
                       {column.label}
                       {isSorted &&
