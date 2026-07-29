@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
+import Button from '../../components/Button.jsx';
 import DataTable from '../../components/DataTable.jsx';
 import ConfirmDialog from '../../components/ConfirmDialog.jsx';
 import SearchInput from '../../components/SearchInput.jsx';
@@ -93,17 +94,17 @@ function ProductsPage() {
       render: (row) => (
         <div className="flex flex-wrap gap-1.5">
           {row.trending && (
-            <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+            <span className="rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning">
               Trending
             </span>
           )}
           {row.bestSeller && (
-            <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+            <span className="rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success">
               Best Seller
             </span>
           )}
           {!row.active && (
-            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+            <span className="rounded-full bg-surface-secondary px-2.5 py-0.5 text-xs font-medium text-muted">
               Inactive
             </span>
           )}
@@ -119,7 +120,7 @@ function ProductsPage() {
           <Link
             to={`/admin/products/${row.id}`}
             aria-label={`Edit ${row.name}`}
-            className="inline-flex rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
+            className="inline-flex rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary"
           >
             <Pencil size={16} />
           </Link>
@@ -127,7 +128,7 @@ function ProductsPage() {
             type="button"
             onClick={() => setDeleteTarget(row)}
             aria-label={`Delete ${row.name}`}
-            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-red-600"
+            className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-danger"
           >
             <Trash2 size={16} />
           </button>
@@ -139,14 +140,11 @@ function ProductsPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Products</h1>
-        <Link
-          to="/admin/products/new"
-          className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-        >
+        <h1 className="text-page-heading text-heading">Products</h1>
+        <Button to="/admin/products/new" size="sm">
           <Plus size={16} />
           Add Product
-        </Link>
+        </Button>
       </div>
 
       <div className="mb-4 flex flex-wrap items-end gap-4">
