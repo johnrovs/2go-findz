@@ -79,7 +79,7 @@ function ProductsTab({ products, onChange, fieldErrors }) {
 
   return (
     <div>
-      <label htmlFor="productSearch" className="mb-1 block text-sm font-medium text-slate-700">
+      <label htmlFor="productSearch" className="mb-1 block text-small font-medium text-body">
         Compared Products
       </label>
       <input
@@ -88,17 +88,17 @@ function ProductsTab({ products, onChange, fieldErrors }) {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Search products to add..."
-        className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
       />
-      {isSearching && <p className="mt-1 text-sm text-slate-400">Searching...</p>}
+      {isSearching && <p className="mt-1 text-sm text-muted">Searching...</p>}
       {!isSearching && results.length > 0 && (
-        <ul className="mt-1 rounded-md border border-slate-200 bg-white shadow-sm">
+        <ul className="mt-1 rounded-btn border border-border bg-white shadow-card">
           {results.map((product) => (
             <li key={product.id}>
               <button
                 type="button"
                 onClick={() => handleAdd(product)}
-                className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                className="block w-full px-3 py-2 text-left text-sm text-body hover:bg-surface-secondary"
               >
                 {product.name}
               </button>
@@ -106,20 +106,20 @@ function ProductsTab({ products, onChange, fieldErrors }) {
           ))}
         </ul>
       )}
-      {fieldErrors.products && <p className="mt-1 text-sm text-red-600">{fieldErrors.products}</p>}
+      {fieldErrors.products && <p className="mt-1 text-sm text-danger">{fieldErrors.products}</p>}
 
       <ul className="mt-4 space-y-4">
         {products.map((product, index) => (
-          <li key={product.productId} className="rounded-md border border-slate-200 p-4">
+          <li key={product.productId} className="rounded-btn border border-border p-4">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm font-semibold text-slate-900">{product.name}</span>
+              <span className="text-sm font-semibold text-heading">{product.name}</span>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => handleMoveUp(index)}
                   disabled={index === 0}
                   aria-label={`Move ${product.name} up`}
-                  className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <ArrowUp size={16} />
                 </button>
@@ -128,7 +128,7 @@ function ProductsTab({ products, onChange, fieldErrors }) {
                   onClick={() => handleMoveDown(index)}
                   disabled={index === products.length - 1}
                   aria-label={`Move ${product.name} down`}
-                  className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <ArrowDown size={16} />
                 </button>
@@ -136,7 +136,7 @@ function ProductsTab({ products, onChange, fieldErrors }) {
                   type="button"
                   onClick={() => handleRemove(product.productId)}
                   aria-label={`Remove ${product.name}`}
-                  className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-red-600"
+                  className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-danger"
                 >
                   <X size={16} />
                 </button>
@@ -145,7 +145,7 @@ function ProductsTab({ products, onChange, fieldErrors }) {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label htmlFor={`badge-${product.productId}`} className="mb-1 block text-xs font-medium text-slate-700">
+                <label htmlFor={`badge-${product.productId}`} className="mb-1 block text-xs font-medium text-body">
                   Badge
                 </label>
                 <input
@@ -153,11 +153,11 @@ function ProductsTab({ products, onChange, fieldErrors }) {
                   type="text"
                   value={product.badge}
                   onChange={(event) => handleFieldChange(index, 'badge', event.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-btn border border-border px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
-                <label htmlFor={`editorsScore-${product.productId}`} className="mb-1 block text-xs font-medium text-slate-700">
+                <label htmlFor={`editorsScore-${product.productId}`} className="mb-1 block text-xs font-medium text-body">
                   Editor's Score
                 </label>
                 <input
@@ -168,11 +168,11 @@ function ProductsTab({ products, onChange, fieldErrors }) {
                   max="10"
                   value={product.editorsScore}
                   onChange={(event) => handleFieldChange(index, 'editorsScore', event.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-btn border border-border px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label htmlFor={`recommendation-${product.productId}`} className="mb-1 block text-xs font-medium text-slate-700">
+                <label htmlFor={`recommendation-${product.productId}`} className="mb-1 block text-xs font-medium text-body">
                   Recommendation
                 </label>
                 <input
@@ -180,11 +180,11 @@ function ProductsTab({ products, onChange, fieldErrors }) {
                   type="text"
                   value={product.recommendation}
                   onChange={(event) => handleFieldChange(index, 'recommendation', event.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-btn border border-border px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
-                <label htmlFor={`bestFor-${product.productId}`} className="mb-1 block text-xs font-medium text-slate-700">
+                <label htmlFor={`bestFor-${product.productId}`} className="mb-1 block text-xs font-medium text-body">
                   Best For
                 </label>
                 <input
@@ -192,11 +192,11 @@ function ProductsTab({ products, onChange, fieldErrors }) {
                   type="text"
                   value={product.bestFor}
                   onChange={(event) => handleFieldChange(index, 'bestFor', event.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-btn border border-border px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
-                <label htmlFor={`mainStrength-${product.productId}`} className="mb-1 block text-xs font-medium text-slate-700">
+                <label htmlFor={`mainStrength-${product.productId}`} className="mb-1 block text-xs font-medium text-body">
                   Main Strength
                 </label>
                 <input
@@ -204,11 +204,11 @@ function ProductsTab({ products, onChange, fieldErrors }) {
                   type="text"
                   value={product.mainStrength}
                   onChange={(event) => handleFieldChange(index, 'mainStrength', event.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-btn border border-border px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
-                <label htmlFor={`mainWeakness-${product.productId}`} className="mb-1 block text-xs font-medium text-slate-700">
+                <label htmlFor={`mainWeakness-${product.productId}`} className="mb-1 block text-xs font-medium text-body">
                   Main Weakness
                 </label>
                 <input
@@ -216,11 +216,11 @@ function ProductsTab({ products, onChange, fieldErrors }) {
                   type="text"
                   value={product.mainWeakness}
                   onChange={(event) => handleFieldChange(index, 'mainWeakness', event.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-btn border border-border px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
-                <label htmlFor={`pros-${product.productId}`} className="mb-1 block text-xs font-medium text-slate-700">
+                <label htmlFor={`pros-${product.productId}`} className="mb-1 block text-xs font-medium text-body">
                   Pros
                 </label>
                 <textarea
@@ -228,11 +228,11 @@ function ProductsTab({ products, onChange, fieldErrors }) {
                   rows={2}
                   value={product.pros}
                   onChange={(event) => handleFieldChange(index, 'pros', event.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-btn border border-border px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
-                <label htmlFor={`cons-${product.productId}`} className="mb-1 block text-xs font-medium text-slate-700">
+                <label htmlFor={`cons-${product.productId}`} className="mb-1 block text-xs font-medium text-body">
                   Cons
                 </label>
                 <textarea
@@ -240,12 +240,12 @@ function ProductsTab({ products, onChange, fieldErrors }) {
                   rows={2}
                   value={product.cons}
                   onChange={(event) => handleFieldChange(index, 'cons', event.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-btn border border-border px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
             {fieldErrors[`product-${index}-prosCons`] && (
-              <p className="mt-2 text-sm text-red-600">{fieldErrors[`product-${index}-prosCons`]}</p>
+              <p className="mt-2 text-sm text-danger">{fieldErrors[`product-${index}-prosCons`]}</p>
             )}
           </li>
         ))}
