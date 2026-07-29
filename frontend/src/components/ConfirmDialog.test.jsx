@@ -73,7 +73,7 @@ describe('ConfirmDialog', () => {
         onCancel={vi.fn()}
       />
     );
-    expect(screen.getByRole('button', { name: 'Delete' })).toHaveClass('bg-red-600');
+    expect(screen.getByRole('button', { name: 'Delete' })).toHaveClass('bg-danger');
   });
 
   it('focuses the cancel button by default, not the destructive action', async () => {

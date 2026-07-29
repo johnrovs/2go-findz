@@ -1,4 +1,5 @@
 import Modal from './Modal.jsx';
+import Button from './Button.jsx';
 
 function ConfirmDialog({
   isOpen,
@@ -12,26 +13,14 @@ function ConfirmDialog({
 }) {
   return (
     <Modal isOpen={isOpen} onClose={onCancel} title={title} role="alertdialog">
-      <p className="text-sm text-slate-600">{message}</p>
+      <p className="text-body">{message}</p>
       <div className="mt-6 flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={isLoading}
-          className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <Button variant="secondary" size="sm" onClick={onCancel} disabled={isLoading}>
           Cancel
-        </button>
-        <button
-          type="button"
-          onClick={onConfirm}
-          disabled={isLoading}
-          className={`rounded-md px-4 py-2 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
-            isDestructive ? 'bg-red-600 hover:bg-red-700' : 'bg-indigo-600 hover:bg-indigo-700'
-          }`}
-        >
+        </Button>
+        <Button variant={isDestructive ? 'danger' : 'primary'} size="sm" onClick={onConfirm} disabled={isLoading}>
           {isLoading ? 'Please wait...' : confirmLabel}
-        </button>
+        </Button>
       </div>
     </Modal>
   );
