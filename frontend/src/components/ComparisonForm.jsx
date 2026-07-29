@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Button from './Button.jsx';
 import BasicInfoTab from './comparison-form/BasicInfoTab.jsx';
 import ProductsTab from './comparison-form/ProductsTab.jsx';
 import SpecTableTab from './comparison-form/SpecTableTab.jsx';
@@ -181,7 +182,7 @@ function ComparisonForm({ comparison, categories, onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit} noValidate>
       {formError && (
-        <p role="alert" className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="mb-4 rounded-btn bg-danger/10 px-3 py-2 text-sm text-danger">
           {formError}
         </p>
       )}
@@ -196,13 +197,13 @@ function ComparisonForm({ comparison, categories, onSubmit, onCancel }) {
               aria-current={activeTab === tab.key ? 'true' : undefined}
               className={`rounded-t-md px-4 py-2 text-sm font-medium ${
                 activeTab === tab.key
-                  ? 'border-b-2 border-indigo-600 text-indigo-600'
-                  : 'text-slate-500 hover:text-slate-700'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-muted hover:text-body'
               }`}
             >
               {tab.label}
               {tabHasError(tab.key, fieldErrors) && (
-                <span className="ml-1.5 inline-block h-2 w-2 rounded-full bg-red-500" aria-hidden="true" />
+                <span className="ml-1.5 inline-block h-2 w-2 rounded-full bg-danger" aria-hidden="true" />
               )}
             </button>
           ))}
@@ -236,21 +237,12 @@ function ComparisonForm({ comparison, categories, onSubmit, onCancel }) {
       </div>
 
       <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={isSubmitting}
-          className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <Button type="button" variant="secondary" size="sm" onClick={onCancel} disabled={isSubmitting}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" size="sm" disabled={isSubmitting}>
           {isSubmitting ? 'Saving...' : comparison ? 'Save Changes' : 'Add Comparison'}
-        </button>
+        </Button>
       </div>
     </form>
   );
