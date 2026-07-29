@@ -62,7 +62,7 @@ function EntityPicker({ label, inputId, searchPlaceholder, selectedItems, onChan
 
   return (
     <div>
-      <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="mb-1 block text-small font-medium text-body">
         {label}
       </label>
       <input
@@ -71,17 +71,17 @@ function EntityPicker({ label, inputId, searchPlaceholder, selectedItems, onChan
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder={searchPlaceholder}
-        className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
       />
-      {isSearching && <p className="mt-1 text-sm text-slate-400">Searching...</p>}
+      {isSearching && <p className="mt-1 text-sm text-muted">Searching...</p>}
       {!isSearching && results.length > 0 && (
-        <ul className="mt-1 rounded-md border border-slate-200 bg-white shadow-sm">
+        <ul className="mt-1 rounded-btn border border-border bg-white shadow-card">
           {results.map((item) => (
             <li key={item.id}>
               <button
                 type="button"
                 onClick={() => handleAdd(item)}
-                className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                className="block w-full px-3 py-2 text-left text-sm text-body hover:bg-surface-secondary"
               >
                 {getItemLabel(item)}
               </button>
@@ -94,16 +94,16 @@ function EntityPicker({ label, inputId, searchPlaceholder, selectedItems, onChan
         {selectedItems.map((item, index) => (
           <li
             key={item.id}
-            className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2"
+            className="flex items-center justify-between rounded-btn border border-border px-3 py-2"
           >
-            <span className="text-sm text-slate-700">{getItemLabel(item)}</span>
+            <span className="text-sm text-body">{getItemLabel(item)}</span>
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => handleMoveUp(index)}
                 disabled={index === 0}
                 aria-label={`Move ${getItemLabel(item)} up`}
-                className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ArrowUp size={16} />
               </button>
@@ -112,7 +112,7 @@ function EntityPicker({ label, inputId, searchPlaceholder, selectedItems, onChan
                 onClick={() => handleMoveDown(index)}
                 disabled={index === selectedItems.length - 1}
                 aria-label={`Move ${getItemLabel(item)} down`}
-                className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ArrowDown size={16} />
               </button>
@@ -120,7 +120,7 @@ function EntityPicker({ label, inputId, searchPlaceholder, selectedItems, onChan
                 type="button"
                 onClick={() => handleRemove(item.id)}
                 aria-label={`Remove ${getItemLabel(item)}`}
-                className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-red-600"
+                className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-danger"
               >
                 <X size={16} />
               </button>
