@@ -62,7 +62,7 @@ function ProductCard({ product }) {
           onClick={handleCheckPrice}
           target="_blank"
           rel="nofollow sponsored noopener noreferrer"
-          className="mt-auto !rounded-[36px] !py-2 max-sm:text-[14px]"
+          className="mt-auto whitespace-nowrap !rounded-[36px] !py-2 max-sm:text-[14px]"
         >
           Check Price
         </Button>
