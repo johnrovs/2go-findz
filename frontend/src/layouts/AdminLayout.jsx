@@ -7,7 +7,7 @@ function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-surface-secondary">
       <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="flex flex-1 flex-col">
         <AdminTopbar onMenuClick={() => setIsSidebarOpen(true)} />
