@@ -40,9 +40,9 @@ function ImageUploader({ imageFileName, onChange }) {
 
   return (
     <div>
-      <span className="mb-1 block text-sm font-medium text-slate-700">Product Image</span>
+      <span className="mb-1 block text-small font-medium text-body">Product Image</span>
       <div className="flex items-center gap-4">
-        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-card border border-border bg-surface-secondary">
           {previewUrl ? (
             <img src={previewUrl} alt="Product preview" className="h-full w-full object-cover" />
           ) : (
@@ -50,7 +50,7 @@ function ImageUploader({ imageFileName, onChange }) {
           )}
         </div>
         <div>
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-btn border border-border px-4 py-2 text-sm font-medium text-body hover:bg-slate-50">
             <Upload size={16} />
             {isUploading ? 'Uploading...' : 'Upload Image'}
             <input
@@ -62,7 +62,7 @@ function ImageUploader({ imageFileName, onChange }) {
             />
           </label>
           {error && (
-            <p role="alert" className="mt-2 text-sm text-red-600">
+            <p role="alert" className="mt-2 text-sm text-danger">
               {error}
             </p>
           )}
