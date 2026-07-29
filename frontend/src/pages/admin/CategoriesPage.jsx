@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import Button from '../../components/Button.jsx';
 import DataTable from '../../components/DataTable.jsx';
 import Modal from '../../components/Modal.jsx';
 import ConfirmDialog from '../../components/ConfirmDialog.jsx';
@@ -110,7 +111,7 @@ function CategoriesPage() {
             type="button"
             onClick={() => setModalState({ category: row })}
             aria-label={`Edit ${row.productCategoryName}`}
-            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
+            className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary"
           >
             <Pencil size={16} />
           </button>
@@ -118,7 +119,7 @@ function CategoriesPage() {
             type="button"
             onClick={() => setDeleteTarget(row)}
             aria-label={`Delete ${row.productCategoryName}`}
-            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-red-600"
+            className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-danger"
           >
             <Trash2 size={16} />
           </button>
@@ -130,15 +131,11 @@ function CategoriesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Product Categories</h1>
-        <button
-          type="button"
-          onClick={() => setModalState({ category: null })}
-          className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-        >
+        <h1 className="text-page-heading text-heading">Product Categories</h1>
+        <Button onClick={() => setModalState({ category: null })} size="sm">
           <Plus size={16} />
           Add Category
-        </button>
+        </Button>
       </div>
 
       <div className="mb-4">
@@ -148,7 +145,7 @@ function CategoriesPage() {
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search categories..."
           aria-label="Search categories"
-          className="w-full max-w-sm rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full max-w-sm rounded-search border border-border px-3 py-2 text-sm text-heading focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
 
