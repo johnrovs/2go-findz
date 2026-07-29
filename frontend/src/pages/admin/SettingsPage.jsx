@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Button from '../../components/Button.jsx';
 import ImageUploader from '../../components/ImageUploader.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
@@ -112,34 +113,34 @@ function SettingsPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">System Settings</h1>
+      <h1 className="mb-6 text-page-heading text-heading">System Settings</h1>
 
       <form onSubmit={handleSubmit} noValidate className="max-w-2xl space-y-10">
         {formError && (
-          <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p role="alert" className="rounded-btn bg-danger/10 px-3 py-2 text-sm text-danger">
             {formError}
           </p>
         )}
 
-        <section>
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">Branding &amp; Hero Images</h2>
+        <section className="rounded-card bg-white p-6 shadow-card">
+          <h2 className="mb-4 text-card-title text-heading">Branding &amp; Hero Images</h2>
           <div className="space-y-6">
             <div>
-              <span className="mb-1 block text-sm font-medium text-slate-700">Logo</span>
+              <span className="mb-1 block text-small font-medium text-body">Logo</span>
               <ImageUploader
                 imageFileName={settings.logoImageFilename}
                 onChange={(filename) => handleChange('logoImageFilename', filename)}
               />
             </div>
             <div>
-              <span className="mb-1 block text-sm font-medium text-slate-700">Hero Image</span>
+              <span className="mb-1 block text-small font-medium text-body">Hero Image</span>
               <ImageUploader
                 imageFileName={settings.heroImageFilename}
                 onChange={(filename) => handleChange('heroImageFilename', filename)}
               />
             </div>
             <div>
-              <span className="mb-1 block text-sm font-medium text-slate-700">Product Placeholder Image</span>
+              <span className="mb-1 block text-small font-medium text-body">Product Placeholder Image</span>
               <ImageUploader
                 imageFileName={settings.placeholderImageFilename}
                 onChange={(filename) => handleChange('placeholderImageFilename', filename)}
@@ -148,10 +149,10 @@ function SettingsPage() {
           </div>
         </section>
 
-        <section>
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">Hero Content</h2>
+        <section className="rounded-card bg-white p-6 shadow-card">
+          <h2 className="mb-4 text-card-title text-heading">Hero Content</h2>
           <div className="mb-4">
-            <label htmlFor="heroHeadline" className="mb-1 block text-sm font-medium text-slate-700">
+            <label htmlFor="heroHeadline" className="mb-1 block text-small font-medium text-body">
               Hero Headline
             </label>
             <input
@@ -159,11 +160,11 @@ function SettingsPage() {
               type="text"
               value={settings.heroHeadline}
               onChange={(event) => handleChange('heroHeadline', event.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
           <div>
-            <label htmlFor="heroDescription" className="mb-1 block text-sm font-medium text-slate-700">
+            <label htmlFor="heroDescription" className="mb-1 block text-small font-medium text-body">
               Hero Description
             </label>
             <textarea
@@ -171,16 +172,16 @@ function SettingsPage() {
               rows={3}
               value={settings.heroDescription}
               onChange={(event) => handleChange('heroDescription', event.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
         </section>
 
-        <section>
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">Social Links</h2>
+        <section className="rounded-card bg-white p-6 shadow-card">
+          <h2 className="mb-4 text-card-title text-heading">Social Links</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="tiktokUrl" className="mb-1 block text-sm font-medium text-slate-700">
+              <label htmlFor="tiktokUrl" className="mb-1 block text-small font-medium text-body">
                 TikTok URL
               </label>
               <input
@@ -188,11 +189,11 @@ function SettingsPage() {
                 type="text"
                 value={settings.tiktokUrl}
                 onChange={(event) => handleChange('tiktokUrl', event.target.value)}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <div>
-              <label htmlFor="pinterestUrl" className="mb-1 block text-sm font-medium text-slate-700">
+              <label htmlFor="pinterestUrl" className="mb-1 block text-small font-medium text-body">
                 Pinterest URL
               </label>
               <input
@@ -200,11 +201,11 @@ function SettingsPage() {
                 type="text"
                 value={settings.pinterestUrl}
                 onChange={(event) => handleChange('pinterestUrl', event.target.value)}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <div>
-              <label htmlFor="instagramUrl" className="mb-1 block text-sm font-medium text-slate-700">
+              <label htmlFor="instagramUrl" className="mb-1 block text-small font-medium text-body">
                 Instagram URL
               </label>
               <input
@@ -212,11 +213,11 @@ function SettingsPage() {
                 type="text"
                 value={settings.instagramUrl}
                 onChange={(event) => handleChange('instagramUrl', event.target.value)}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <div>
-              <label htmlFor="youtubeUrl" className="mb-1 block text-sm font-medium text-slate-700">
+              <label htmlFor="youtubeUrl" className="mb-1 block text-small font-medium text-body">
                 YouTube URL
               </label>
               <input
@@ -224,16 +225,16 @@ function SettingsPage() {
                 type="text"
                 value={settings.youtubeUrl}
                 onChange={(event) => handleChange('youtubeUrl', event.target.value)}
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
         </section>
 
-        <section>
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">Shop Info &amp; Disclosure</h2>
+        <section className="rounded-card bg-white p-6 shadow-card">
+          <h2 className="mb-4 text-card-title text-heading">Shop Info &amp; Disclosure</h2>
           <div className="mb-4">
-            <label htmlFor="shopBio" className="mb-1 block text-sm font-medium text-slate-700">
+            <label htmlFor="shopBio" className="mb-1 block text-small font-medium text-body">
               Shop Bio
             </label>
             <textarea
@@ -241,11 +242,11 @@ function SettingsPage() {
               rows={3}
               value={settings.shopBio}
               onChange={(event) => handleChange('shopBio', event.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="affiliateDisclosure" className="mb-1 block text-sm font-medium text-slate-700">
+            <label htmlFor="affiliateDisclosure" className="mb-1 block text-small font-medium text-body">
               Affiliate Disclosure
             </label>
             <textarea
@@ -253,18 +254,18 @@ function SettingsPage() {
               rows={3}
               value={settings.affiliateDisclosure}
               onChange={(event) => handleChange('affiliateDisclosure', event.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
               aria-invalid={Boolean(fieldErrors.affiliateDisclosure)}
               aria-describedby={fieldErrors.affiliateDisclosure ? 'affiliateDisclosure-error' : undefined}
             />
             {fieldErrors.affiliateDisclosure && (
-              <p id="affiliateDisclosure-error" className="mt-1 text-sm text-red-600">
+              <p id="affiliateDisclosure-error" className="mt-1 text-sm text-danger">
                 {fieldErrors.affiliateDisclosure}
               </p>
             )}
           </div>
           <div>
-            <label htmlFor="contactEmail" className="mb-1 block text-sm font-medium text-slate-700">
+            <label htmlFor="contactEmail" className="mb-1 block text-small font-medium text-body">
               Contact Email
             </label>
             <input
@@ -272,25 +273,21 @@ function SettingsPage() {
               type="text"
               value={settings.contactEmail}
               onChange={(event) => handleChange('contactEmail', event.target.value)}
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
               aria-invalid={Boolean(fieldErrors.contactEmail)}
               aria-describedby={fieldErrors.contactEmail ? 'contactEmail-error' : undefined}
             />
             {fieldErrors.contactEmail && (
-              <p id="contactEmail-error" className="mt-1 text-sm text-red-600">
+              <p id="contactEmail-error" className="mt-1 text-sm text-danger">
                 {fieldErrors.contactEmail}
               </p>
             )}
           </div>
         </section>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Saving...' : 'Save Changes'}
-        </button>
+        </Button>
       </form>
     </div>
   );
