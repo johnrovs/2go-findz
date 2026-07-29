@@ -51,7 +51,7 @@ function Navbar() {
             <img src={logo} alt="2Go Findz" className="h-10 w-10" />
           </Link>
 
-          <nav aria-label="Main navigation" className="hidden items-center gap-6 md:flex">
+          <nav aria-label="Main navigation" className="hidden items-center gap-6 lg:flex">
             <NavLink to="/" end className={navLinkClassName}>
               Home
             </NavLink>
@@ -123,7 +123,7 @@ function Navbar() {
               type="button"
               onClick={() => setIsMobileMenuOpen(true)}
               aria-label="Open menu"
-              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 md:hidden"
+              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
             >
               <Menu size={20} />
             </button>
