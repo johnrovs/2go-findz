@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Pencil, Trash2, BookOpen } from 'lucide-react';
+import Button from '../../components/Button.jsx';
 import DataTable from '../../components/DataTable.jsx';
 import ConfirmDialog from '../../components/ConfirmDialog.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
@@ -76,7 +77,7 @@ function BuyingGuidesPage() {
       render: (row) => (
         <span
           className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            row.active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+            row.active ? 'bg-success/10 text-success' : 'bg-surface-secondary text-muted'
           }`}
         >
           {row.active ? 'Published' : 'Draft'}
@@ -92,7 +93,7 @@ function BuyingGuidesPage() {
           <Link
             to={`/admin/buying-guides/${row.id}`}
             aria-label={`Edit ${row.title}`}
-            className="inline-flex rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
+            className="inline-flex rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary"
           >
             <Pencil size={16} />
           </Link>
@@ -100,7 +101,7 @@ function BuyingGuidesPage() {
             type="button"
             onClick={() => setDeleteTarget(row)}
             aria-label={`Delete ${row.title}`}
-            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-red-600"
+            className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-danger"
           >
             <Trash2 size={16} />
           </button>
@@ -112,14 +113,11 @@ function BuyingGuidesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Buying Guides</h1>
-        <Link
-          to="/admin/buying-guides/new"
-          className="flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-        >
+        <h1 className="text-page-heading text-heading">Buying Guides</h1>
+        <Button to="/admin/buying-guides/new" size="sm">
           <Plus size={16} />
           Add Guide
-        </Link>
+        </Button>
       </div>
 
       {error ? (
