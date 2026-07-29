@@ -5,6 +5,7 @@ const VARIANT_CLASSES = {
   primary: 'bg-primary text-white shadow-card hover:bg-primary-hover',
   secondary: 'bg-white text-primary border border-primary hover:bg-primary/5',
   amazon: 'bg-amazon text-[#111827] shadow-card hover:bg-amazon-hover',
+  danger: 'bg-danger text-white shadow-card hover:bg-red-700',
 };
 
 const SIZE_CLASSES = {

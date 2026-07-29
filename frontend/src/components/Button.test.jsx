@@ -36,6 +36,11 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Amazon' })).toHaveClass('bg-amazon');
   });
 
+  it('applies danger variant classes', () => {
+    render(<Button variant="danger">Delete</Button>);
+    expect(screen.getByRole('button', { name: 'Delete' })).toHaveClass('bg-danger', 'text-white');
+  });
+
   it('forwards onClick and disabled to a native button', async () => {
     const onClick = vi.fn();
     const user = userEvent.setup();
