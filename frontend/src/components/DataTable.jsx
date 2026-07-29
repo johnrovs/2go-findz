@@ -11,9 +11,9 @@ function DataTable({ columns, rows, sortKey, sortDirection, onSortChange, isLoad
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <div className="overflow-x-auto rounded-card border border-slate-200 bg-white shadow-card">
       <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-slate-50">
+        <thead className="bg-surface-secondary">
           <tr>
             {columns.map((column) => {
               const isSorted = sortKey === column.key;
@@ -23,13 +23,13 @@ function DataTable({ columns, rows, sortKey, sortDirection, onSortChange, isLoad
                   key={column.key}
                   scope="col"
                   aria-sort={column.sortable ? ariaSort : undefined}
-                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
+                  className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted"
                 >
                   {column.sortable ? (
                     <button
                       type="button"
                       onClick={() => onSortChange(column.key)}
-                      className="flex items-center gap-1 hover:text-slate-700"
+                      className="flex items-center gap-1 hover:text-primary"
                     >
                       {column.label}
                       {isSorted &&
@@ -47,7 +47,7 @@ function DataTable({ columns, rows, sortKey, sortDirection, onSortChange, isLoad
           {rows.map((row) => (
             <tr key={row.id}>
               {columns.map((column) => (
-                <td key={column.key} className="px-4 py-3 text-sm text-slate-700">
+                <td key={column.key} className="px-4 py-3 text-sm text-body">
                   {column.render ? column.render(row) : row[column.key]}
                 </td>
               ))}
