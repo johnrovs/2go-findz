@@ -51,7 +51,7 @@ function ProductFormPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">{isEditMode ? 'Edit Product' : 'Add Product'}</h1>
+      <h1 className="mb-6 text-page-heading text-heading">{isEditMode ? 'Edit Product' : 'Add Product'}</h1>
 
       {isLoading ? (
         <LoadingSpinner label="Loading product..." />
