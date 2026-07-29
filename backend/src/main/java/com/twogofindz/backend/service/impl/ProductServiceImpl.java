@@ -38,6 +38,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductResponse create(ProductRequest request) {
         ProductCategory category = findCategory(request.categoryId());
+        boolean effectiveActive = request.scheduledPublishAt() != null ? false : request.active();
         Product product = Product.builder()
                 .name(request.name())
                 .description(request.description())
@@ -47,7 +48,9 @@ public class ProductServiceImpl implements ProductService {
                 .productLink(request.productLink())
                 .trending(request.trending())
                 .bestSeller(request.bestSeller())
-                .active(request.active())
+                .active(effectiveActive)
+                .brand(request.brand())
+                .scheduledPublishAt(request.scheduledPublishAt())
                 .build();
         return productMapper.toResponse(productRepository.save(product));
     }
@@ -57,6 +60,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse update(Long id, ProductRequest request) {
         Product product = findProduct(id);
         ProductCategory category = findCategory(request.categoryId());
+        boolean effectiveActive = request.scheduledPublishAt() != null ? false : request.active();
 
         product.setName(request.name());
         product.setDescription(request.description());
@@ -66,7 +70,9 @@ public class ProductServiceImpl implements ProductService {
         product.setProductLink(request.productLink());
         product.setTrending(request.trending());
         product.setBestSeller(request.bestSeller());
-        product.setActive(request.active());
+        product.setActive(effectiveActive);
+        product.setBrand(request.brand());
+        product.setScheduledPublishAt(request.scheduledPublishAt());
 
         return productMapper.toResponse(productRepository.save(product));
     }

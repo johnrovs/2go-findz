@@ -5,6 +5,7 @@ import com.twogofindz.backend.dto.request.ProductRequest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -193,5 +194,56 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/admin/products/{id}", productId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(jsonPath("$.data.active").value(true));
+    }
+
+    @Test
+    void create_withScheduledPublishAt_forcesActiveFalse() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Scheduled Product Category");
+        ProductRequest request = new ProductRequest(
+                "Scheduled Product", "Will publish later.", categoryId, null,
+                new BigDecimal("15.00"), "https://amazon.com/dp/scheduled", false, false, true,
+                null, LocalDateTime.now().plusDays(2));
+
+        mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.active").value(false))
+                .andExpect(jsonPath("$.data.scheduledPublishAt").isNotEmpty());
+    }
+
+    @Test
+    void create_withBrand_returnsBrandInResponse() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Brand Product Category");
+        ProductRequest request = new ProductRequest(
+                "Branded Product", "Has a brand.", categoryId, null,
+                new BigDecimal("15.00"), "https://amazon.com/dp/branded", false, false, true,
+                "Nike", null);
+
+        mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.brand").value("Nike"));
+    }
+
+    @Test
+    void create_returns400_withPastScheduledPublishAt() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Past Schedule Category");
+        ProductRequest request = new ProductRequest(
+                "Bad Schedule Product", "Scheduled in the past.", categoryId, null,
+                new BigDecimal("15.00"), "https://amazon.com/dp/pastschedule", false, false, true,
+                null, LocalDateTime.now().minusDays(1));
+
+        mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 }
