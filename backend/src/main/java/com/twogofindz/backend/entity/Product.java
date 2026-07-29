@@ -61,6 +61,12 @@ public class Product {
     @Column(nullable = false)
     private boolean active;
 
+    @Column(length = 200)
+    private String brand;
+
+    @Column(name = "scheduled_publish_at")
+    private LocalDateTime scheduledPublishAt;
+
     @Generated(event = {EventType.INSERT, EventType.UPDATE})
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private LocalDateTime createdAt;
