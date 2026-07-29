@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Button from './Button.jsx';
 
 function CategoryForm({ category, onSubmit, onCancel }) {
   const [name, setName] = useState(category?.productCategoryName ?? '');
@@ -44,13 +45,13 @@ function CategoryForm({ category, onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit} noValidate>
       {formError && (
-        <p role="alert" className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="mb-4 rounded-btn bg-danger/10 px-3 py-2 text-sm text-danger">
           {formError}
         </p>
       )}
 
       <div className="mb-4">
-        <label htmlFor="productCategoryName" className="mb-1 block text-sm font-medium text-slate-700">
+        <label htmlFor="productCategoryName" className="mb-1 block text-small font-medium text-body">
           Category Name
         </label>
         <input
@@ -58,19 +59,19 @@ function CategoryForm({ category, onSubmit, onCancel }) {
           type="text"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
           aria-invalid={Boolean(fieldErrors.productCategoryName)}
           aria-describedby={fieldErrors.productCategoryName ? 'productCategoryName-error' : undefined}
         />
         {fieldErrors.productCategoryName && (
-          <p id="productCategoryName-error" className="mt-1 text-sm text-red-600">
+          <p id="productCategoryName-error" className="mt-1 text-sm text-danger">
             {fieldErrors.productCategoryName}
           </p>
         )}
       </div>
 
       <div className="mb-6">
-        <label htmlFor="commissionRate" className="mb-1 block text-sm font-medium text-slate-700">
+        <label htmlFor="commissionRate" className="mb-1 block text-small font-medium text-body">
           Commission Rate (%)
         </label>
         <input
@@ -81,33 +82,24 @@ function CategoryForm({ category, onSubmit, onCancel }) {
           max="100"
           value={commissionRate}
           onChange={(event) => setCommissionRate(event.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
           aria-invalid={Boolean(fieldErrors.commissionRate)}
           aria-describedby={fieldErrors.commissionRate ? 'commissionRate-error' : undefined}
         />
         {fieldErrors.commissionRate && (
-          <p id="commissionRate-error" className="mt-1 text-sm text-red-600">
+          <p id="commissionRate-error" className="mt-1 text-sm text-danger">
             {fieldErrors.commissionRate}
           </p>
         )}
       </div>
 
       <div className="flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={isSubmitting}
-          className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <Button type="button" variant="secondary" size="sm" onClick={onCancel} disabled={isSubmitting}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" size="sm" disabled={isSubmitting}>
           {isSubmitting ? 'Saving...' : category ? 'Save Changes' : 'Add Category'}
-        </button>
+        </Button>
       </div>
     </form>
   );
