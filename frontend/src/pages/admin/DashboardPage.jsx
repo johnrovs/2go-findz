@@ -1,6 +1,8 @@
-import { Eye, MousePointerClick, DollarSign, Package, Tags, TrendingUp, Award } from 'lucide-react';
+import { Eye, MousePointerClick, DollarSign, Package, Tags } from 'lucide-react';
 import AnalyticsCard from '../../components/AnalyticsCard.jsx';
 import AnalyticsChart from '../../components/AnalyticsChart.jsx';
+import DualAreaChart from '../../components/DualAreaChart.jsx';
+import GaugeCard from '../../components/GaugeCard.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
@@ -18,6 +20,27 @@ function formatCurrency(value) {
   return `$${Number(value ?? 0).toFixed(2)}`;
 }
 
+function safePercentage(numerator, denominator) {
+  if (!denominator) return 0;
+  return Math.round((numerator / denominator) * 100);
+}
+
+function mergeViewsAndClicks(viewsByDay, clicksByDay) {
+  const byDate = new Map();
+  for (const { date, count } of viewsByDay) {
+    byDate.set(date, { date, views: count, clicks: 0 });
+  }
+  for (const { date, count } of clicksByDay) {
+    const existing = byDate.get(date);
+    if (existing) {
+      existing.clicks = count;
+    } else {
+      byDate.set(date, { date, views: 0, clicks: count });
+    }
+  }
+  return Array.from(byDate.values()).sort((a, b) => a.date.localeCompare(b.date));
+}
+
 function DashboardPage() {
   const dashboard = useDashboardData();
 
@@ -30,11 +53,12 @@ function DashboardPage() {
   }
 
   const { summary, analytics } = dashboard;
+  const viewsAndClicks = mergeViewsAndClicks(analytics.viewsByDay, analytics.clicksByDay);
 
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+        <h1 className="text-page-heading text-heading">Dashboard</h1>
         <div className="flex flex-wrap items-end gap-4">
           <FilterDropdown
             label="Date Range"
@@ -53,7 +77,7 @@ function DashboardPage() {
                   type="date"
                   value={dashboard.customFrom}
                   onChange={(event) => dashboard.setCustomFrom(event.target.value)}
-                  className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="rounded-btn border border-border px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
@@ -65,7 +89,7 @@ function DashboardPage() {
                   type="date"
                   value={dashboard.customTo}
                   onChange={(event) => dashboard.setCustomTo(event.target.value)}
-                  className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="rounded-btn border border-border px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
             </>
@@ -83,13 +107,27 @@ function DashboardPage() {
         />
         <AnalyticsCard label="Total Products" value={summary.totalProducts} icon={Package} />
         <AnalyticsCard label="Total Categories" value={summary.totalCategories} icon={Tags} />
-        <AnalyticsCard label="Trending Products" value={summary.trendingCount} icon={TrendingUp} />
-        <AnalyticsCard label="Best Sellers" value={summary.bestSellerCount} icon={Award} />
+        <GaugeCard label="Click-Through Rate" value={safePercentage(summary.totalClicks, summary.totalViews)} />
+        <GaugeCard
+          label="Trending Share of Catalog"
+          value={safePercentage(summary.trendingCount, summary.totalProducts)}
+        />
+        <GaugeCard
+          label="Best-Seller Share of Catalog"
+          value={safePercentage(summary.bestSellerCount, summary.totalProducts)}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <AnalyticsChart type="line" data={analytics.viewsByDay} xKey="date" yKey="count" label="Website Views by Day" />
-        <AnalyticsChart type="line" data={analytics.clicksByDay} xKey="date" yKey="count" label="Product Clicks by Day" />
+        <DualAreaChart
+          data={viewsAndClicks}
+          xKey="date"
+          series={[
+            { key: 'views', name: 'Views', color: '#2563EB' },
+            { key: 'clicks', name: 'Clicks', color: '#FF9900' },
+          ]}
+          label="Views & Clicks by Day"
+        />
         <AnalyticsChart
           type="bar"
           layout="vertical"
