@@ -1,12 +1,14 @@
 package com.twogofindz.backend.dto.request;
 
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public record ProductRequest(
         @NotBlank(message = "Product name is required.")
@@ -30,6 +32,12 @@ public record ProductRequest(
 
         @NotNull(message = "Trending flag is required.") Boolean trending,
         @NotNull(message = "Best seller flag is required.") Boolean bestSeller,
-        @NotNull(message = "Active flag is required.") Boolean active
+        @NotNull(message = "Active flag is required.") Boolean active,
+
+        @Size(max = 200, message = "Brand must be at most 200 characters.")
+        String brand,
+
+        @Future(message = "Scheduled publish date must be in the future.")
+        LocalDateTime scheduledPublishAt
 ) {
 }

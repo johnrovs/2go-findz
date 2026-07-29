@@ -32,7 +32,9 @@ public class ProductMapper {
                 product.isBestSeller(),
                 product.isActive(),
                 product.getCreatedAt(),
-                product.getUpdatedAt()
+                product.getUpdatedAt(),
+                product.getBrand(),
+                product.getScheduledPublishAt()
         );
     }
 }

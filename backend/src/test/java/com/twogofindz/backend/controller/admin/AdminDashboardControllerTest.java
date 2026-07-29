@@ -42,7 +42,7 @@ class AdminDashboardControllerTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(new ProductRequest(
                                 "Commission Math Product", "For commission math.", categoryId, null,
                                 new BigDecimal("50.00"), "https://amazon.com/dp/commissionmath",
-                                false, false, true))))
+                                false, false, true, null, null))))
                 .andReturn();
         Long productId = objectMapper.readTree(productResult.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
@@ -211,7 +211,7 @@ class AdminDashboardControllerTest extends AbstractIntegrationTest {
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new ProductRequest(
                                 name, "Test product for dashboard analytics.", categoryId, null,
-                                price, link, trending, bestSeller, active))))
+                                price, link, trending, bestSeller, active, null, null))))
                 .andReturn();
         return objectMapper.readTree(result.getResponse().getContentAsString())
                 .path("data").path("id").asLong();

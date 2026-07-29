@@ -16,6 +16,8 @@ public record ProductResponse(
         boolean bestSeller,
         boolean active,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        String brand,
+        LocalDateTime scheduledPublishAt
 ) {
 }

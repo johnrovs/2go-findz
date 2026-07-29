@@ -21,7 +21,7 @@ class PublicProductControllerTest extends AbstractIntegrationTest {
 
         ProductRequest inactiveProduct = new ProductRequest(
                 "Hidden Product", "Should never show publicly.", categoryId, null,
-                new BigDecimal("15.00"), "https://amazon.com/dp/hidden", false, false, false);
+                new BigDecimal("15.00"), "https://amazon.com/dp/hidden", false, false, false, null, null);
 
         mockMvc.perform(post("/api/admin/products")
                 .header("Authorization", "Bearer " + token)
@@ -45,7 +45,7 @@ class PublicProductControllerTest extends AbstractIntegrationTest {
         Long categoryId = createCategoryId(token, "Inactive Visibility Category");
         ProductRequest inactiveProduct = new ProductRequest(
                 "Inactive Product", "Created inactive directly.", categoryId, null,
-                new BigDecimal("12.00"), "https://amazon.com/dp/inactive", false, false, false);
+                new BigDecimal("12.00"), "https://amazon.com/dp/inactive", false, false, false, null, null);
 
         var createResult = mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
@@ -78,7 +78,7 @@ class PublicProductControllerTest extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(new ProductRequest(
                                         "Clickable Product", "Tracks clicks.", categoryId, null,
                                         new java.math.BigDecimal("30.00"), "https://amazon.com/dp/clickable",
-                                        false, false, true))))
+                                        false, false, true, null, null))))
                 .andReturn();
         Long productId = objectMapper.readTree(createResult.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
@@ -100,7 +100,7 @@ class PublicProductControllerTest extends AbstractIntegrationTest {
                                 .content(objectMapper.writeValueAsString(new ProductRequest(
                                         "No Session Product", "No session id sent.", categoryId, null,
                                         new java.math.BigDecimal("15.00"), "https://amazon.com/dp/nosession",
-                                        false, false, true))))
+                                        false, false, true, null, null))))
                 .andReturn();
         Long productId = objectMapper.readTree(createResult.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
@@ -170,7 +170,7 @@ class PublicProductControllerTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(new ProductRequest(
                                 name, "Compare test product.", categoryId, null,
                                 new BigDecimal("10.00"), "https://amazon.com/dp/" + name.replace(" ", "-"),
-                                false, false, active))))
+                                false, false, active, null, null))))
                 .andReturn();
         return objectMapper.readTree(result.getResponse().getContentAsString())
                 .path("data").path("id").asLong();

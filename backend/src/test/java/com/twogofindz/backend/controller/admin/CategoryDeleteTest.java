@@ -29,7 +29,7 @@ class CategoryDeleteTest extends AbstractIntegrationTest {
         Long categoryId = createCategoryId(token, "In Use Category");
         ProductRequest product = new ProductRequest(
                 "Blocking Product", "Keeps the category in use.", categoryId, null,
-                new BigDecimal("25.00"), "https://amazon.com/dp/blocking", false, false, true);
+                new BigDecimal("25.00"), "https://amazon.com/dp/blocking", false, false, true, null, null);
 
         mockMvc.perform(post("/api/admin/products")
                 .header("Authorization", "Bearer " + token)
