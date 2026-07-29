@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Button from './Button.jsx';
 import ImageUploader from './ImageUploader.jsx';
 import ProductPicker from './ProductPicker.jsx';
 
@@ -51,7 +52,7 @@ function BuyingGuideForm({ guide, onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit} noValidate className="max-w-2xl">
       {formError && (
-        <p role="alert" className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p role="alert" className="mb-4 rounded-btn bg-danger/10 px-3 py-2 text-sm text-danger">
           {formError}
         </p>
       )}
@@ -61,7 +62,7 @@ function BuyingGuideForm({ guide, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-4">
-        <label htmlFor="title" className="mb-1 block text-sm font-medium text-slate-700">
+        <label htmlFor="title" className="mb-1 block text-small font-medium text-body">
           Title
         </label>
         <input
@@ -70,19 +71,19 @@ function BuyingGuideForm({ guide, onSubmit, onCancel }) {
           maxLength={200}
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
           aria-invalid={Boolean(fieldErrors.title)}
           aria-describedby={fieldErrors.title ? 'title-error' : undefined}
         />
         {fieldErrors.title && (
-          <p id="title-error" className="mt-1 text-sm text-red-600">
+          <p id="title-error" className="mt-1 text-sm text-danger">
             {fieldErrors.title}
           </p>
         )}
       </div>
 
       <div className="mb-4">
-        <label htmlFor="excerpt" className="mb-1 block text-sm font-medium text-slate-700">
+        <label htmlFor="excerpt" className="mb-1 block text-small font-medium text-body">
           Excerpt
         </label>
         <textarea
@@ -91,19 +92,19 @@ function BuyingGuideForm({ guide, onSubmit, onCancel }) {
           maxLength={500}
           value={excerpt}
           onChange={(event) => setExcerpt(event.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
           aria-invalid={Boolean(fieldErrors.excerpt)}
           aria-describedby={fieldErrors.excerpt ? 'excerpt-error' : undefined}
         />
         {fieldErrors.excerpt && (
-          <p id="excerpt-error" className="mt-1 text-sm text-red-600">
+          <p id="excerpt-error" className="mt-1 text-sm text-danger">
             {fieldErrors.excerpt}
           </p>
         )}
       </div>
 
       <div className="mb-4">
-        <label htmlFor="content" className="mb-1 block text-sm font-medium text-slate-700">
+        <label htmlFor="content" className="mb-1 block text-small font-medium text-body">
           Content
         </label>
         <textarea
@@ -111,12 +112,12 @@ function BuyingGuideForm({ guide, onSubmit, onCancel }) {
           rows={8}
           value={content}
           onChange={(event) => setContent(event.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
           aria-invalid={Boolean(fieldErrors.content)}
           aria-describedby={fieldErrors.content ? 'content-error' : undefined}
         />
         {fieldErrors.content && (
-          <p id="content-error" className="mt-1 text-sm text-red-600">
+          <p id="content-error" className="mt-1 text-sm text-danger">
             {fieldErrors.content}
           </p>
         )}
@@ -127,28 +128,19 @@ function BuyingGuideForm({ guide, onSubmit, onCancel }) {
       </div>
 
       <div className="mb-6">
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+        <label className="flex items-center gap-2 text-small font-medium text-body">
           <input type="checkbox" checked={active} onChange={(event) => setActive(event.target.checked)} />
           Active
         </label>
       </div>
 
       <div className="flex justify-end gap-3">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={isSubmitting}
-          className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <Button type="button" variant="secondary" size="sm" onClick={onCancel} disabled={isSubmitting}>
           Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" size="sm" disabled={isSubmitting}>
           {isSubmitting ? 'Saving...' : guide ? 'Save Changes' : 'Add Guide'}
-        </button>
+        </Button>
       </div>
     </form>
   );

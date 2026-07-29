@@ -43,7 +43,7 @@ function BuyingGuideFormPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">
+      <h1 className="mb-6 text-page-heading text-heading">
         {isEditMode ? 'Edit Buying Guide' : 'Add Buying Guide'}
       </h1>
 
