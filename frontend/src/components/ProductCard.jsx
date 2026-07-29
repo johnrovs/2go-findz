@@ -54,15 +54,15 @@ function ProductCard({ product }) {
       </div>
 
       <div className="flex flex-1 flex-col items-center gap-2 p-4 text-center">
-        <h3 className="text-card-title text-heading">{product.name}</h3>
-        <p className="line-clamp-3 text-small text-body">{product.description}</p>
+        <h3 className="text-card-title text-heading max-sm:text-[14px]">{product.name}</h3>
+        <p className="line-clamp-3 text-small text-body max-sm:text-[12px]">{product.description}</p>
         <Button
           variant="amazon"
           href={product.productLink}
           onClick={handleCheckPrice}
           target="_blank"
           rel="nofollow sponsored noopener noreferrer"
-          className="mt-auto"
+          className="mt-auto max-sm:rounded-[36px] max-sm:py-2 max-sm:text-[14px]"
         >
           Check Price
         </Button>
