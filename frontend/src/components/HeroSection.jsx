@@ -5,9 +5,47 @@ function HeroSection({ headline, description, onExploreClick, onTrendingClick })
   return (
     <section className="relative overflow-hidden bg-surface-secondary py-16 sm:py-20">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary/30 blur-3xl sm:h-96 sm:w-96" />
-        <div className="absolute -right-24 top-1/4 h-72 w-72 rounded-full bg-amazon/25 blur-3xl sm:h-96 sm:w-96" />
-        <div className="absolute bottom-[-6rem] left-1/3 h-72 w-72 rounded-full bg-primary/20 blur-3xl sm:h-96 sm:w-96" />
+        <motion.div
+          animate={{ y: [0, -16, 0] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -left-10 -top-10 h-32 w-32 sm:-left-16 sm:-top-16 sm:h-80 sm:w-80"
+        >
+          <div className="absolute inset-0 rounded-full bg-amazon/40 blur-3xl" />
+          <div
+            className="absolute inset-6 rounded-full shadow-[0_30px_60px_-15px_rgba(255,153,0,0.5)]"
+            style={{
+              background: 'radial-gradient(circle at 32% 28%, #FFE3A3 0%, #FF9900 55%, #B86800 100%)',
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          animate={{ y: [0, 18, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+          className="absolute -right-10 -top-6 h-24 w-24 sm:-right-14 sm:top-1/4 sm:h-72 sm:w-72"
+        >
+          <div className="absolute inset-0 rounded-full bg-[#2C8C99]/35 blur-3xl" />
+          <div
+            className="absolute inset-6 rounded-full shadow-[0_30px_60px_-15px_rgba(44,140,153,0.5)]"
+            style={{
+              background: 'radial-gradient(circle at 32% 28%, #A6E4E9 0%, #2C8C99 55%, #114950 100%)',
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          animate={{ y: [0, -12, 0] }}
+          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+          className="absolute -bottom-12 left-4 h-24 w-24 sm:bottom-[-5rem] sm:left-1/3 sm:h-80 sm:w-80"
+        >
+          <div className="absolute inset-0 rounded-full bg-amazon/25 blur-3xl" />
+          <div
+            className="absolute inset-8 rounded-full opacity-80 shadow-[0_30px_60px_-15px_rgba(255,153,0,0.4)]"
+            style={{
+              background: 'radial-gradient(circle at 32% 28%, #FFE3A3 0%, #FF9900 55%, #B86800 100%)',
+            }}
+          />
+        </motion.div>
       </div>
       <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
         <motion.h1
