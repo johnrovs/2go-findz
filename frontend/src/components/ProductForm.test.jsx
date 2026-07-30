@@ -194,7 +194,7 @@ describe('ProductForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         active: false,
-        scheduledPublishAt: new Date('2030-06-15T10:00').toISOString(),
+        scheduledPublishAt: '2030-06-15T10:00:00',
       })
     );
   });

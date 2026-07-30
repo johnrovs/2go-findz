@@ -71,7 +71,11 @@ function ProductForm({ product, categories, onSubmit, onCancel }) {
         bestSeller,
         active: isScheduled ? false : active,
         brand: brand.trim() || null,
-        scheduledPublishAt: isScheduled ? new Date(scheduledPublishAt).toISOString() : null,
+        // The backend's scheduledPublishAt is a naive LocalDateTime (no timezone), matching
+        // every other timestamp in this codebase — sent as-is rather than converted via
+        // toISOString(), which would shift it to UTC and desync it from the value the admin
+        // actually picked and from the server's own LocalDateTime.now() comparisons.
+        scheduledPublishAt: isScheduled ? `${scheduledPublishAt}:00` : null,
       });
     } catch (error) {
       setFieldErrors(error.fieldErrors ?? {});
