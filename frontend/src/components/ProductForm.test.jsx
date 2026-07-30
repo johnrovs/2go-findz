@@ -55,6 +55,8 @@ describe('ProductForm', () => {
       trending: true,
       bestSeller: false,
       active: true,
+      brand: null,
+      scheduledPublishAt: null,
     });
   });
 
@@ -91,6 +93,8 @@ describe('ProductForm', () => {
       trending: false,
       bestSeller: true,
       active: true,
+      brand: null,
+      scheduledPublishAt: null,
     });
   });
 
@@ -111,5 +115,107 @@ describe('ProductForm', () => {
 
     expect(await screen.findByText('Product URL must be a valid HTTPS link.')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('submits a trimmed brand value', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(<ProductForm product={null} categories={categories} onSubmit={onSubmit} onCancel={vi.fn()} />);
+
+    await user.type(screen.getByLabelText('Product Name'), 'Wireless Earbuds');
+    await user.type(screen.getByLabelText('Brand'), '  Sony  ');
+    await user.selectOptions(screen.getByLabelText('Category'), '1');
+    await user.type(screen.getByLabelText('Description'), 'Compact wireless earbuds.');
+    await user.type(screen.getByLabelText('Price ($)'), '49.99');
+    await user.type(screen.getByLabelText('Amazon Affiliate Link'), 'https://amazon.com/dp/example');
+    await user.click(screen.getByRole('button', { name: 'Add Product' }));
+
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ brand: 'Sony' }));
+  });
+
+  it('hides the Active checkbox and shows a date/time field when Schedule for later is toggled on', async () => {
+    const user = userEvent.setup();
+    render(<ProductForm product={null} categories={categories} onSubmit={vi.fn()} onCancel={vi.fn()} />);
+
+    expect(screen.getByRole('checkbox', { name: 'Active' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('Publish Date & Time')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('switch', { name: 'Schedule for later' }));
+
+    expect(screen.queryByRole('checkbox', { name: 'Active' })).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Publish Date & Time')).toBeInTheDocument();
+  });
+
+  it('requires a scheduled date when Schedule for later is on', async () => {
+    const user = userEvent.setup();
+    render(<ProductForm product={null} categories={categories} onSubmit={vi.fn()} onCancel={vi.fn()} />);
+
+    await user.type(screen.getByLabelText('Product Name'), 'Wireless Earbuds');
+    await user.selectOptions(screen.getByLabelText('Category'), '1');
+    await user.type(screen.getByLabelText('Description'), 'Compact wireless earbuds.');
+    await user.type(screen.getByLabelText('Price ($)'), '49.99');
+    await user.type(screen.getByLabelText('Amazon Affiliate Link'), 'https://amazon.com/dp/example');
+    await user.click(screen.getByRole('switch', { name: 'Schedule for later' }));
+    await user.click(screen.getByRole('button', { name: 'Add Product' }));
+
+    expect(await screen.findByText('Scheduled date is required.')).toBeInTheDocument();
+  });
+
+  it('rejects a scheduled date that is not in the future', async () => {
+    const user = userEvent.setup();
+    render(<ProductForm product={null} categories={categories} onSubmit={vi.fn()} onCancel={vi.fn()} />);
+
+    await user.type(screen.getByLabelText('Product Name'), 'Wireless Earbuds');
+    await user.selectOptions(screen.getByLabelText('Category'), '1');
+    await user.type(screen.getByLabelText('Description'), 'Compact wireless earbuds.');
+    await user.type(screen.getByLabelText('Price ($)'), '49.99');
+    await user.type(screen.getByLabelText('Amazon Affiliate Link'), 'https://amazon.com/dp/example');
+    await user.click(screen.getByRole('switch', { name: 'Schedule for later' }));
+    await user.type(screen.getByLabelText('Publish Date & Time'), '2020-01-01T10:00');
+    await user.click(screen.getByRole('button', { name: 'Add Product' }));
+
+    expect(await screen.findByText('Scheduled date must be in the future.')).toBeInTheDocument();
+  });
+
+  it('submits active:false and an ISO scheduled date when scheduling is on', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(<ProductForm product={null} categories={categories} onSubmit={onSubmit} onCancel={vi.fn()} />);
+
+    await user.type(screen.getByLabelText('Product Name'), 'Wireless Earbuds');
+    await user.selectOptions(screen.getByLabelText('Category'), '1');
+    await user.type(screen.getByLabelText('Description'), 'Compact wireless earbuds.');
+    await user.type(screen.getByLabelText('Price ($)'), '49.99');
+    await user.type(screen.getByLabelText('Amazon Affiliate Link'), 'https://amazon.com/dp/example');
+    await user.click(screen.getByRole('switch', { name: 'Schedule for later' }));
+    await user.type(screen.getByLabelText('Publish Date & Time'), '2030-06-15T10:00');
+    await user.click(screen.getByRole('button', { name: 'Add Product' }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        active: false,
+        scheduledPublishAt: new Date('2030-06-15T10:00').toISOString(),
+      })
+    );
+  });
+
+  it('pre-fills the schedule switch and date when editing a product that already has a scheduledPublishAt', async () => {
+    const product = {
+      id: 5,
+      name: 'Wireless Earbuds',
+      description: 'Compact wireless earbuds.',
+      categoryId: 1,
+      imageFileName: null,
+      productPrice: 49.99,
+      productLink: 'https://amazon.com/dp/example',
+      trending: false,
+      bestSeller: false,
+      active: false,
+      scheduledPublishAt: '2030-06-15T10:00:00',
+    };
+    render(<ProductForm product={product} categories={categories} onSubmit={vi.fn()} onCancel={vi.fn()} />);
+
+    expect(screen.getByRole('switch', { name: 'Schedule for later' })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByLabelText('Publish Date & Time')).toHaveValue('2030-06-15T10:00');
   });
 });
