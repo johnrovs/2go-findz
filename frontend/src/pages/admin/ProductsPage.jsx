@@ -82,6 +82,7 @@ function ProductsPage() {
     },
     { key: 'name', label: 'Name', sortable: true },
     { key: 'categoryName', label: 'Category' },
+    { key: 'brand', label: 'Brand', render: (row) => row.brand || '—' },
     {
       key: 'productPrice',
       label: 'Price',
@@ -101,6 +102,11 @@ function ProductsPage() {
           {row.bestSeller && (
             <span className="rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success">
               Best Seller
+            </span>
+          )}
+          {row.scheduledPublishAt && (
+            <span className="rounded-full bg-info/10 px-2.5 py-0.5 text-xs font-medium text-info">
+              Scheduled
             </span>
           )}
           {!row.active && (

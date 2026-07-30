@@ -133,4 +133,30 @@ describe('ProductsPage', () => {
 
     expect(await screen.findByText('Wireless Earbuds')).toBeInTheDocument();
   });
+
+  it('renders brand and a scheduled badge when applicable', async () => {
+    adminProductService.searchProducts.mockResolvedValue({
+      content: [
+        {
+          id: 3,
+          name: 'Standing Desk',
+          categoryName: 'Home Office',
+          brand: 'ErgoPro',
+          imageFileName: null,
+          productPrice: 199.99,
+          trending: false,
+          bestSeller: false,
+          active: false,
+          scheduledPublishAt: '2026-09-01T09:00:00',
+          createdAt: '2026-03-01T10:00:00',
+        },
+      ],
+      totalPages: 1,
+      totalElements: 1,
+    });
+    renderPage();
+
+    expect(await screen.findByText('ErgoPro')).toBeInTheDocument();
+    expect(screen.getByText('Scheduled')).toBeInTheDocument();
+  });
 });
