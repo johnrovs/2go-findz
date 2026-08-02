@@ -19,18 +19,23 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
     @Test
     void getAll_returnsOnlyActiveGuides() throws Exception {
         String token = adminToken();
+        Long categoryId = createCategoryId(token, "Public List Guide Category");
 
         mockMvc.perform(post("/api/admin/buying-guides")
                 .header("Authorization", "Bearer " + token)
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
-                        "Public Active Guide", "Excerpt", "Content", null, true, List.of()))));
+                        "Public Active Guide", "public-active-guide", "Excerpt", "Introduction", null,
+                        categoryId, null, null, true, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(post("/api/admin/buying-guides")
                 .header("Authorization", "Bearer " + token)
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
-                        "Public Draft Guide", "Excerpt", "Content", null, false, List.of()))));
+                        "Public Draft Guide", "public-draft-guide", "Excerpt", "Introduction", null,
+                        categoryId, null, null, false, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(get("/api/public/buying-guides"))
                 .andExpect(status().isOk())
@@ -39,48 +44,49 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void getById_returns404_forInactiveGuide() throws Exception {
+    void getBySlug_returns404_forInactiveGuide() throws Exception {
         String token = adminToken();
-        var createResult = mockMvc.perform(post("/api/admin/buying-guides")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
-                                "Inactive Detail Guide", "Excerpt", "Content", null, false, List.of()))))
-                .andReturn();
-        Long id = objectMapper.readTree(createResult.getResponse().getContentAsString())
-                .path("data").path("id").asLong();
+        Long categoryId = createCategoryId(token, "Public Inactive Guide Category");
 
-        mockMvc.perform(get("/api/public/buying-guides/{id}", id))
+        mockMvc.perform(post("/api/admin/buying-guides")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
+                        "Inactive Detail Guide", "inactive-detail-guide", "Excerpt", "Introduction", null,
+                        categoryId, null, null, false, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
+
+        mockMvc.perform(get("/api/public/buying-guides/{slug}", "inactive-detail-guide"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void getById_returns404_forUnknownGuide() throws Exception {
-        mockMvc.perform(get("/api/public/buying-guides/{id}", 999999L))
+    void getBySlug_returns404_forUnknownSlug() throws Exception {
+        mockMvc.perform(get("/api/public/buying-guides/{slug}", "no-such-guide"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void getById_returnsActiveGuide_withRecommendedProductsInOrder() throws Exception {
+    void getBySlug_returnsActiveGuide_withRecommendedProductsInOrder() throws Exception {
         String token = adminToken();
-        Long categoryId = createCategoryId(token, "Public Guide Category");
-        Long firstProductId = createProductId(token, categoryId, "Public Guide Product A");
-        Long secondProductId = createProductId(token, categoryId, "Public Guide Product B");
+        Long guideCategoryId = createCategoryId(token, "Public Detail Guide Category");
+        Long productCategoryId = createCategoryId(token, "Public Guide Product Category");
+        Long firstProductId = createProductId(token, productCategoryId, "Public Guide Product A");
+        Long secondProductId = createProductId(token, productCategoryId, "Public Guide Product B");
 
-        var createResult = mockMvc.perform(post("/api/admin/buying-guides")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
-                                "Public Detail Guide", "Excerpt", "Full content body.", null, true,
-                                List.of(secondProductId, firstProductId)))))
-                .andReturn();
-        Long id = objectMapper.readTree(createResult.getResponse().getContentAsString())
-                .path("data").path("id").asLong();
+        mockMvc.perform(post("/api/admin/buying-guides")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
+                        "Public Detail Guide", "public-detail-guide", "Excerpt", "Full introduction body.",
+                        null, guideCategoryId, null, null, true, null,
+                        List.of(secondProductId, firstProductId),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
 
-        mockMvc.perform(get("/api/public/buying-guides/{id}", id))
+        mockMvc.perform(get("/api/public/buying-guides/{slug}", "public-detail-guide"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("Public Detail Guide"))
-                .andExpect(jsonPath("$.data.content").value("Full content body."))
+                .andExpect(jsonPath("$.data.introduction").value("Full introduction body."))
                 .andExpect(jsonPath("$.data.recommendedProducts[0].id").value(secondProductId))
                 .andExpect(jsonPath("$.data.recommendedProducts[1].id").value(firstProductId));
     }
@@ -92,9 +98,54 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(new ProductRequest(
                                 name, "Test product for public buying guide.", categoryId, null,
                                 new BigDecimal("25.00"), "https://amazon.com/dp/" + name.replace(" ", "-"),
-                                false, false, true, null, null))))
+                                false, false, true, null, null, null, null))))
                 .andReturn();
         return objectMapper.readTree(result.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
+    }
+
+    @Test
+    void getBySlug_returnsFullNestedStructure_withInheritedTopPickBadge() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Public Full Guide Category");
+        Long productCategoryId = createCategoryId(token, "Public Full Guide Product Category");
+        Long topPickProductId = createProductId(token, productCategoryId, "Public Full Guide Top Pick Product");
+
+        String requestJson = """
+                {
+                  "title": "Public Full Guide", "slug": "public-full-guide",
+                  "excerpt": "Excerpt", "introduction": "<p>Introduction</p>", "coverImageFilename": null,
+                  "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
+                  "scheduledPublishAt": null, "recommendedProductIds": [%d],
+                  "quickRecommendations": [{"productId": %d, "badgeName": "Best Overall"}],
+                  "comparisonSpecs": [
+                    {"specificationName": "Battery Life", "values": [{"productId": %d, "value": "40 Hrs"}]}
+                  ],
+                  "recommendationSections": [
+                    {"productId": %d, "recommendationType": "TOP_PICK", "sectionLabel": "Our Top Pick",
+                     "whyRecommended": "<p>Great value.</p>", "pros": [{"content": "Great sound"}],
+                     "cons": [{"content": "Pricey"}], "bestFor": [{"content": "Daily commuters"}]}
+                  ],
+                  "adviceSections": [{"title": "What to Look For", "content": "<p>Look for battery life.</p>"}],
+                  "faqs": [{"question": "Is it worth it?", "answer": "<p>Yes.</p>"}],
+                  "sectionSettings": []
+                }
+                """.formatted(guideCategoryId, topPickProductId, topPickProductId, topPickProductId, topPickProductId);
+
+        mockMvc.perform(post("/api/admin/buying-guides")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(requestJson));
+
+        mockMvc.perform(get("/api/public/buying-guides/{slug}", "public-full-guide"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.quickRecommendations[0].badgeName").value("Best Overall"))
+                .andExpect(jsonPath("$.data.comparisonTable.specificationNames[0]").value("Battery Life"))
+                .andExpect(jsonPath("$.data.topPick.sectionLabel").value("Our Top Pick"))
+                .andExpect(jsonPath("$.data.topPick.badgeName").value("Best Overall"))
+                .andExpect(jsonPath("$.data.topPick.pros[0]").value("Great sound"))
+                .andExpect(jsonPath("$.data.adviceSections[0].title").value("What to Look For"))
+                .andExpect(jsonPath("$.data.faqs[0].question").value("Is it worth it?"))
+                .andExpect(jsonPath("$.data.visibleSectionOrder", org.hamcrest.Matchers.hasItem("TOP_PICK")));
     }
 }

@@ -14,5 +14,5 @@ public interface BuyingGuideService {
     void delete(Long id);
     List<BuyingGuideResponse> getAllForAdmin();
     List<PublicBuyingGuideSummaryResponse> getAllForPublic();
-    PublicBuyingGuideDetailResponse getByIdForPublic(Long id);
+    PublicBuyingGuideDetailResponse getBySlugForPublic(String slug);
 }

@@ -1,5 +1,6 @@
 package com.twogofindz.backend.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -37,17 +40,33 @@ public class BuyingGuide {
     @Column(nullable = false, length = 200)
     private String title;
 
+    @Column(nullable = false, length = 220, unique = true)
+    private String slug;
+
     @Column(nullable = false, length = 500)
     private String excerpt;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+    private String introduction;
 
     @Column(name = "cover_image_filename")
     private String coverImageFilename;
 
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "category_id")
+    private ProductCategory category;
+
+    @Column(name = "seo_title", length = 70)
+    private String seoTitle;
+
+    @Column(name = "seo_description", length = 200)
+    private String seoDescription;
+
     @Column(nullable = false)
     private Boolean active;
+
+    @Column(name = "scheduled_publish_at")
+    private LocalDateTime scheduledPublishAt;
 
     @ManyToMany
     @JoinTable(
@@ -57,6 +76,30 @@ public class BuyingGuide {
     )
     @OrderColumn(name = "display_order")
     private List<Product> recommendedProducts;
+
+    @OneToMany(mappedBy = "buyingGuide", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "display_order")
+    private List<BuyingGuideQuickRecommendation> quickRecommendations;
+
+    @OneToMany(mappedBy = "buyingGuide", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "display_order")
+    private List<BuyingGuideComparisonSpec> comparisonSpecs;
+
+    @OneToMany(mappedBy = "buyingGuide", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "display_order")
+    private List<BuyingGuideRecommendationSection> recommendationSections;
+
+    @OneToMany(mappedBy = "buyingGuide", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "display_order")
+    private List<BuyingGuideAdviceSection> adviceSections;
+
+    @OneToMany(mappedBy = "buyingGuide", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "display_order")
+    private List<BuyingGuideFaq> faqs;
+
+    @OneToMany(mappedBy = "buyingGuide", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderColumn(name = "display_order")
+    private List<BuyingGuideSectionSetting> sectionSettings;
 
     @Generated(event = {EventType.INSERT, EventType.UPDATE})
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false)

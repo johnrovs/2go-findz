@@ -18,6 +18,8 @@ public record ProductResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         String brand,
-        LocalDateTime scheduledPublishAt
+        LocalDateTime scheduledPublishAt,
+        BigDecimal rating,
+        int reviewCount
 ) {
 }

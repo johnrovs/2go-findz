@@ -34,7 +34,9 @@ public class ProductMapper {
                 product.getCreatedAt(),
                 product.getUpdatedAt(),
                 product.getBrand(),
-                product.getScheduledPublishAt()
+                product.getScheduledPublishAt(),
+                product.getRating(),
+                product.getReviewCount()
         );
     }
 }
