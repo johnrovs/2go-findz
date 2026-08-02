@@ -32,7 +32,8 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                 "Best Kitchen Gadgets 2026", "best-kitchen-gadgets-2026",
                 "A quick roundup of our favorite kitchen gadgets.",
                 "Full introduction here.", null, guideCategoryId, null, null,
-                true, null, List.of(secondProductId, firstProductId));
+                true, null, List.of(secondProductId, firstProductId),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -54,7 +55,8 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
 
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "Best Air Fryers Under $100", "", "Excerpt", "Introduction", null,
-                guideCategoryId, null, null, true, null, List.of());
+                guideCategoryId, null, null, true, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -74,14 +76,16 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "First Guide", "shared-slug", "Excerpt", "Introduction", null,
-                        guideCategoryId, null, null, true, null, List.of()))));
+                        guideCategoryId, null, null, true, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                                 "Second Guide", "shared-slug", "Excerpt", "Introduction", null,
-                                guideCategoryId, null, null, true, null, List.of()))))
+                                guideCategoryId, null, null, true, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))))
                 .andExpect(status().isConflict());
     }
 
@@ -90,7 +94,8 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
         String token = adminToken();
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "Orphan Guide", "orphan-guide", "Excerpt", "Introduction", null,
-                999999L, null, null, true, null, List.of());
+                999999L, null, null, true, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -105,7 +110,8 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
         Long guideCategoryId = createCategoryId(token, "Blank Title Guide Category");
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "", "blank-title", "Excerpt", "Introduction", null,
-                guideCategoryId, null, null, true, null, List.of());
+                guideCategoryId, null, null, true, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -117,7 +123,8 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
     @Test
     void create_returns401_withoutToken() throws Exception {
         BuyingGuideRequest request = new BuyingGuideRequest(
-                "Title", "title", "Excerpt", "Introduction", null, 1L, null, null, true, null, List.of());
+                "Title", "title", "Excerpt", "Introduction", null, 1L, null, null, true, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .contentType(APPLICATION_JSON)
@@ -132,7 +139,8 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
         LocalDateTime scheduledAt = LocalDateTime.now().plusDays(2);
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "Scheduled Guide", "scheduled-guide", "Excerpt", "Introduction", null,
-                guideCategoryId, null, null, true, scheduledAt, List.of());
+                guideCategoryId, null, null, true, scheduledAt, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -156,14 +164,16 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                                 "Original Title", "original-title", "Original excerpt", "Original introduction",
                                 null, guideCategoryId, null, null, true, null,
-                                List.of(firstProductId, secondProductId)))))
+                                List.of(firstProductId, secondProductId),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))))
                 .andReturn();
         Long id = objectMapper.readTree(createResult.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
 
         BuyingGuideRequest updateRequest = new BuyingGuideRequest(
                 "Updated Title", "updated-title", "Updated excerpt", "Updated introduction", null,
-                guideCategoryId, null, null, false, null, List.of(secondProductId, firstProductId));
+                guideCategoryId, null, null, false, null, List.of(secondProductId, firstProductId),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
 
         mockMvc.perform(put("/api/admin/buying-guides/{id}", id)
                         .header("Authorization", "Bearer " + token)
@@ -201,7 +211,8 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                                 "Deletable Guide", "deletable-guide", "Excerpt", "Introduction", null,
-                                guideCategoryId, null, null, true, null, List.of()))))
+                                guideCategoryId, null, null, true, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))))
                 .andReturn();
         Long id = objectMapper.readTree(createResult.getResponse().getContentAsString())
                 .path("data").path("id").asLong();

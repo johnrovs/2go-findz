@@ -17,6 +17,12 @@ public record BuyingGuideResponse(
         Boolean active,
         LocalDateTime scheduledPublishAt,
         List<ProductResponse> recommendedProducts,
+        List<BuyingGuideQuickRecommendationResponse> quickRecommendations,
+        List<BuyingGuideComparisonSpecResponse> comparisonSpecs,
+        List<BuyingGuideRecommendationSectionResponse> recommendationSections,
+        List<BuyingGuideAdviceSectionResponse> adviceSections,
+        List<BuyingGuideFaqResponse> faqs,
+        List<BuyingGuideSectionSettingResponse> sectionSettings,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

@@ -1,5 +1,6 @@
 package com.twogofindz.backend.dto.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -42,6 +43,30 @@ public record BuyingGuideRequest(
         LocalDateTime scheduledPublishAt,
 
         @NotNull(message = "Recommended products list is required.")
-        List<Long> recommendedProductIds
+        List<Long> recommendedProductIds,
+
+        @NotNull(message = "Quick recommendations list is required.")
+        @Valid
+        List<BuyingGuideQuickRecommendationRequest> quickRecommendations,
+
+        @NotNull(message = "Comparison specs list is required.")
+        @Valid
+        List<BuyingGuideComparisonSpecRequest> comparisonSpecs,
+
+        @NotNull(message = "Recommendation sections list is required.")
+        @Valid
+        List<BuyingGuideRecommendationSectionRequest> recommendationSections,
+
+        @NotNull(message = "Advice sections list is required.")
+        @Valid
+        List<BuyingGuideAdviceSectionRequest> adviceSections,
+
+        @NotNull(message = "FAQs list is required.")
+        @Valid
+        List<BuyingGuideFaqRequest> faqs,
+
+        @NotNull(message = "Section settings list is required.")
+        @Valid
+        List<BuyingGuideSectionSettingRequest> sectionSettings
 ) {
 }
