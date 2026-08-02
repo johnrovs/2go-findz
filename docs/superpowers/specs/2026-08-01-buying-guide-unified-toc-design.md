@@ -131,8 +131,19 @@ content, or renders `title`/`content` inline for a custom row.
 
 ## Validation Summary (delta from Stage 1)
 
-- All 5 structural `sectionKey` values must appear exactly once among
-  `tocEntries` — none missing, none duplicated
+- A structural `sectionKey` may appear **at most once** among `tocEntries`
+  (duplicates rejected) but is **not required to be present** — omitting
+  one is valid. This preserves today's ergonomics: a caller that doesn't
+  care about TOC configuration can send an empty or partial `tocEntries`
+  list and still create a guide, exactly like the Stage 1 behavior it
+  replaces (missing `sectionSettings` rows already defaulted to visible).
+  On save, the service appends any of the 5 structural keys missing from
+  the request to the end of the persisted list, each defaulted to
+  `visible = true`, in the fixed order `QUICK_RECOMMENDATIONS,
+  COMPARISON_TABLE, TOP_PICK, RUNNER_UPS, FAQS` — the same fallback the
+  old `resolveVisibleSectionOrder` applied at *read* time, just moved to
+  *save* time now that order is a real persisted per-row property instead
+  of computed on every read
 - Every custom entry (`sectionKey == null`) requires non-blank `title`
   (max 150) and non-blank `content`
 - A structural entry (`sectionKey != null`) must have `title == null &&
@@ -163,9 +174,10 @@ retired shapes:
 - `AdminBuyingGuideControllerTest` / `PublicBuyingGuideControllerTest` —
   every full-payload test's JSON body and JSON-path assertions move from
   `sectionSettings`/`adviceSections`/`visibleSectionOrder` to
-  `tocEntries`; new cases: missing a structural key rejected, duplicate
-  structural key rejected, custom entry interleaved between two
-  structural entries round-trips its order correctly, deleting a custom
+  `tocEntries`; new cases: omitting a structural key is accepted and
+  auto-backfilled (visible, appended at the end), duplicate structural
+  key rejected, custom entry interleaved between two structural entries
+  round-trips its order correctly, deleting a custom
   entry on update removes it (and only it)
 - `BuyingGuideMapper`'s `resolveVisibleSectionOrder` logic is replaced
   entirely by a straight `tocEntries.stream().filter(visible).toList()`
