@@ -30,6 +30,13 @@ public final class ProductSpecifications {
                 categoryId == null ? cb.conjunction() : cb.equal(root.get("category").get("id"), categoryId);
     }
 
+    public static Specification<Product> hasBrand(String brand) {
+        return (root, query, cb) ->
+                (brand == null || brand.isBlank())
+                        ? cb.conjunction()
+                        : cb.equal(cb.lower(root.get("brand")), brand.toLowerCase());
+    }
+
     public static Specification<Product> isTrending(Boolean trending) {
         return (root, query, cb) ->
                 trending == null ? cb.conjunction() : cb.equal(root.get("trending"), trending);

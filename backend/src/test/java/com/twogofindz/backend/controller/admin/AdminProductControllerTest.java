@@ -332,4 +332,33 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content[0].name").value("Findable By Sku"));
     }
+
+    @Test
+    void search_filtersByBrand() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Brand Filter Category");
+        // Distinctive brand names avoid colliding with fixtures other tests in this shared-DB
+        // suite create (e.g. create_withBrand_returnsBrandInResponse also uses brand "Nike").
+        mockMvc.perform(post("/api/admin/products")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new ProductRequest(
+                        "Zyphrex Shoe", "A shoe.", categoryId, null,
+                        new BigDecimal("50.00"), "https://amazon.com/dp/zyphrexshoe", false, false, true,
+                        "Zyphrex", null, null, null, null))));
+        mockMvc.perform(post("/api/admin/products")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new ProductRequest(
+                        "Quorvane Shoe", "A shoe.", categoryId, null,
+                        new BigDecimal("50.00"), "https://amazon.com/dp/quorvaneshoe", false, false, true,
+                        "Quorvane", null, null, null, null))));
+
+        mockMvc.perform(get("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .param("brand", "zyphrex"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content.length()").value(1))
+                .andExpect(jsonPath("$.data.content[0].name").value("Zyphrex Shoe"));
+    }
 }

@@ -111,11 +111,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ProductResponse> search(String term, Long categoryId, Boolean trending, Boolean bestSeller,
+    public Page<ProductResponse> search(String term, Long categoryId, String brand, Boolean trending, Boolean bestSeller,
                                          Boolean active, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
         Specification<Product> spec = Specification
                 .where(ProductSpecifications.search(term))
                 .and(ProductSpecifications.hasCategoryId(categoryId))
+                .and(ProductSpecifications.hasBrand(brand))
                 .and(ProductSpecifications.isTrending(trending))
                 .and(ProductSpecifications.isBestSeller(bestSeller))
                 .and(ProductSpecifications.isActive(active))

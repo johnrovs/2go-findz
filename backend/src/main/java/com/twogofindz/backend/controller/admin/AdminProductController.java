@@ -34,6 +34,7 @@ public class AdminProductController {
     public ApiResponse<Page<ProductResponse>> search(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String brand,
             @RequestParam(required = false) Boolean trending,
             @RequestParam(required = false) Boolean bestSeller,
             @RequestParam(required = false) Boolean active,
@@ -41,7 +42,7 @@ public class AdminProductController {
             @RequestParam(required = false) BigDecimal maxPrice,
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         return ApiResponse.success("Products retrieved successfully.",
-                productService.search(search, categoryId, trending, bestSeller, active, minPrice, maxPrice, pageable));
+                productService.search(search, categoryId, brand, trending, bestSeller, active, minPrice, maxPrice, pageable));
     }
 
     @GetMapping("/{id}")
