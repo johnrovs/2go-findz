@@ -53,6 +53,7 @@ public class ProductServiceImpl implements ProductService {
                 .scheduledPublishAt(request.scheduledPublishAt())
                 .rating(request.rating())
                 .reviewCount(request.reviewCount() != null ? request.reviewCount() : 0)
+                .sku(request.sku())
                 .build();
         return productMapper.toResponse(productRepository.save(product));
     }
@@ -77,6 +78,7 @@ public class ProductServiceImpl implements ProductService {
         product.setScheduledPublishAt(request.scheduledPublishAt());
         product.setRating(request.rating());
         product.setReviewCount(request.reviewCount() != null ? request.reviewCount() : 0);
+        product.setSku(request.sku());
 
         return productMapper.toResponse(productRepository.save(product));
     }

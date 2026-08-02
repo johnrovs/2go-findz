@@ -20,6 +20,7 @@ public record ProductResponse(
         String brand,
         LocalDateTime scheduledPublishAt,
         BigDecimal rating,
-        int reviewCount
+        int reviewCount,
+        String sku
 ) {
 }

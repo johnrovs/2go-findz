@@ -36,7 +36,8 @@ public class ProductMapper {
                 product.getBrand(),
                 product.getScheduledPublishAt(),
                 product.getRating(),
-                product.getReviewCount()
+                product.getReviewCount(),
+                product.getSku()
         );
     }
 }

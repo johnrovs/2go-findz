@@ -371,7 +371,7 @@ class AdminComparisonControllerTest extends AbstractIntegrationTest {
                 name, "Description for " + name, categoryId, null,
                 new BigDecimal("19.99"), "https://example.com/" + name.replace(" ", "-"),
                 false, false, true, null, null,
-                null, null);
+                null, null, null);
         MvcResult result = mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
