@@ -126,9 +126,13 @@ duplicating an entire working file for one label string.
 | Status | derived: `active` + `scheduledPublishAt` | Three-option `<select>`: Draft / Scheduled / Published — no direct backend field, purely a UI convenience over the two real ones. **Draft** → `active:false, scheduledPublishAt:null`. **Scheduled** → `active:false, scheduledPublishAt:<picked date>` (reveals the Publish Date field, required, must be future). **Published** → `active:true, scheduledPublishAt:null`. Switching away from "Scheduled" clears any picked date; switching a loaded guide's initial value is derived the same way in reverse (`active:true` → Published; `active:false` with a non-null `scheduledPublishAt` → Scheduled; otherwise → Draft). |
 | Publish Date | `scheduledPublishAt` | Only rendered when Status is "Scheduled". `datetime-local` input, required in that state, must be a future value (client-side check mirrors the backend's `@Future` constraint) — reusing the exact pattern `ProductForm.jsx`'s schedule switch already established, including sending a naive local-time string (no `.toISOString()` UTC conversion — the backend's `scheduledPublishAt` is a naive `LocalDateTime`, and `ProductForm`'s own commit history includes a real bug fix for getting this wrong once already). |
 
-`seoTitle`/`seoDescription` are part of the submitted payload (initialized to
-`null`) but have **no input on this page** — they belong to the SEO &
-Publish step (9), not built yet.
+`seoTitle`/`seoDescription` are part of the submitted payload but have **no
+input on this page** — they belong to the SEO & Publish step (9), not built
+yet. Same preservation rule as the five collections above: initialized from
+`guide?.seoTitle ?? null` / `guide?.seoDescription ?? null` and submitted
+unchanged, not hardcoded to `null`, so a value set through a future Step 9
+(or a direct API call) survives a Basic Info-only save. For a **new**
+guide both are naturally `null` either way.
 
 ## Table of Contents Builder
 
