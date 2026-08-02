@@ -15,9 +15,19 @@ function buildBreadcrumbs(pathname) {
   return segments.map((segment) => BREADCRUMB_LABELS[segment] ?? segment);
 }
 
+// The Buying Guide editor (new or existing) has its own EditorHeader with an
+// equivalent back link, title, and mobile menu button, replacing this bar
+// entirely there -- the list page at /admin/buying-guides itself is unaffected.
+function isBuyingGuideEditorPath(pathname) {
+  return /^\/admin\/buying-guides\/(new|\d+)$/.test(pathname);
+}
+
 function AdminTopbar({ onMenuClick }) {
   const { user } = useAuth();
   const location = useLocation();
+
+  if (isBuyingGuideEditorPath(location.pathname)) return null;
+
   const breadcrumbs = buildBreadcrumbs(location.pathname);
 
   return (

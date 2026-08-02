@@ -68,7 +68,7 @@ function AdminSidebar({ isOpen, onClose }) {
 
   return (
     <>
-      <div className="hidden md:block md:w-64 md:shrink-0">{content}</div>
+      <div className="hidden md:sticky md:top-0 md:block md:h-screen md:w-64 md:shrink-0 md:self-start">{content}</div>
 
       {isOpen && (
         <div className="fixed inset-0 z-40 md:hidden" role="dialog" aria-modal="true">

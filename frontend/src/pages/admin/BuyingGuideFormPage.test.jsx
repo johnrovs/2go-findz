@@ -1,10 +1,18 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import BuyingGuideFormPage from './BuyingGuideFormPage.jsx';
 import { ToastProvider } from '../../context/ToastContext.jsx';
 import * as adminBuyingGuideService from '../../services/adminBuyingGuideService.js';
+import * as adminCategoryService from '../../services/adminCategoryService.js';
+import * as settingsService from '../../services/settingsService.js';
+
+vi.mock('../../components/buying-guide-form/IntroductionEditor.jsx', () => ({
+  default: ({ value, onChange }) => (
+    <textarea aria-label="Introduction" value={value} onChange={(event) => onChange(event.target.value)} />
+  ),
+}));
 
 function renderPage(initialEntries) {
   return render(
@@ -22,39 +30,70 @@ function renderPage(initialEntries) {
 describe('BuyingGuideFormPage', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(adminCategoryService, 'getCategories').mockResolvedValue([{ id: 1, productCategoryName: 'Kitchen' }]);
+    vi.spyOn(settingsService, 'getSettings').mockResolvedValue({ affiliateDisclosure: 'Disclosure.' });
   });
 
   it('renders the create form with an empty title', () => {
     renderPage(['/admin/buying-guides/new']);
-    expect(screen.getByRole('heading', { name: 'Add Buying Guide' })).toBeInTheDocument();
     expect(screen.getByLabelText('Title')).toHaveValue('');
+  });
+
+  it('calls the outlet-provided onMenuClick when the mobile menu button is clicked', async () => {
+    const onMenuClick = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/admin/buying-guides/new']}>
+        <ToastProvider>
+          <Routes>
+            <Route element={<Outlet context={{ onMenuClick }} />}>
+              <Route path="/admin/buying-guides/new" element={<BuyingGuideFormPage />} />
+            </Route>
+          </Routes>
+        </ToastProvider>
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByLabelText('Open menu'));
+
+    expect(onMenuClick).toHaveBeenCalled();
   });
 
   it('loads and pre-fills the edit form', async () => {
     vi.spyOn(adminBuyingGuideService, 'getBuyingGuideById').mockResolvedValue({
       id: 7,
       title: 'Existing Guide',
+      slug: 'existing-guide',
       excerpt: 'Existing excerpt.',
-      content: 'Existing content.',
+      introduction: '<p>Intro</p>',
       coverImageFilename: null,
+      categoryId: 1,
+      seoTitle: null,
+      seoDescription: null,
       active: true,
+      scheduledPublishAt: null,
       recommendedProducts: [],
+      quickRecommendations: [],
+      comparisonSpecs: [],
+      recommendationSections: [],
+      faqs: [],
+      tocEntries: [],
     });
     renderPage(['/admin/buying-guides/7']);
 
-    expect(await screen.findByRole('heading', { name: 'Edit Buying Guide' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Title')).toHaveValue('Existing Guide');
+    expect(await screen.findByLabelText('Title')).toHaveValue('Existing Guide');
   });
 
-  it('creates a guide and submits via adminBuyingGuideService on save', async () => {
+  it('creates a guide and submits via adminBuyingGuideService on Save as Draft', async () => {
     vi.spyOn(adminBuyingGuideService, 'createBuyingGuide').mockResolvedValue({ id: 1 });
     const user = userEvent.setup();
     renderPage(['/admin/buying-guides/new']);
 
     await user.type(screen.getByLabelText('Title'), 'New Guide');
-    await user.type(screen.getByLabelText('Excerpt'), 'Excerpt.');
-    await user.type(screen.getByLabelText('Content'), 'Content.');
-    await user.click(screen.getByRole('button', { name: 'Add Guide' }));
+    await user.type(screen.getByLabelText('Excerpt'), 'New excerpt.');
+    await user.selectOptions(screen.getByLabelText('Category'), '1');
+    await user.type(screen.getByLabelText('Introduction'), 'Intro text.');
+    await user.click(screen.getByRole('button', { name: 'Save as Draft' }));
 
     await waitFor(() => expect(adminBuyingGuideService.createBuyingGuide).toHaveBeenCalled());
   });

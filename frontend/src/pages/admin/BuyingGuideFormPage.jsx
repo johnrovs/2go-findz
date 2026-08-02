@@ -1,20 +1,29 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import BuyingGuideForm from '../../components/BuyingGuideForm.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import { useToast } from '../../hooks/useToast.js';
 import { getBuyingGuideById, createBuyingGuide, updateBuyingGuide } from '../../services/adminBuyingGuideService.js';
+import { getCategories } from '../../services/adminCategoryService.js';
 
 function BuyingGuideFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { onMenuClick } = useOutletContext() ?? {};
   const isEditMode = Boolean(id);
 
   const [guide, setGuide] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(isEditMode);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    getCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, []);
 
   useEffect(() => {
     if (!isEditMode) return;
@@ -41,20 +50,17 @@ function BuyingGuideFormPage() {
     navigate('/admin/buying-guides');
   }
 
-  return (
-    <div>
-      <h1 className="mb-6 text-page-heading text-heading">
-        {isEditMode ? 'Edit Buying Guide' : 'Add Buying Guide'}
-      </h1>
+  if (isLoading) return <LoadingSpinner label="Loading buying guide..." />;
+  if (error) return <ErrorState message={error} />;
 
-      {isLoading ? (
-        <LoadingSpinner label="Loading buying guide..." />
-      ) : error ? (
-        <ErrorState message={error} />
-      ) : (
-        <BuyingGuideForm guide={guide} onSubmit={handleSubmit} onCancel={() => navigate('/admin/buying-guides')} />
-      )}
-    </div>
+  return (
+    <BuyingGuideForm
+      guide={guide}
+      categories={categories}
+      onSubmit={handleSubmit}
+      onCancel={() => navigate('/admin/buying-guides')}
+      onMenuClick={onMenuClick}
+    />
   );
 }
 
