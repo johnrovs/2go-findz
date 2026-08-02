@@ -24,6 +24,41 @@ describe('ImageUploader', () => {
     expect(screen.getByText('Featured Image')).toBeInTheDocument();
   });
 
+  it('renders a wide 16:9 preview and helper text when variant is wide', () => {
+    render(
+      <ImageUploader
+        imageFileName={null}
+        onChange={vi.fn()}
+        variant="wide"
+        helperText="Recommended: 1200x630px (16:9), JPG, PNG or WebP. Max 5MB."
+      />
+    );
+    expect(screen.getByText('Recommended: 1200x630px (16:9), JPG, PNG or WebP. Max 5MB.')).toBeInTheDocument();
+    expect(screen.getByText('Upload Image')).toBeInTheDocument();
+  });
+
+  it('shows a Change Image label and remove button once an image is set in the wide variant', () => {
+    render(<ImageUploader imageFileName="img_123.webp" onChange={vi.fn()} variant="wide" />);
+    expect(screen.getByText('Change Image')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Remove image' })).toBeInTheDocument();
+  });
+
+  it('calls onChange with null when the remove button is clicked in the wide variant', async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    render(<ImageUploader imageFileName="img_123.webp" onChange={onChange} variant="wide" />);
+
+    await user.click(screen.getByRole('button', { name: 'Remove image' }));
+
+    expect(onChange).toHaveBeenCalledWith(null);
+  });
+
+  it('keeps the square variant label as "Upload Image" even with an existing image', () => {
+    render(<ImageUploader imageFileName="img_123.webp" onChange={vi.fn()} />);
+    expect(screen.getByText('Upload Image')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Remove image' })).not.toBeInTheDocument();
+  });
+
   it('rejects a file with an unsupported type without uploading', async () => {
     const onChange = vi.fn();
     const uploadSpy = vi.spyOn(adminImageService, 'uploadImage');
