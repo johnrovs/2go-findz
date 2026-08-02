@@ -3,12 +3,14 @@ import { Image as ImageIcon, Monitor, Smartphone } from 'lucide-react';
 import AffiliateDisclosure from '../AffiliateDisclosure.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { STRUCTURAL_LABELS } from './TocBuilder.jsx';
+import QuickPickBadge from './QuickPickBadge.jsx';
+import { isSupportedAmazonUrl } from '../../utils/amazonLink.js';
 
 function todayLabel() {
   return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-function LivePreview({ title, excerpt, coverImageFilename, tocEntries, settings }) {
+function LivePreview({ title, excerpt, coverImageFilename, tocEntries, settings, quickRecommendations = [] }) {
   const [device, setDevice] = useState('desktop');
   const previewUrl = getImageUrl(coverImageFilename);
   const visibleEntries = tocEntries.filter((entry) => entry.visible);
@@ -64,6 +66,53 @@ function LivePreview({ title, excerpt, coverImageFilename, tocEntries, settings 
                 <span>{entry.sectionKey ? STRUCTURAL_LABELS[entry.sectionKey] : entry.title || 'Untitled Section'}</span>
               </li>
             ))}
+          </ul>
+        </div>
+      )}
+
+      {quickRecommendations.length > 0 && (
+        <div className="mb-4">
+          <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted">
+            1. Quick Recommendations
+          </span>
+          <ul className="space-y-3">
+            {quickRecommendations.map(({ product, badgeName }, index) => {
+              const imageUrl = getImageUrl(product.imageFileName);
+              const linkSupported = isSupportedAmazonUrl(product.productLink);
+              return (
+                <li key={product.id} className="rounded-btn border border-border p-3">
+                  <QuickPickBadge label={badgeName || 'Untitled Badge'} index={index} />
+                  <div className="mt-2 flex items-center gap-3">
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-surface-secondary">
+                      {imageUrl && <img src={imageUrl} alt={product.name} className="h-full w-full object-cover" />}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-heading">{product.name}</p>
+                      {product.rating != null && (
+                        <p className="text-xs text-muted">
+                          ★ {product.rating} ({product.reviewCount?.toLocaleString() ?? 0})
+                        </p>
+                      )}
+                      <p className="text-sm font-semibold text-heading">${Number(product.productPrice).toFixed(2)}</p>
+                    </div>
+                  </div>
+                  {linkSupported ? (
+                    <a
+                      href={product.productLink}
+                      target="_blank"
+                      rel="nofollow sponsored noopener noreferrer"
+                      className="mt-2 block rounded-btn bg-amazon px-3 py-1.5 text-center text-sm font-semibold text-white hover:bg-amazon-hover"
+                    >
+                      View on Amazon
+                    </a>
+                  ) : (
+                    <span className="mt-2 block rounded-btn bg-slate-200 px-3 py-1.5 text-center text-sm font-semibold text-muted">
+                      Link unavailable
+                    </span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

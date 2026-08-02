@@ -57,4 +57,36 @@ describe('LivePreview', () => {
 
     expect(container.firstChild).not.toHaveClass('max-w-[375px]');
   });
+
+  it('renders the Quick Recommendations section when quick picks exist', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[]}
+        settings={null}
+        quickRecommendations={[
+          {
+            product: { id: 1, name: 'Soundcore Liberty 4 NC', productPrice: '69.99', productLink: 'https://amazon.com/dp/a', imageFileName: null },
+            badgeName: 'Best Overall',
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('1. Quick Recommendations')).toBeInTheDocument();
+    expect(screen.getByText('Soundcore Liberty 4 NC')).toBeInTheDocument();
+    expect(screen.getByText('Best Overall')).toBeInTheDocument();
+    const cta = screen.getByRole('link', { name: /view on amazon/i });
+    expect(cta).toHaveAttribute('href', 'https://amazon.com/dp/a');
+    expect(cta).toHaveAttribute('rel', 'nofollow sponsored noopener noreferrer');
+  });
+
+  it('omits the Quick Recommendations section when there are no quick picks', () => {
+    render(
+      <LivePreview title="Best Earbuds" excerpt="" coverImageFilename={null} tocEntries={[]} settings={null} quickRecommendations={[]} />
+    );
+    expect(screen.queryByText(/quick recommendations/i)).not.toBeInTheDocument();
+  });
 });
