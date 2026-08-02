@@ -18,4 +18,5 @@ public interface ProductService {
             String term, Long categoryId, String brand, Boolean trending, Boolean bestSeller, Boolean active,
             BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
     List<ProductResponse> getComparableByIds(List<Long> ids);
+    List<String> getDistinctBrands();
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/products")
@@ -43,6 +44,11 @@ public class AdminProductController {
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         return ApiResponse.success("Products retrieved successfully.",
                 productService.search(search, categoryId, brand, trending, bestSeller, active, minPrice, maxPrice, pageable));
+    }
+
+    @GetMapping("/brands")
+    public ApiResponse<List<String>> getDistinctBrands() {
+        return ApiResponse.success("Brands retrieved successfully.", productService.getDistinctBrands());
     }
 
     @GetMapping("/{id}")

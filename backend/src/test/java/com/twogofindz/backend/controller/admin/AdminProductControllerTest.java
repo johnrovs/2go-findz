@@ -361,4 +361,25 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.data.content.length()").value(1))
                 .andExpect(jsonPath("$.data.content[0].name").value("Zyphrex Shoe"));
     }
+
+    @Test
+    void getDistinctBrands_returnsSortedUniqueNonBlankBrands() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Distinct Brands Category");
+        for (String brand : new String[] {"Nike", "Adidas", "Nike", null}) {
+            mockMvc.perform(post("/api/admin/products")
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new ProductRequest(
+                            "Product " + java.util.UUID.randomUUID(), "desc", categoryId, null,
+                            new BigDecimal("10.00"), "https://amazon.com/dp/x" + java.util.UUID.randomUUID(),
+                            false, false, true, brand, null, null, null, null))));
+        }
+
+        mockMvc.perform(get("/api/admin/products/brands")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", org.hamcrest.Matchers.hasItems("Adidas", "Nike")))
+                .andExpect(jsonPath("$.data.length()").value(org.hamcrest.Matchers.greaterThanOrEqualTo(2)));
+    }
 }

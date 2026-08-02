@@ -140,6 +140,12 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getDistinctBrands() {
+        return productRepository.findDistinctBrands();
+    }
+
     private Product findProduct(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
