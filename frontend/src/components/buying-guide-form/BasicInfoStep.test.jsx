@@ -12,6 +12,15 @@ vi.mock('./IntroductionEditor.jsx', () => ({
   ),
 }));
 
+vi.mock('./PublishDatePicker.jsx', () => ({
+  default: ({ id, value, onChange, error }) => (
+    <div>
+      <input id={id} value={value} onChange={(event) => onChange(event.target.value)} />
+      {error && <p>{error}</p>}
+    </div>
+  ),
+}));
+
 const categories = [{ id: 1, productCategoryName: 'Kitchen' }];
 const baseValues = {
   title: '',

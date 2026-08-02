@@ -1,5 +1,6 @@
 import ImageUploader from '../ImageUploader.jsx';
 import IntroductionEditor from './IntroductionEditor.jsx';
+import PublishDatePicker from './PublishDatePicker.jsx';
 import TocBuilder from './TocBuilder.jsx';
 
 function BasicInfoStep({ values, onChange, categories, fieldErrors, tocEntries, onTocEntriesChange, introduction, onIntroductionChange }) {
@@ -144,21 +145,13 @@ function BasicInfoStep({ values, onChange, categories, fieldErrors, tocEntries, 
         <label htmlFor="scheduledPublishAt" className="mb-1 block text-small font-medium text-body">
           Publish Date
         </label>
-        <input
+        <PublishDatePicker
           id="scheduledPublishAt"
-          type="datetime-local"
           value={values.scheduledPublishAt}
-          onChange={(event) => onChange('scheduledPublishAt', event.target.value)}
-          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-invalid={Boolean(fieldErrors.scheduledPublishAt)}
-          aria-describedby={fieldErrors.scheduledPublishAt ? 'scheduledPublishAt-error' : undefined}
+          onChange={(value) => onChange('scheduledPublishAt', value)}
+          error={fieldErrors.scheduledPublishAt}
         />
         <p className="mt-1 text-xs text-muted">Set when the guide will be published.</p>
-        {fieldErrors.scheduledPublishAt && (
-          <p id="scheduledPublishAt-error" className="mt-1 text-sm text-danger">
-            {fieldErrors.scheduledPublishAt}
-          </p>
-        )}
       </div>
     </div>
   );
