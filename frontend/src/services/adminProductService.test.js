@@ -6,6 +6,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  getDistinctBrands,
 } from './adminProductService.js';
 
 describe('adminProductService', () => {
@@ -71,5 +72,17 @@ describe('adminProductService', () => {
     await deleteProduct(2);
 
     expect(api.delete).toHaveBeenCalledWith('/admin/products/2');
+  });
+
+  it('getDistinctBrands fetches from /admin/products/brands and returns the brand list', async () => {
+    const brands = ['Adidas', 'Nike'];
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: { success: true, message: 'Brands retrieved successfully.', data: brands },
+    });
+
+    const result = await getDistinctBrands();
+
+    expect(api.get).toHaveBeenCalledWith('/admin/products/brands');
+    expect(result).toEqual(brands);
   });
 });
