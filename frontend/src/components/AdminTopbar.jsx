@@ -15,10 +15,18 @@ function buildBreadcrumbs(pathname) {
   return segments.map((segment) => BREADCRUMB_LABELS[segment] ?? segment);
 }
 
+// The Buying Guide editor (new or existing) has its own EditorHeader with an
+// equivalent back link and title, making this breadcrumb redundant there --
+// the list page at /admin/buying-guides itself is unaffected.
+function isBuyingGuideEditorPath(pathname) {
+  return /^\/admin\/buying-guides\/(new|\d+)$/.test(pathname);
+}
+
 function AdminTopbar({ onMenuClick }) {
   const { user } = useAuth();
   const location = useLocation();
   const breadcrumbs = buildBreadcrumbs(location.pathname);
+  const showBreadcrumb = !isBuyingGuideEditorPath(location.pathname);
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 shadow-navbar md:px-6">
@@ -30,9 +38,11 @@ function AdminTopbar({ onMenuClick }) {
         >
           <Menu size={20} />
         </button>
-        <nav aria-label="Breadcrumb" className="text-small text-muted">
-          {breadcrumbs.join(' / ')}
-        </nav>
+        {showBreadcrumb && (
+          <nav aria-label="Breadcrumb" className="text-small text-muted">
+            {breadcrumbs.join(' / ')}
+          </nav>
+        )}
       </div>
       <span className="text-small font-medium text-heading">{user?.fullName}</span>
     </header>
