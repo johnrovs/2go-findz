@@ -72,7 +72,7 @@ describe('TocBuilder', () => {
     const user = userEvent.setup();
     render(<TocBuilder tocEntries={structuralEntries} onChange={onChange} />);
 
-    await user.click(screen.getByRole('button', { name: 'Hide Quick Recommendations' }));
+    await user.click(screen.getByRole('switch', { name: 'Hide Quick Recommendations' }));
 
     expect(onChange).toHaveBeenCalledWith([{ ...structuralEntries[0], visible: false }, structuralEntries[1]]);
   });
@@ -85,5 +85,21 @@ describe('TocBuilder', () => {
     await user.click(screen.getByRole('button', { name: 'Move FAQs up' }));
 
     expect(onChange).toHaveBeenCalledWith([structuralEntries[1], structuralEntries[0]]);
+  });
+
+  it('shows a lock icon on structural rows but not on custom rows', () => {
+    const mixedEntries = [
+      structuralEntries[0],
+      { clientId: 'custom-1', sectionKey: null, title: 'Custom', content: '', visible: true },
+    ];
+    const { container } = render(<TocBuilder tocEntries={mixedEntries} onChange={vi.fn()} />);
+    const rows = container.querySelectorAll('li');
+    expect(rows[0].querySelector('.lucide-lock')).not.toBeNull();
+    expect(rows[1].querySelector('.lucide-lock')).toBeNull();
+  });
+
+  it('shows the customize-sections subtitle next to the heading', () => {
+    render(<TocBuilder tocEntries={structuralEntries} onChange={vi.fn()} />);
+    expect(screen.getByText('(Customize the sections that appear in your guide)')).toBeInTheDocument();
   });
 });

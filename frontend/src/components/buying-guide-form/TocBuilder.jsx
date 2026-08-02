@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ArrowDown, ArrowUp, Eye, EyeOff, GripVertical, Plus, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, GripVertical, Lock, Plus, Trash2 } from 'lucide-react';
 import Button from '../Button.jsx';
 import ConfirmDialog from '../ConfirmDialog.jsx';
 
@@ -28,6 +28,7 @@ function TocRow({ entry, index, total, onToggleVisible, onEditCustom, onMoveUp, 
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: entry.clientId });
   const style = { transform: CSS.Transform.toString(transform), transition };
   const label = entryLabel(entry);
+  const isStructural = Boolean(entry.sectionKey);
 
   return (
     <li ref={setNodeRef} style={style} className="rounded-btn border border-border bg-white p-3">
@@ -42,7 +43,8 @@ function TocRow({ entry, index, total, onToggleVisible, onEditCustom, onMoveUp, 
           >
             <GripVertical size={16} />
           </button>
-          {entry.sectionKey ? (
+          {isStructural && <Lock size={14} className="shrink-0 text-muted" aria-hidden="true" />}
+          {isStructural ? (
             <span className="truncate text-sm font-medium text-body">{label}</span>
           ) : (
             <input
@@ -55,7 +57,7 @@ function TocRow({ entry, index, total, onToggleVisible, onEditCustom, onMoveUp, 
             />
           )}
         </div>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={() => onMoveUp(index)}
@@ -76,26 +78,33 @@ function TocRow({ entry, index, total, onToggleVisible, onEditCustom, onMoveUp, 
           </button>
           <button
             type="button"
-            onClick={() => onToggleVisible(entry.clientId)}
+            role="switch"
+            aria-checked={entry.visible}
             aria-label={entry.visible ? `Hide ${label}` : `Show ${label}`}
-            aria-pressed={entry.visible}
-            className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary"
+            onClick={() => onToggleVisible(entry.clientId)}
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+              entry.visible ? 'bg-primary' : 'bg-slate-300'
+            }`}
           >
-            {entry.visible ? <Eye size={16} /> : <EyeOff size={16} />}
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                entry.visible ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
           </button>
-          {!entry.sectionKey && (
+          {!isStructural && (
             <button
               type="button"
               onClick={() => onDelete(entry)}
               aria-label={`Remove ${label}`}
               className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-danger"
             >
-              <X size={16} />
+              <Trash2 size={16} />
             </button>
           )}
         </div>
       </div>
-      {!entry.sectionKey && (
+      {!isStructural && (
         <textarea
           value={entry.content}
           onChange={(event) => onEditCustom(entry.clientId, { content: event.target.value })}
@@ -166,7 +175,10 @@ function TocBuilder({ tocEntries, onChange }) {
 
   return (
     <div>
-      <span className="mb-1 block text-small font-medium text-body">Table of Contents</span>
+      <div className="mb-1 flex items-baseline gap-2">
+        <span className="text-small font-medium text-body">Table of Contents</span>
+        <span className="text-xs text-muted">(Customize the sections that appear in your guide)</span>
+      </div>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={tocEntries.map((entry) => entry.clientId)} strategy={verticalListSortingStrategy}>
           <ul className="space-y-2" aria-label="Table of contents entries">
