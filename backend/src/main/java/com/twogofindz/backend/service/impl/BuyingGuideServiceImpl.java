@@ -1,24 +1,47 @@
 package com.twogofindz.backend.service.impl;
 
+import com.twogofindz.backend.dto.request.BuyingGuideAdviceSectionRequest;
+import com.twogofindz.backend.dto.request.BuyingGuideComparisonSpecRequest;
+import com.twogofindz.backend.dto.request.BuyingGuideComparisonValueRequest;
+import com.twogofindz.backend.dto.request.BuyingGuideFaqRequest;
+import com.twogofindz.backend.dto.request.BuyingGuideQuickRecommendationRequest;
+import com.twogofindz.backend.dto.request.BuyingGuideRecommendationItemRequest;
+import com.twogofindz.backend.dto.request.BuyingGuideRecommendationSectionRequest;
 import com.twogofindz.backend.dto.request.BuyingGuideRequest;
+import com.twogofindz.backend.dto.request.BuyingGuideSectionSettingRequest;
 import com.twogofindz.backend.dto.response.BuyingGuideResponse;
 import com.twogofindz.backend.dto.response.PublicBuyingGuideDetailResponse;
 import com.twogofindz.backend.dto.response.PublicBuyingGuideSummaryResponse;
 import com.twogofindz.backend.entity.BuyingGuide;
+import com.twogofindz.backend.entity.BuyingGuideAdviceSection;
+import com.twogofindz.backend.entity.BuyingGuideComparisonSpec;
+import com.twogofindz.backend.entity.BuyingGuideComparisonValue;
+import com.twogofindz.backend.entity.BuyingGuideFaq;
+import com.twogofindz.backend.entity.BuyingGuideQuickRecommendation;
+import com.twogofindz.backend.entity.BuyingGuideRecommendationItem;
+import com.twogofindz.backend.entity.BuyingGuideRecommendationSection;
+import com.twogofindz.backend.entity.BuyingGuideSectionSetting;
 import com.twogofindz.backend.entity.Product;
 import com.twogofindz.backend.entity.ProductCategory;
+import com.twogofindz.backend.entity.RecommendationItemType;
+import com.twogofindz.backend.entity.RecommendationType;
 import com.twogofindz.backend.exception.DuplicateResourceException;
+import com.twogofindz.backend.exception.InvalidBuyingGuideException;
 import com.twogofindz.backend.exception.ResourceNotFoundException;
 import com.twogofindz.backend.mapper.BuyingGuideMapper;
 import com.twogofindz.backend.repository.BuyingGuideRepository;
 import com.twogofindz.backend.repository.ProductCategoryRepository;
 import com.twogofindz.backend.repository.ProductRepository;
 import com.twogofindz.backend.service.BuyingGuideService;
+import com.twogofindz.backend.util.HtmlSanitizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class BuyingGuideServiceImpl implements BuyingGuideService {
@@ -41,6 +64,7 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
     @Override
     @Transactional
     public BuyingGuideResponse create(BuyingGuideRequest request) {
+        validateRequest(request);
         ProductCategory category = findCategory(request.categoryId());
         String slug = resolveSlug(request.slug(), request.title(), null);
 
@@ -48,7 +72,7 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
                 .title(request.title())
                 .slug(slug)
                 .excerpt(request.excerpt())
-                .introduction(request.introduction())
+                .introduction(HtmlSanitizer.sanitize(request.introduction()))
                 .coverImageFilename(request.coverImageFilename())
                 .category(category)
                 .seoTitle(request.seoTitle())
@@ -57,12 +81,21 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
                 .scheduledPublishAt(request.scheduledPublishAt())
                 .recommendedProducts(resolveProducts(request.recommendedProductIds()))
                 .build();
+
+        guide.setQuickRecommendations(buildQuickRecommendations(guide, request.quickRecommendations()));
+        guide.setComparisonSpecs(buildComparisonSpecs(guide, request.comparisonSpecs()));
+        guide.setRecommendationSections(buildRecommendationSections(guide, request.recommendationSections()));
+        guide.setAdviceSections(buildAdviceSections(guide, request.adviceSections()));
+        guide.setFaqs(buildFaqs(guide, request.faqs()));
+        guide.setSectionSettings(buildSectionSettings(guide, request.sectionSettings()));
+
         return buyingGuideMapper.toResponse(buyingGuideRepository.save(guide));
     }
 
     @Override
     @Transactional
     public BuyingGuideResponse update(Long id, BuyingGuideRequest request) {
+        validateRequest(request);
         BuyingGuide guide = findEntityById(id);
         ProductCategory category = findCategory(request.categoryId());
         String slug = resolveSlug(request.slug(), request.title(), id);
@@ -70,7 +103,7 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         guide.setTitle(request.title());
         guide.setSlug(slug);
         guide.setExcerpt(request.excerpt());
-        guide.setIntroduction(request.introduction());
+        guide.setIntroduction(HtmlSanitizer.sanitize(request.introduction()));
         guide.setCoverImageFilename(request.coverImageFilename());
         guide.setCategory(category);
         guide.setSeoTitle(request.seoTitle());
@@ -78,6 +111,24 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         guide.setActive(request.active());
         guide.setScheduledPublishAt(request.scheduledPublishAt());
         guide.setRecommendedProducts(resolveProducts(request.recommendedProductIds()));
+
+        // These six are owned @OneToMany(cascade=ALL, orphanRemoval=true) children: Hibernate
+        // rejects reassigning their collection reference on an already-managed entity, so the
+        // replacement must mutate the existing collection in place (same reasoning documented on
+        // Comparison's update()).
+        guide.getQuickRecommendations().clear();
+        guide.getQuickRecommendations().addAll(buildQuickRecommendations(guide, request.quickRecommendations()));
+        guide.getComparisonSpecs().clear();
+        guide.getComparisonSpecs().addAll(buildComparisonSpecs(guide, request.comparisonSpecs()));
+        guide.getRecommendationSections().clear();
+        guide.getRecommendationSections().addAll(buildRecommendationSections(guide, request.recommendationSections()));
+        guide.getAdviceSections().clear();
+        guide.getAdviceSections().addAll(buildAdviceSections(guide, request.adviceSections()));
+        guide.getFaqs().clear();
+        guide.getFaqs().addAll(buildFaqs(guide, request.faqs()));
+        guide.getSectionSettings().clear();
+        guide.getSectionSettings().addAll(buildSectionSettings(guide, request.sectionSettings()));
+
         return buyingGuideMapper.toResponse(buyingGuideRepository.save(guide));
     }
 
@@ -122,6 +173,150 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         return buyingGuideMapper.toPublicDetail(guide);
     }
 
+    /**
+     * Every cross-entity rule from the design doc in one place: no duplicate products, every
+     * child-section product reference must belong to the guide's own product list (this is also
+     * what rejects "remove a product that's still referenced elsewhere" rather than silently
+     * cascading), every comparison spec must cover the guide's product set exactly, and at most
+     * one Top Pick (backstopped at the DB level by the generated-column unique index on
+     * buying_guide_recommendation_sections).
+     */
+    private void validateRequest(BuyingGuideRequest request) {
+        Set<Long> productIds = new LinkedHashSet<>(request.recommendedProductIds());
+        if (productIds.size() != request.recommendedProductIds().size()) {
+            throw new InvalidBuyingGuideException("A product cannot be added to this guide more than once.");
+        }
+
+        for (BuyingGuideQuickRecommendationRequest quickRec : request.quickRecommendations()) {
+            if (!productIds.contains(quickRec.productId())) {
+                throw new InvalidBuyingGuideException(
+                        "Quick recommendation references a product that is not included in this guide.");
+            }
+        }
+
+        for (BuyingGuideComparisonSpecRequest spec : request.comparisonSpecs()) {
+            Set<Long> valueProductIds = spec.values().stream()
+                    .map(BuyingGuideComparisonValueRequest::productId)
+                    .collect(Collectors.toSet());
+            if (valueProductIds.size() != spec.values().size() || !valueProductIds.equals(productIds)) {
+                throw new InvalidBuyingGuideException(
+                        "Comparison specification \"" + spec.specificationName()
+                                + "\" must have exactly one value for every product in this guide.");
+            }
+        }
+
+        int topPickCount = 0;
+        for (BuyingGuideRecommendationSectionRequest section : request.recommendationSections()) {
+            if (!productIds.contains(section.productId())) {
+                throw new InvalidBuyingGuideException(
+                        "Recommendation section \"" + section.sectionLabel()
+                                + "\" references a product that is not included in this guide.");
+            }
+            if (section.recommendationType() == RecommendationType.TOP_PICK) {
+                topPickCount++;
+            }
+        }
+        if (topPickCount > 1) {
+            throw new InvalidBuyingGuideException("A buying guide can have at most one Top Pick.");
+        }
+    }
+
+    private List<BuyingGuideQuickRecommendation> buildQuickRecommendations(
+            BuyingGuide guide, List<BuyingGuideQuickRecommendationRequest> requests) {
+        List<BuyingGuideQuickRecommendation> result = new ArrayList<>();
+        for (BuyingGuideQuickRecommendationRequest req : requests) {
+            result.add(BuyingGuideQuickRecommendation.builder()
+                    .buyingGuide(guide).product(findProduct(req.productId())).badgeName(req.badgeName()).build());
+        }
+        return result;
+    }
+
+    private List<BuyingGuideComparisonSpec> buildComparisonSpecs(
+            BuyingGuide guide, List<BuyingGuideComparisonSpecRequest> requests) {
+        List<BuyingGuideComparisonSpec> result = new ArrayList<>();
+        for (BuyingGuideComparisonSpecRequest req : requests) {
+            BuyingGuideComparisonSpec spec = BuyingGuideComparisonSpec.builder()
+                    .buyingGuide(guide).specificationName(req.specificationName()).build();
+            List<BuyingGuideComparisonValue> values = new ArrayList<>();
+            for (BuyingGuideComparisonValueRequest valueReq : req.values()) {
+                values.add(BuyingGuideComparisonValue.builder()
+                        .comparisonSpec(spec).product(findProduct(valueReq.productId()))
+                        .specificationValue(valueReq.value()).build());
+            }
+            spec.setValues(values);
+            result.add(spec);
+        }
+        return result;
+    }
+
+    /**
+     * Pros, Cons, and Best For all live in one physical table ({@code items}), discriminated by
+     * {@code itemType}, ordered by a single shared {@code @OrderColumn}. Concatenating the three
+     * request lists in this fixed order (pros, then cons, then best-for) means each group's
+     * relative order survives being filtered back out by type later in the mapper — no separate
+     * JPA collection per item type is needed.
+     */
+    private List<BuyingGuideRecommendationSection> buildRecommendationSections(
+            BuyingGuide guide, List<BuyingGuideRecommendationSectionRequest> requests) {
+        List<BuyingGuideRecommendationSection> result = new ArrayList<>();
+        for (BuyingGuideRecommendationSectionRequest req : requests) {
+            BuyingGuideRecommendationSection section = BuyingGuideRecommendationSection.builder()
+                    .buyingGuide(guide).product(findProduct(req.productId()))
+                    .recommendationType(req.recommendationType())
+                    .sectionLabel(req.sectionLabel())
+                    .whyRecommended(HtmlSanitizer.sanitize(req.whyRecommended()))
+                    .build();
+
+            List<BuyingGuideRecommendationItem> items = new ArrayList<>();
+            addItems(section, items, req.pros(), RecommendationItemType.PRO);
+            addItems(section, items, req.cons(), RecommendationItemType.CON);
+            addItems(section, items, req.bestFor(), RecommendationItemType.BEST_FOR);
+            section.setItems(items);
+
+            result.add(section);
+        }
+        return result;
+    }
+
+    private void addItems(BuyingGuideRecommendationSection section, List<BuyingGuideRecommendationItem> items,
+                           List<BuyingGuideRecommendationItemRequest> requests, RecommendationItemType type) {
+        for (BuyingGuideRecommendationItemRequest req : requests) {
+            items.add(BuyingGuideRecommendationItem.builder()
+                    .recommendationSection(section).itemType(type).content(req.content()).build());
+        }
+    }
+
+    private List<BuyingGuideAdviceSection> buildAdviceSections(
+            BuyingGuide guide, List<BuyingGuideAdviceSectionRequest> requests) {
+        List<BuyingGuideAdviceSection> result = new ArrayList<>();
+        for (BuyingGuideAdviceSectionRequest req : requests) {
+            result.add(BuyingGuideAdviceSection.builder()
+                    .buyingGuide(guide).title(req.title())
+                    .content(HtmlSanitizer.sanitize(req.content())).build());
+        }
+        return result;
+    }
+
+    private List<BuyingGuideFaq> buildFaqs(BuyingGuide guide, List<BuyingGuideFaqRequest> requests) {
+        List<BuyingGuideFaq> result = new ArrayList<>();
+        for (BuyingGuideFaqRequest req : requests) {
+            result.add(BuyingGuideFaq.builder()
+                    .buyingGuide(guide).question(req.question())
+                    .answer(HtmlSanitizer.sanitize(req.answer())).build());
+        }
+        return result;
+    }
+
+    private List<BuyingGuideSectionSetting> buildSectionSettings(
+            BuyingGuide guide, List<BuyingGuideSectionSettingRequest> requests) {
+        List<BuyingGuideSectionSetting> result = new ArrayList<>();
+        for (BuyingGuideSectionSettingRequest req : requests) {
+            result.add(BuyingGuideSectionSetting.builder()
+                    .buyingGuide(guide).sectionKey(req.sectionKey()).visible(req.visible()).build());
+        }
+        return result;
+    }
+
     private String resolveSlug(String requestedSlug, String title, Long excludeId) {
         String slug = (requestedSlug == null || requestedSlug.isBlank()) ? slugify(title) : requestedSlug;
         boolean taken = excludeId == null
@@ -143,6 +338,11 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
     private ProductCategory findCategory(Long categoryId) {
         return productCategoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
+    }
+
+    private Product findProduct(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
     }
 
     private List<Product> resolveProducts(List<Long> ids) {

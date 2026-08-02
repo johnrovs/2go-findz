@@ -103,4 +103,49 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
         return objectMapper.readTree(result.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
     }
+
+    @Test
+    void getBySlug_returnsFullNestedStructure_withInheritedTopPickBadge() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Public Full Guide Category");
+        Long productCategoryId = createCategoryId(token, "Public Full Guide Product Category");
+        Long topPickProductId = createProductId(token, productCategoryId, "Public Full Guide Top Pick Product");
+
+        String requestJson = """
+                {
+                  "title": "Public Full Guide", "slug": "public-full-guide",
+                  "excerpt": "Excerpt", "introduction": "<p>Introduction</p>", "coverImageFilename": null,
+                  "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
+                  "scheduledPublishAt": null, "recommendedProductIds": [%d],
+                  "quickRecommendations": [{"productId": %d, "badgeName": "Best Overall"}],
+                  "comparisonSpecs": [
+                    {"specificationName": "Battery Life", "values": [{"productId": %d, "value": "40 Hrs"}]}
+                  ],
+                  "recommendationSections": [
+                    {"productId": %d, "recommendationType": "TOP_PICK", "sectionLabel": "Our Top Pick",
+                     "whyRecommended": "<p>Great value.</p>", "pros": [{"content": "Great sound"}],
+                     "cons": [{"content": "Pricey"}], "bestFor": [{"content": "Daily commuters"}]}
+                  ],
+                  "adviceSections": [{"title": "What to Look For", "content": "<p>Look for battery life.</p>"}],
+                  "faqs": [{"question": "Is it worth it?", "answer": "<p>Yes.</p>"}],
+                  "sectionSettings": []
+                }
+                """.formatted(guideCategoryId, topPickProductId, topPickProductId, topPickProductId, topPickProductId);
+
+        mockMvc.perform(post("/api/admin/buying-guides")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(requestJson));
+
+        mockMvc.perform(get("/api/public/buying-guides/{slug}", "public-full-guide"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.quickRecommendations[0].badgeName").value("Best Overall"))
+                .andExpect(jsonPath("$.data.comparisonTable.specificationNames[0]").value("Battery Life"))
+                .andExpect(jsonPath("$.data.topPick.sectionLabel").value("Our Top Pick"))
+                .andExpect(jsonPath("$.data.topPick.badgeName").value("Best Overall"))
+                .andExpect(jsonPath("$.data.topPick.pros[0]").value("Great sound"))
+                .andExpect(jsonPath("$.data.adviceSections[0].title").value("What to Look For"))
+                .andExpect(jsonPath("$.data.faqs[0].question").value("Is it worth it?"))
+                .andExpect(jsonPath("$.data.visibleSectionOrder", org.hamcrest.Matchers.hasItem("TOP_PICK")));
+    }
 }
