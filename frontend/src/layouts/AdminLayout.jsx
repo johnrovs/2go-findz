@@ -9,7 +9,7 @@ function AdminLayout() {
   return (
     <div className="admin-scope flex min-h-screen bg-surface-secondary">
       <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         <AdminTopbar onMenuClick={() => setIsSidebarOpen(true)} />
         <main className="flex-1 p-6">
           <Outlet />

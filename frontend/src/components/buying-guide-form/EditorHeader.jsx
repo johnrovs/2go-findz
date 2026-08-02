@@ -18,9 +18,9 @@ function EditorHeader({ isEditMode, status, onPreview, onSaveDraft, onPublish, o
   }
 
   return (
-    // top-14 approximates AdminTopbar's rendered height; confirm and adjust with
-    // getComputedStyle during the Task 11 browser verification pass.
-    <div className="sticky top-14 z-20 -mx-6 mb-6 border-b border-slate-200 bg-white px-6 py-4">
+    // top-12 (48px) matches AdminTopbar's measured rendered height (~48.7px),
+    // confirmed via getComputedStyle during browser verification.
+    <div className="sticky top-12 z-20 -mx-6 mb-6 border-b border-slate-200 bg-white px-6 py-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <button type="button" onClick={onCancel} className="mb-1 text-sm font-medium text-muted hover:text-primary">
