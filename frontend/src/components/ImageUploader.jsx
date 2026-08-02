@@ -6,7 +6,7 @@ import { uploadImage } from '../services/adminImageService.js';
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
-function ImageUploader({ imageFileName, onChange }) {
+function ImageUploader({ imageFileName, onChange, label = 'Product Image' }) {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
   const previewUrl = getImageUrl(imageFileName);
@@ -40,7 +40,7 @@ function ImageUploader({ imageFileName, onChange }) {
 
   return (
     <div>
-      <span className="mb-1 block text-small font-medium text-body">Product Image</span>
+      <span className="mb-1 block text-small font-medium text-body">{label}</span>
       <div className="flex items-center gap-4">
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-card border border-border bg-surface-secondary">
           {previewUrl ? (

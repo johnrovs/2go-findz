@@ -19,6 +19,11 @@ describe('ImageUploader', () => {
     expect(screen.getByAltText('Product preview')).toBeInTheDocument();
   });
 
+  it('renders a custom label when provided', () => {
+    render(<ImageUploader imageFileName={null} onChange={vi.fn()} label="Featured Image" />);
+    expect(screen.getByText('Featured Image')).toBeInTheDocument();
+  });
+
   it('rejects a file with an unsupported type without uploading', async () => {
     const onChange = vi.fn();
     const uploadSpy = vi.spyOn(adminImageService, 'uploadImage');
