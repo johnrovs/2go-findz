@@ -115,27 +115,31 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         guide.setScheduledPublishAt(request.scheduledPublishAt());
         guide.setRecommendedProducts(resolveProducts(request.recommendedProductIds()));
 
-        // These five are owned @OneToMany(cascade=ALL, orphanRemoval=true) children: Hibernate
+        // These six are owned @OneToMany(cascade=ALL, orphanRemoval=true) children: Hibernate
         // rejects reassigning their collection reference on an already-managed entity, so the
         // replacement must mutate the existing collection in place (same reasoning documented on
         // Comparison's update()).
+        //
+        // All six clear()s are flushed together, before any addAll(): a save that resends the
+        // same values it already loaded (e.g. an edit that only touches Basic Info fields and
+        // otherwise round-trips quickRecommendations/comparisonSpecs/recommendationSections/faqs
+        // unchanged) re-inserts rows whose unique keys match the ones just orphaned. Hibernate's
+        // default action-queue ordering for an @OrderColumn collection does not guarantee the
+        // DELETEs are physically committed before the INSERTs run within one flush, so without
+        // this the re-insert collides with the not-yet-deleted old row. tocEntries hits this on
+        // effectively every save (its 5 structural section_key rows are backfilled every time);
+        // the other five only reproduce once a save resends identical child data, which no admin
+        // UI could do until the Basic Info editor's preserve-on-save behavior existed.
         guide.getQuickRecommendations().clear();
-        guide.getQuickRecommendations().addAll(buildQuickRecommendations(guide, request.quickRecommendations()));
         guide.getComparisonSpecs().clear();
-        guide.getComparisonSpecs().addAll(buildComparisonSpecs(guide, request.comparisonSpecs()));
         guide.getRecommendationSections().clear();
-        guide.getRecommendationSections().addAll(buildRecommendationSections(guide, request.recommendationSections()));
         guide.getFaqs().clear();
-        guide.getFaqs().addAll(buildFaqs(guide, request.faqs()));
-
-        // tocEntries additionally needs a flush between clear() and addAll(): its structural
-        // rows are backfilled with the same 5 section_key values on nearly every save, so the
-        // orphaned old rows and the freshly built new rows collide on the unique
-        // (buying_guide_id, section_key) index unless the DELETEs are physically committed
-        // before the INSERTs run. Hibernate's default action-queue ordering for an
-        // @OrderColumn collection does not guarantee that on its own within one flush.
         guide.getTocEntries().clear();
         buyingGuideRepository.flush();
+        guide.getQuickRecommendations().addAll(buildQuickRecommendations(guide, request.quickRecommendations()));
+        guide.getComparisonSpecs().addAll(buildComparisonSpecs(guide, request.comparisonSpecs()));
+        guide.getRecommendationSections().addAll(buildRecommendationSections(guide, request.recommendationSections()));
+        guide.getFaqs().addAll(buildFaqs(guide, request.faqs()));
         guide.getTocEntries().addAll(buildTocEntries(guide, request.tocEntries()));
 
         return buyingGuideMapper.toResponse(buyingGuideRepository.save(guide));

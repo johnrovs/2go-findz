@@ -312,6 +312,75 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void update_resendingIdenticalSections_doesNotConflict() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Resend Sections Guide Category");
+        Long productCategoryId = createCategoryId(token, "Resend Sections Product Category");
+        Long topPickProductId = createProductId(token, productCategoryId, "Resend Sections Top Pick Product");
+        Long runnerUpProductId = createProductId(token, productCategoryId, "Resend Sections Runner Up Product");
+
+        String requestJson = """
+                {
+                  "title": "Resend Sections Guide", "slug": "resend-sections-guide",
+                  "excerpt": "Excerpt", "introduction": "<p>Introduction</p>",
+                  "coverImageFilename": null, "categoryId": %d,
+                  "seoTitle": null, "seoDescription": null, "active": true, "scheduledPublishAt": null,
+                  "recommendedProductIds": [%d, %d],
+                  "quickRecommendations": [
+                    {"productId": %d, "badgeName": "Best Overall"}
+                  ],
+                  "comparisonSpecs": [
+                    {"specificationName": "Battery Life", "values": [
+                      {"productId": %d, "value": "40 Hrs"},
+                      {"productId": %d, "value": "30 Hrs"}
+                    ]}
+                  ],
+                  "recommendationSections": [
+                    {"productId": %d, "recommendationType": "TOP_PICK", "sectionLabel": "Our Top Pick",
+                     "whyRecommended": "<p>Great value.</p>",
+                     "pros": [{"content": "Great sound"}], "cons": [{"content": "Pricey"}],
+                     "bestFor": [{"content": "Daily commuters"}]}
+                  ],
+                  "faqs": [
+                    {"question": "Is it worth it?", "answer": "<p>Yes.</p>"}
+                  ],
+                  "tocEntries": [
+                    {"sectionKey": "QUICK_RECOMMENDATIONS", "title": null, "content": null, "visible": true},
+                    {"sectionKey": "COMPARISON_TABLE", "title": null, "content": null, "visible": true},
+                    {"sectionKey": "TOP_PICK", "title": null, "content": null, "visible": true},
+                    {"sectionKey": "RUNNER_UPS", "title": null, "content": null, "visible": true},
+                    {"sectionKey": "FAQS", "title": null, "content": null, "visible": true}
+                  ]
+                }
+                """.formatted(guideCategoryId, topPickProductId, runnerUpProductId, topPickProductId,
+                topPickProductId, runnerUpProductId, topPickProductId);
+
+        var createResult = mockMvc.perform(post("/api/admin/buying-guides")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk())
+                .andReturn();
+        Long id = objectMapper.readTree(createResult.getResponse().getContentAsString())
+                .path("data").path("id").asLong();
+
+        // A Basic-Info-only edit round-trips every section unchanged from what was loaded --
+        // resending the exact same child rows must not collide with the ones it's replacing.
+        mockMvc.perform(put("/api/admin/buying-guides/{id}", id)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.quickRecommendations", org.hamcrest.Matchers.hasSize(1)))
+                .andExpect(jsonPath("$.data.quickRecommendations[0].badgeName").value("Best Overall"))
+                .andExpect(jsonPath("$.data.comparisonSpecs", org.hamcrest.Matchers.hasSize(1)))
+                .andExpect(jsonPath("$.data.comparisonSpecs[0].values", org.hamcrest.Matchers.hasSize(2)))
+                .andExpect(jsonPath("$.data.recommendationSections", org.hamcrest.Matchers.hasSize(1)))
+                .andExpect(jsonPath("$.data.faqs", org.hamcrest.Matchers.hasSize(1)))
+                .andExpect(jsonPath("$.data.tocEntries", org.hamcrest.Matchers.hasSize(5)));
+    }
+
+    @Test
     void create_returns400_whenDuplicateProductInList() throws Exception {
         String token = adminToken();
         Long guideCategoryId = createCategoryId(token, "Dup Product Guide Category");
