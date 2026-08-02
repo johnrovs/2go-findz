@@ -35,13 +35,27 @@ precedent and is followed directly rather than inventing new conventions:
   edits when I clicked Basic Info" bug class).
 - **One `handleSubmit` builds the complete payload from all state and calls
   `onSubmit` once** — no partial-section saves, matching the backend's
-  whole-guide replace-on-save design. Concretely, this means Save as Draft
-  on Basic Info *alone* already sends a fully valid `BuyingGuideRequest`
+  whole-guide replace-on-save design. For a **new** guide this means Save
+  as Draft on Basic Info *alone* sends a fully valid `BuyingGuideRequest`
   with empty lists for `quickRecommendations`/`comparisonSpecs`/
-  `recommendationSections`/`faqs` and (usually) an empty
-  `recommendedProductIds` — the backend accepts this today (only `@NotNull`,
-  not `@NotEmpty`, on that list) and it's the same shape later steps will
-  simply populate more of.
+  `recommendationSections`/`faqs`/`recommendedProductIds` — the backend
+  accepts this today (only `@NotNull`, not `@NotEmpty`, on those lists) —
+  and it's the same shape later steps will simply populate more of.
+  **For an existing guide being edited, those five collections must be
+  round-tripped, not zeroed**: `BuyingGuideForm` initializes them from the
+  loaded `guide` response (mapped into request shape — e.g.
+  `quickRecommendations: guide.quickRecommendations.map(r => ({productId:
+  r.product.id, badgeName: r.badgeName}))`, `recommendedProductIds:
+  guide.recommendedProducts.map(p => p.id)`, and equivalently for
+  `comparisonSpecs` (nested `values`), `recommendationSections` (nested
+  `pros`/`cons`/`bestFor`), and `faqs`) and submits that unchanged state
+  back on every save. There is no UI on this page to edit those
+  collections yet, so whatever was loaded is exactly what should be saved
+  — the whole-entity replace-on-save pattern means naively defaulting them
+  to `[]` would silently delete any quick recommendations, comparison
+  rows, recommendation sections, or FAQs a future Step 2–9 session (or a
+  direct API call) had already added, the moment someone touches Basic
+  Info and clicks Save.
 - **`BuyingGuideFormPage.jsx` stays a thin data/submit wrapper** (load by id,
   call create/update, toast, navigate) — it gains the `getCategories()`
   fetch `ComparisonFormPage.jsx` already has (currently missing here, the
@@ -78,9 +92,16 @@ BuyingGuideFormPage.jsx (thin wrapper, unchanged pattern — gains categories fe
     │   ├── ImageUploader.jsx                   (existing, reused — see below)
     │   ├── buying-guide-form/IntroductionEditor.jsx  (TipTap wrapper)
     │   └── buying-guide-form/TocBuilder.jsx    (dnd-kit list, inline add/edit)
-    ├── buying-guide-form/LivePreview.jsx       (sticky right panel, desktop/mobile toggle)
-    └── buying-guide-form/PublishConfirmDialog.jsx  (confirm-before-publish modal)
+    └── buying-guide-form/LivePreview.jsx       (sticky right panel, desktop/mobile toggle)
 ```
+
+`ConfirmDialog.jsx` (existing, already reused by `ComparisonsPage.jsx`,
+`ProductsPage.jsx`, `CategoriesPage.jsx`, `BuyingGuidesPage.jsx`) covers the
+confirm-before-publish modal directly — its
+`{isOpen, title, message, confirmLabel, isDestructive, isLoading, onConfirm, onCancel}`
+props are a generic fit, so no new `PublishConfirmDialog.jsx` component is
+built. The same component is reused a second time for the TOC Builder's
+confirm-before-delete-with-content step (see below).
 
 `ImageUploader.jsx` gains one new optional prop, `label` (defaults to its
 current hardcoded `"Product Image"` string) so this page can pass `"Featured
@@ -116,9 +137,9 @@ Operates directly on `tocEntries` state (array matching the backend's
   backend's rule that a structural entry can't carry a custom title/content
   and is never truly removable, only hidden).
 - **Custom rows** (`sectionKey: null`): drag handle, inline-editable title,
-  visibility toggle, delete button (with a confirm step if content is
-  non-empty, per the original spec's "confirm before deleting a section
-  with saved content"). **"Add Section" opens an inline title + plain-text
+  visibility toggle, delete button (with a `ConfirmDialog` confirm step —
+  same reused component as Publish — if content is non-empty, per the
+  original spec's "confirm before deleting a section with saved content"). **"Add Section" opens an inline title + plain-text
   content field right in this builder** (confirmed with the user) — both
   required before the row is considered valid, since the backend rejects a
   blank-content custom entry. When Step 7 ("Buying Guide Content") is built
@@ -179,8 +200,10 @@ adding information the disabled visual state doesn't already convey.
   discard it. "Save as Draft" means "persist my current progress," not
   "override to Draft" — the name describes the common case (most saves
   happen before anything's ready to go live), not a forced side effect.
-- **Publish Guide**: the one actual override. Opens `PublishConfirmDialog`;
-  confirming submits with `active:true, scheduledPublishAt:null` regardless
+- **Publish Guide**: the one actual override. Opens the existing
+  `ConfirmDialog` (title "Publish this guide?", message explaining the
+  override, `confirmLabel="Publish"`); confirming submits with
+  `active:true, scheduledPublishAt:null` regardless
   of whatever the Status dropdown currently shows — this button's entire
   purpose is "make this live right now," so it's the one action allowed to
   ignore the dropdown, and the confirm dialog exists specifically because
