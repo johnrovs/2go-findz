@@ -64,12 +64,17 @@ precedent and is followed directly rather than inventing new conventions:
 ## New Dependencies
 
 - **`@tiptap/react` + `@tiptap/starter-kit` + `@tiptap/extension-link` +
-  `@tiptap/extension-image`** — the Introduction field's rich-text editor.
-  TipTap is headless (no bundled toolbar UI to fight), so the custom
-  toolbar in the reference (Paragraph style, B/I/U, lists, alignment, link,
-  image) is built as ordinary buttons calling TipTap's `editor.chain()`
-  commands — same interaction pattern as every other custom control already
-  in this codebase.
+  `@tiptap/extension-image` + `@tiptap/extension-underline` +
+  `@tiptap/extension-text-align`** — the Introduction field's rich-text
+  editor. `StarterKit` alone covers paragraph style, bold/italic, and
+  lists, but the reference toolbar's Underline and alignment buttons each
+  need their own TipTap extension (not part of `StarterKit`) — both are
+  small, official `@tiptap/*` packages, not a scope expansion. TipTap is
+  headless (no bundled toolbar UI to fight), so the custom toolbar in the
+  reference (Paragraph style, B/I/U, lists, alignment, link, image) is
+  built as ordinary buttons calling TipTap's `editor.chain()` commands —
+  same interaction pattern as every other custom control already in this
+  codebase.
 - **`@dnd-kit/core` + `@dnd-kit/sortable`** — the TOC builder's drag-and-drop
   reordering. Every other reorderable list in this codebase (`EntityPicker`,
   `FaqTab`, etc.) uses up/down arrow buttons instead; this is the first real
