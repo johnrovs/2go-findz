@@ -192,6 +192,17 @@ adding information the disabled visual state doesn't already convey.
 
 ## Header Actions
 
+- **Back link**: a small "← Buying Guides" link/button, wired to the same
+  `onCancel` prop `BuyingGuideFormPage.jsx` already passes today (it
+  currently reaches `ComparisonForm`-style Cancel buttons everywhere else
+  in this codebase). Not in the reference's action-button row and not
+  called out in the original prompt, but every other admin form has a way
+  to leave without saving, and dropping that here — the one form that
+  gained a sticky custom header instead of a plain Cancel/Submit
+  pair — would be a silent UX regression. Cheap to keep: one link, no new
+  prop plumbing, `AdminSidebar`'s "Buying Guides" nav item already proves
+  users can always navigate away regardless, this just makes it explicit
+  and local to the header.
 - **Preview**: opens the `LivePreview` content in a modal (see above).
 - **Save as Draft**: a plain save — submits whatever `active`/
   `scheduledPublishAt` the Status field currently maps to, unchanged. It
