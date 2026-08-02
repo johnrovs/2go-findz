@@ -10,21 +10,29 @@ const STEPS = [
   'SEO & Publish',
 ];
 
-function Stepper() {
+const MAX_BUILT_STEP = 2;
+
+function Stepper({ activeStep, maxUnlockedStep, onStepClick }) {
   return (
     <nav aria-label="Buying guide steps" className="mb-6 overflow-x-auto">
       <ol className="flex min-w-max items-center gap-2">
         {STEPS.map((label, index) => {
           const stepNumber = index + 1;
-          const isActive = stepNumber === 1;
+          const isActive = stepNumber === activeStep;
+          const isEnabled = stepNumber <= maxUnlockedStep && stepNumber <= MAX_BUILT_STEP;
           return (
             <li key={label} className="flex items-center gap-2">
               <button
                 type="button"
-                disabled={!isActive}
+                disabled={!isEnabled}
+                onClick={() => onStepClick(stepNumber)}
                 aria-current={isActive ? 'step' : undefined}
                 className={`flex items-center gap-2 rounded-btn px-3 py-2 text-sm font-medium ${
-                  isActive ? 'bg-primary text-white' : 'cursor-not-allowed text-muted opacity-60'
+                  isActive
+                    ? 'bg-primary text-white'
+                    : isEnabled
+                      ? 'text-body hover:bg-surface-secondary'
+                      : 'cursor-not-allowed text-muted opacity-60'
                 }`}
               >
                 <span
