@@ -66,7 +66,7 @@ const DEFAULT_TOC_ENTRIES = ['QUICK_RECOMMENDATIONS', 'COMPARISON_TABLE', 'TOP_P
   visible: true,
 }));
 
-function BuyingGuideForm({ guide, categories, onSubmit, onCancel }) {
+function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick }) {
   const [basicInfo, setBasicInfo] = useState({
     title: guide?.title ?? '',
     slug: guide?.slug ?? '',
@@ -219,6 +219,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel }) {
         onSaveDraft={() => submit(false)}
         onPublish={() => submit(true)}
         onCancel={onCancel}
+        onMenuClick={onMenuClick}
         isSubmitting={isSubmitting}
       />
 

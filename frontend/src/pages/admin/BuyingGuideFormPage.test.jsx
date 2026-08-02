@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import BuyingGuideFormPage from './BuyingGuideFormPage.jsx';
 import { ToastProvider } from '../../context/ToastContext.jsx';
@@ -37,6 +37,26 @@ describe('BuyingGuideFormPage', () => {
   it('renders the create form with an empty title', () => {
     renderPage(['/admin/buying-guides/new']);
     expect(screen.getByLabelText('Title')).toHaveValue('');
+  });
+
+  it('calls the outlet-provided onMenuClick when the mobile menu button is clicked', async () => {
+    const onMenuClick = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={['/admin/buying-guides/new']}>
+        <ToastProvider>
+          <Routes>
+            <Route element={<Outlet context={{ onMenuClick }} />}>
+              <Route path="/admin/buying-guides/new" element={<BuyingGuideFormPage />} />
+            </Route>
+          </Routes>
+        </ToastProvider>
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByLabelText('Open menu'));
+
+    expect(onMenuClick).toHaveBeenCalled();
   });
 
   it('loads and pre-fills the edit form', async () => {

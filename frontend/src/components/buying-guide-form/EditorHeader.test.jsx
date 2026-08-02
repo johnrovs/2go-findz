@@ -12,6 +12,7 @@ function renderHeader(overrides = {}) {
       onSaveDraft={vi.fn()}
       onPublish={vi.fn()}
       onCancel={vi.fn()}
+      onMenuClick={vi.fn()}
       isSubmitting={false}
       {...overrides}
     />
@@ -39,6 +40,16 @@ describe('EditorHeader', () => {
     await user.click(screen.getByRole('button', { name: /Buying Guides/ }));
 
     expect(onCancel).toHaveBeenCalled();
+  });
+
+  it('calls onMenuClick when the mobile menu button is clicked', async () => {
+    const onMenuClick = vi.fn();
+    const user = userEvent.setup();
+    renderHeader({ onMenuClick });
+
+    await user.click(screen.getByLabelText('Open menu'));
+
+    expect(onMenuClick).toHaveBeenCalled();
   });
 
   it('calls onPreview and onSaveDraft directly, without a confirm step', async () => {

@@ -27,13 +27,13 @@ describe('AdminTopbar', () => {
     expect(screen.getByLabelText('Breadcrumb')).toHaveTextContent('Dashboard / buying-guides');
   });
 
-  it('hides the breadcrumb on the new buying guide editor page', () => {
-    renderTopbar('/admin/buying-guides/new');
-    expect(screen.queryByLabelText('Breadcrumb')).not.toBeInTheDocument();
+  it('renders nothing on the new buying guide editor page', () => {
+    const { container } = renderTopbar('/admin/buying-guides/new');
+    expect(container).toBeEmptyDOMElement();
   });
 
-  it('hides the breadcrumb on an existing buying guide editor page', () => {
-    renderTopbar('/admin/buying-guides/7');
-    expect(screen.queryByLabelText('Breadcrumb')).not.toBeInTheDocument();
+  it('renders nothing on an existing buying guide editor page', () => {
+    const { container } = renderTopbar('/admin/buying-guides/7');
+    expect(container).toBeEmptyDOMElement();
   });
 });

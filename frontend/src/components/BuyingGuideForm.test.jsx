@@ -153,6 +153,16 @@ describe('BuyingGuideForm', () => {
     expect(onCancel).toHaveBeenCalled();
   });
 
+  it('passes onMenuClick through to the header mobile menu button', async () => {
+    const onMenuClick = vi.fn();
+    const user = userEvent.setup();
+    renderForm({ onMenuClick });
+
+    await user.click(screen.getByLabelText('Open menu'));
+
+    expect(onMenuClick).toHaveBeenCalled();
+  });
+
   it('pre-fills every Basic Info field when editing an existing guide', () => {
     const guide = {
       id: 7,

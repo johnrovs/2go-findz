@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, Eye } from 'lucide-react';
+import { ChevronDown, Eye, Menu } from 'lucide-react';
 import Button from '../Button.jsx';
 import ConfirmDialog from '../ConfirmDialog.jsx';
 
@@ -9,7 +9,7 @@ const STATUS_STYLES = {
   Published: 'bg-success/10 text-success',
 };
 
-function EditorHeader({ isEditMode, status, onPreview, onSaveDraft, onPublish, onCancel, isSubmitting }) {
+function EditorHeader({ isEditMode, status, onPreview, onSaveDraft, onPublish, onCancel, onMenuClick, isSubmitting }) {
   const [isConfirmingPublish, setIsConfirmingPublish] = useState(false);
 
   function handleConfirmPublish() {
@@ -18,19 +18,30 @@ function EditorHeader({ isEditMode, status, onPreview, onSaveDraft, onPublish, o
   }
 
   return (
-    // top-12 (48px) matches AdminTopbar's measured rendered height (~48.7px),
-    // confirmed via getComputedStyle during browser verification.
-    <div className="sticky top-12 z-20 -mx-6 mb-6 border-b border-slate-200 bg-white px-6 py-4">
+    // Replaces AdminTopbar entirely on this page (see AdminTopbar's
+    // isBuyingGuideEditorPath), so this sticks at the true top of the
+    // viewport and owns the mobile menu button itself.
+    <div className="sticky top-0 z-30 -mx-6 mb-6 border-b border-slate-200 bg-white px-6 py-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <button type="button" onClick={onCancel} className="mb-1 text-sm font-medium text-muted hover:text-primary">
-            &larr; Buying Guides
+        <div className="flex items-start gap-3">
+          <button
+            type="button"
+            onClick={onMenuClick}
+            className="mt-1 rounded-md p-2 text-slate-500 hover:bg-slate-100 md:hidden"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
           </button>
-          <div className="flex items-center gap-3">
-            <h1 className="text-card-title text-heading">{isEditMode ? 'Edit Buying Guide' : 'Add Buying Guide'}</h1>
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLES[status]}`}>{status}</span>
+          <div>
+            <button type="button" onClick={onCancel} className="mb-1 text-sm font-medium text-muted hover:text-primary">
+              &larr; Buying Guides
+            </button>
+            <div className="flex items-center gap-3">
+              <h1 className="text-card-title text-heading">{isEditMode ? 'Edit Buying Guide' : 'Add Buying Guide'}</h1>
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLES[status]}`}>{status}</span>
+            </div>
+            <p className="text-sm text-muted">Manage your buying guide&apos;s basic information, content, and settings.</p>
           </div>
-          <p className="text-sm text-muted">Manage your buying guide&apos;s basic information, content, and settings.</p>
         </div>
 
         <div className="flex items-center gap-2">

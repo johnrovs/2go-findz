@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import BuyingGuideForm from '../../components/BuyingGuideForm.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
@@ -11,6 +11,7 @@ function BuyingGuideFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { onMenuClick } = useOutletContext() ?? {};
   const isEditMode = Boolean(id);
 
   const [guide, setGuide] = useState(null);
@@ -58,6 +59,7 @@ function BuyingGuideFormPage() {
       categories={categories}
       onSubmit={handleSubmit}
       onCancel={() => navigate('/admin/buying-guides')}
+      onMenuClick={onMenuClick}
     />
   );
 }
