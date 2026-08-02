@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import LivePreview from './LivePreview.jsx';
 
@@ -39,5 +40,21 @@ describe('LivePreview', () => {
   it('falls back to the default disclosure when settings have not loaded', () => {
     render(<LivePreview title="Guide" excerpt="Excerpt" coverImageFilename={null} tocEntries={[]} settings={null} />);
     expect(screen.getByText(/as an amazon associate/i)).toBeInTheDocument();
+  });
+
+  it('constrains the panel width when toggled to mobile', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <LivePreview title="Guide" excerpt="Excerpt" coverImageFilename={null} tocEntries={[]} settings={null} />
+    );
+    expect(container.firstChild).not.toHaveClass('max-w-[375px]');
+
+    await user.click(screen.getByRole('button', { name: 'Preview on mobile' }));
+
+    expect(container.firstChild).toHaveClass('max-w-[375px]');
+
+    await user.click(screen.getByRole('button', { name: 'Preview on desktop' }));
+
+    expect(container.firstChild).not.toHaveClass('max-w-[375px]');
   });
 });
