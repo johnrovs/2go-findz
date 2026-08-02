@@ -180,8 +180,20 @@ needed since it's just reading React state that's already current.
   — no author field exists anywhere in this feature), featured image
   (placeholder icon if none uploaded yet), excerpt, a rendered
   table-of-contents list built from visible `tocEntries` (structural rows
-  show their derived label, custom rows show their title), and the fixed
-  Amazon Associate disclosure sentence from the original spec.
+  show their derived label, custom rows show their title), and an
+  affiliate disclosure line. **Correction from an earlier draft of this
+  spec:** there is no fixed/hardcoded disclosure sentence anywhere in this
+  codebase — it's an admin-configurable value (`Settings.affiliateDisclosure`,
+  edited on the existing Settings page) rendered everywhere on the public
+  site through the existing `AffiliateDisclosure.jsx` component
+  (`<AffiliateDisclosure text={settings?.affiliateDisclosure} />`, which
+  falls back to a default sentence only when `text` is falsy). `BuyingGuideForm`
+  fetches it once on mount with the existing public `getSettings()`
+  (`services/settingsService.js` — the same call every public page already
+  makes for its own footer) and passes the result down to `LivePreview`,
+  which renders it through the reused `AffiliateDisclosure` component
+  rather than any hardcoded string — keeping the preview honest about what
+  the public page will actually show.
 
 ## Stepper
 
