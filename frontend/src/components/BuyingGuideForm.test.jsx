@@ -22,6 +22,20 @@ vi.mock('./buying-guide-form/PublishDatePicker.jsx', () => ({
   ),
 }));
 
+vi.mock('./buying-guide-form/ProductsStep.jsx', () => ({
+  default: ({ selectedProducts, onSelectedProductsChange }) => (
+    <div>
+      <p>Products step ({selectedProducts.length} selected)</p>
+      <button
+        type="button"
+        onClick={() => onSelectedProductsChange([...selectedProducts, { id: 99, name: 'Mock Product' }])}
+      >
+        Add mock product
+      </button>
+    </div>
+  ),
+}));
+
 const categories = [{ id: 1, productCategoryName: 'Kitchen' }];
 
 function renderForm(props = {}) {
@@ -342,5 +356,55 @@ describe('BuyingGuideForm', () => {
 
     expect(screen.getByRole('heading', { name: 'Preview' })).toBeInTheDocument();
     expect(screen.getAllByText('Preview Me').length).toBeGreaterThan(0);
+  });
+
+  it('Next on Basic Info validates required fields before advancing', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText('Title is required.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Title')).toBeInTheDocument();
+  });
+
+  it('Next on Basic Info advances to the Products step once valid, and unlocks it in the Stepper', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText('Products step (0 selected)')).toBeInTheDocument();
+    const productsStepButton = screen.getByRole('button', { name: /Products/ });
+    expect(productsStepButton).toBeEnabled();
+    expect(productsStepButton).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('Previous on the Products step returns to Basic Info without losing entered data', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('Products step (0 selected)');
+
+    await user.click(screen.getByRole('button', { name: 'Previous' }));
+
+    expect(screen.getByLabelText('Title')).toHaveValue('Guide Title');
+  });
+
+  it('adding a product on the Products step flows into recommendedProductIds on save', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    renderForm({ onSubmit });
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+
+    await user.click(screen.getByRole('button', { name: 'Save as Draft' }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    const payload = onSubmit.mock.calls[0][0];
+    expect(payload.recommendedProductIds).toEqual([99]);
   });
 });

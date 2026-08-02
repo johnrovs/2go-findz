@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import EditorHeader from './buying-guide-form/EditorHeader.jsx';
 import Stepper from './buying-guide-form/Stepper.jsx';
 import BasicInfoStep from './buying-guide-form/BasicInfoStep.jsx';
+import ProductsStep from './buying-guide-form/ProductsStep.jsx';
 import LivePreview from './buying-guide-form/LivePreview.jsx';
 import Modal from './Modal.jsx';
+import Button from './Button.jsx';
 import { getSettings } from '../services/settingsService.js';
 
 function slugify(text) {
@@ -79,7 +81,9 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
   });
   const [introduction, setIntroduction] = useState(guide?.introduction ?? '');
   const [tocEntries, setTocEntries] = useState(guide ? mapTocEntriesFromResponse(guide.tocEntries) : DEFAULT_TOC_ENTRIES);
-  const [recommendedProductIds] = useState((guide?.recommendedProducts ?? []).map((p) => p.id));
+  const [recommendedProducts, setRecommendedProducts] = useState(guide?.recommendedProducts ?? []);
+  const [activeStep, setActiveStep] = useState(1);
+  const [maxUnlockedStep, setMaxUnlockedStep] = useState(1);
   const [quickRecommendations] = useState(mapQuickRecommendationsFromResponse(guide?.quickRecommendations));
   const [comparisonSpecs] = useState(mapComparisonSpecsFromResponse(guide?.comparisonSpecs));
   const [recommendationSections] = useState(mapRecommendationSectionsFromResponse(guide?.recommendationSections));
@@ -160,7 +164,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
       seoDescription,
       active,
       scheduledPublishAt,
-      recommendedProductIds,
+      recommendedProductIds: recommendedProducts.map((product) => product.id),
       quickRecommendations,
       comparisonSpecs,
       recommendationSections,
@@ -175,6 +179,14 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         visible,
       })),
     };
+  }
+
+  function handleNext() {
+    const errors = validate();
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    setMaxUnlockedStep((prev) => Math.max(prev, 2));
+    setActiveStep(2);
   }
 
   async function submit(forcePublish) {
@@ -223,20 +235,43 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         isSubmitting={isSubmitting}
       />
 
-      <Stepper />
+      <Stepper activeStep={activeStep} maxUnlockedStep={maxUnlockedStep} onStepClick={setActiveStep} />
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="lg:w-[72%]">
-          <BasicInfoStep
-            values={basicInfo}
-            onChange={handleBasicInfoChange}
-            categories={categories}
-            fieldErrors={fieldErrors}
-            tocEntries={tocEntries}
-            onTocEntriesChange={setTocEntries}
-            introduction={introduction}
-            onIntroductionChange={setIntroduction}
-          />
+          {activeStep === 1 && (
+            <>
+              <BasicInfoStep
+                values={basicInfo}
+                onChange={handleBasicInfoChange}
+                categories={categories}
+                fieldErrors={fieldErrors}
+                tocEntries={tocEntries}
+                onTocEntriesChange={setTocEntries}
+                introduction={introduction}
+                onIntroductionChange={setIntroduction}
+              />
+              <div className="mt-6 flex justify-end">
+                <Button type="button" onClick={handleNext}>
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+          {activeStep === 2 && (
+            <>
+              <ProductsStep
+                selectedProducts={recommendedProducts}
+                onSelectedProductsChange={setRecommendedProducts}
+                categories={categories}
+              />
+              <div className="mt-6 flex justify-start">
+                <Button type="button" variant="secondary" onClick={() => setActiveStep(1)}>
+                  Previous
+                </Button>
+              </div>
+            </>
+          )}
         </div>
         <div className="hidden lg:block lg:w-[28%]">
           <div className="sticky top-32">
