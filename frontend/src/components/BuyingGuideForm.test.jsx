@@ -76,7 +76,7 @@ describe('BuyingGuideForm', () => {
     expect(screen.getByText('Introduction is required.')).toBeInTheDocument();
   });
 
-  it('reveals and requires a future Publish Date only when Status is Scheduled', async () => {
+  it('requires a future Publish Date only when Status is Scheduled', async () => {
     const user = userEvent.setup();
     renderForm();
 
@@ -84,6 +84,17 @@ describe('BuyingGuideForm', () => {
     await user.click(screen.getByRole('button', { name: 'Save as Draft' }));
 
     expect(await screen.findByText('Publish date is required.')).toBeInTheDocument();
+  });
+
+  it('does not clear a picked Publish Date when Status changes away from Scheduled', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.selectOptions(screen.getByLabelText('Status'), 'Scheduled');
+    await user.type(screen.getByLabelText('Publish Date'), '2099-01-01T10:00');
+    await user.selectOptions(screen.getByLabelText('Status'), 'Draft');
+
+    expect(screen.getByLabelText('Publish Date')).toHaveValue('2099-01-01T10:00');
   });
 
   it('submits active:true and a null scheduledPublishAt when Status is Published', async () => {

@@ -108,9 +108,6 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel }) {
       if (field === 'slug') {
         return { ...prev, slug: value, isSlugDirty: true };
       }
-      if (field === 'status') {
-        return { ...prev, status: value, scheduledPublishAt: value === 'Scheduled' ? prev.scheduledPublishAt : '' };
-      }
       return { ...prev, [field]: value };
     });
   }
