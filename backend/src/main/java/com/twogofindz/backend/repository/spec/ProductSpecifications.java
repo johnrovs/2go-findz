@@ -19,7 +19,8 @@ public final class ProductSpecifications {
             return cb.or(
                     cb.like(cb.lower(root.get("name")), like),
                     cb.like(cb.lower(root.get("description")), like),
-                    cb.like(cb.lower(root.get("category").get("productCategoryName")), like)
+                    cb.like(cb.lower(root.get("category").get("productCategoryName")), like),
+                    cb.like(cb.lower(root.get("sku")), like)
             );
         };
     }

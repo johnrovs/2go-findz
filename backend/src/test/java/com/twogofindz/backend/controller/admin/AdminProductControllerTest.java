@@ -310,4 +310,26 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.sku").value("SKU-12345"));
     }
+
+    @Test
+    void search_matchesTerm_bySku() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "SKU Search Category");
+        ProductRequest request = new ProductRequest(
+                "Findable By Sku", "Matches only by its sku.", categoryId, null,
+                new BigDecimal("15.00"), "https://amazon.com/dp/findable", false, false, true,
+                null, null, null, null, "UNIQUE-SKU-999");
+
+        mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .param("search", "unique-sku-999"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content[0].name").value("Findable By Sku"));
+    }
 }
