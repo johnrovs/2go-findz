@@ -8,7 +8,10 @@ export default {
         heading: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
       },
       colors: {
-        primary: { DEFAULT: '#2563EB', hover: '#1D4ED8' },
+        primary: {
+          DEFAULT: 'rgb(var(--color-primary-rgb) / <alpha-value>)',
+          hover: 'rgb(var(--color-primary-hover-rgb) / <alpha-value>)',
+        },
         amazon: { DEFAULT: '#FF9900', hover: '#E68A00' },
         surface: { DEFAULT: '#FFFFFF', secondary: '#F8FAFC' },
         border: '#E5E7EB',

@@ -31,9 +31,9 @@ function AdminSidebar({ isOpen, onClose }) {
   }, [isOpen, onClose]);
 
   const content = (
-    <nav aria-label="Main navigation" className="flex h-full flex-col border-r border-slate-200 bg-white px-3 py-6">
+    <nav aria-label="Main navigation" className="flex h-full flex-col bg-[#0F172A] px-3 py-6">
       <div className="mb-8 px-3">
-        <img src={logo} alt="2Go Findz" className="h-10 w-10" />
+        <img src={logo} alt="2Go Findz" className="h-10 w-10 rounded-full object-cover" />
       </div>
       <ul className="flex-1 space-y-1">
         {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
@@ -44,7 +44,9 @@ function AdminSidebar({ isOpen, onClose }) {
               onClick={onClose}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition ${
-                  isActive ? 'bg-primary/10 text-primary' : 'text-body hover:bg-slate-100'
+                  isActive
+                    ? 'bg-gradient-to-r from-primary to-indigo-500 text-white shadow-sm'
+                    : 'text-slate-300 hover:bg-[#1E293B]'
                 }`
               }
             >
@@ -56,7 +58,7 @@ function AdminSidebar({ isOpen, onClose }) {
       </ul>
       <button
         onClick={logout}
-        className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-body hover:bg-slate-100"
+        className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-[#1E293B]"
       >
         <LogOut size={18} />
         Logout
