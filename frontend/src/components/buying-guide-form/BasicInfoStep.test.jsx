@@ -39,14 +39,19 @@ function renderStep(overrides = {}) {
 }
 
 describe('BasicInfoStep', () => {
+  it('renders a Basic Information heading', () => {
+    renderStep();
+    expect(screen.getByRole('heading', { name: 'Basic Information' })).toBeInTheDocument();
+  });
+
   it('renders the featured-image label instead of the default product label', () => {
     renderStep();
     expect(screen.getByText('Featured Image')).toBeInTheDocument();
   });
 
-  it('shows the remaining excerpt character count', () => {
+  it('shows the excerpt character count as used / max', () => {
     renderStep({ values: { excerpt: 'Hello' } });
-    expect(screen.getByText('245 characters remaining')).toBeInTheDocument();
+    expect(screen.getByText('5 / 250')).toBeInTheDocument();
   });
 
   it('populates the category select from the categories prop', () => {
@@ -54,14 +59,18 @@ describe('BasicInfoStep', () => {
     expect(screen.getByRole('option', { name: 'Kitchen' })).toBeInTheDocument();
   });
 
-  it('only shows the Publish Date field when Status is Scheduled', () => {
-    renderStep({ values: { status: 'Scheduled' } });
+  it('always renders the Publish Date field regardless of Status', () => {
+    renderStep({ values: { status: 'Draft' } });
     expect(screen.getByLabelText('Publish Date')).toBeInTheDocument();
   });
 
-  it('hides the Publish Date field when Status is Draft', () => {
-    renderStep({ values: { status: 'Draft' } });
-    expect(screen.queryByLabelText('Publish Date')).not.toBeInTheDocument();
+  it('shows helper text under each field', () => {
+    renderStep();
+    expect(screen.getByText('Use a clear, keyword-rich title.')).toBeInTheDocument();
+    expect(screen.getByText('A short description for search results and social sharing.')).toBeInTheDocument();
+    expect(screen.getByText('Select the main category.')).toBeInTheDocument();
+    expect(screen.getByText('Set the current status.')).toBeInTheDocument();
+    expect(screen.getByText('Set when the guide will be published.')).toBeInTheDocument();
   });
 
   it('shows field-level validation errors', () => {
