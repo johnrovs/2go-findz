@@ -3,6 +3,16 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-primary-rgb: 37 99 235;
+    --color-primary-hover-rgb: 29 78 216;
+  }
+
+  .admin-scope {
+    --color-primary-rgb: 124 58 237;
+    --color-primary-hover-rgb: 109 40 217;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: theme(fontFamily.heading);
   }
