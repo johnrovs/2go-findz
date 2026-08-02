@@ -126,9 +126,10 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                      "whyRecommended": "<p>Great value.</p>", "pros": [{"content": "Great sound"}],
                      "cons": [{"content": "Pricey"}], "bestFor": [{"content": "Daily commuters"}]}
                   ],
-                  "adviceSections": [{"title": "What to Look For", "content": "<p>Look for battery life.</p>"}],
                   "faqs": [{"question": "Is it worth it?", "answer": "<p>Yes.</p>"}],
-                  "sectionSettings": []
+                  "tocEntries": [
+                    {"sectionKey": null, "title": "What to Look For", "content": "<p>Look for battery life.</p>", "visible": true}
+                  ]
                 }
                 """.formatted(guideCategoryId, topPickProductId, topPickProductId, topPickProductId, topPickProductId);
 
@@ -144,8 +145,9 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.data.topPick.sectionLabel").value("Our Top Pick"))
                 .andExpect(jsonPath("$.data.topPick.badgeName").value("Best Overall"))
                 .andExpect(jsonPath("$.data.topPick.pros[0]").value("Great sound"))
-                .andExpect(jsonPath("$.data.adviceSections[0].title").value("What to Look For"))
                 .andExpect(jsonPath("$.data.faqs[0].question").value("Is it worth it?"))
-                .andExpect(jsonPath("$.data.visibleSectionOrder", org.hamcrest.Matchers.hasItem("TOP_PICK")));
+                .andExpect(jsonPath("$.data.tocEntries[0].title").value("What to Look For"))
+                .andExpect(jsonPath("$.data.tocEntries[0].content").value("<p>Look for battery life.</p>"))
+                .andExpect(jsonPath("$.data.tocEntries[?(@.sectionKey == 'TOP_PICK')]").exists());
     }
 }

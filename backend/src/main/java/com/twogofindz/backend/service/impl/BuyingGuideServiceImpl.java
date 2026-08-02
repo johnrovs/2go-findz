@@ -1,6 +1,5 @@
 package com.twogofindz.backend.service.impl;
 
-import com.twogofindz.backend.dto.request.BuyingGuideAdviceSectionRequest;
 import com.twogofindz.backend.dto.request.BuyingGuideComparisonSpecRequest;
 import com.twogofindz.backend.dto.request.BuyingGuideComparisonValueRequest;
 import com.twogofindz.backend.dto.request.BuyingGuideFaqRequest;
@@ -8,19 +7,19 @@ import com.twogofindz.backend.dto.request.BuyingGuideQuickRecommendationRequest;
 import com.twogofindz.backend.dto.request.BuyingGuideRecommendationItemRequest;
 import com.twogofindz.backend.dto.request.BuyingGuideRecommendationSectionRequest;
 import com.twogofindz.backend.dto.request.BuyingGuideRequest;
-import com.twogofindz.backend.dto.request.BuyingGuideSectionSettingRequest;
+import com.twogofindz.backend.dto.request.BuyingGuideTocEntryRequest;
 import com.twogofindz.backend.dto.response.BuyingGuideResponse;
 import com.twogofindz.backend.dto.response.PublicBuyingGuideDetailResponse;
 import com.twogofindz.backend.dto.response.PublicBuyingGuideSummaryResponse;
 import com.twogofindz.backend.entity.BuyingGuide;
-import com.twogofindz.backend.entity.BuyingGuideAdviceSection;
 import com.twogofindz.backend.entity.BuyingGuideComparisonSpec;
 import com.twogofindz.backend.entity.BuyingGuideComparisonValue;
 import com.twogofindz.backend.entity.BuyingGuideFaq;
 import com.twogofindz.backend.entity.BuyingGuideQuickRecommendation;
 import com.twogofindz.backend.entity.BuyingGuideRecommendationItem;
 import com.twogofindz.backend.entity.BuyingGuideRecommendationSection;
-import com.twogofindz.backend.entity.BuyingGuideSectionSetting;
+import com.twogofindz.backend.entity.BuyingGuideSectionKey;
+import com.twogofindz.backend.entity.BuyingGuideTocEntry;
 import com.twogofindz.backend.entity.Product;
 import com.twogofindz.backend.entity.ProductCategory;
 import com.twogofindz.backend.entity.RecommendationItemType;
@@ -38,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +45,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class BuyingGuideServiceImpl implements BuyingGuideService {
+
+    private static final List<BuyingGuideSectionKey> DEFAULT_STRUCTURAL_ORDER = List.of(
+            BuyingGuideSectionKey.QUICK_RECOMMENDATIONS, BuyingGuideSectionKey.COMPARISON_TABLE,
+            BuyingGuideSectionKey.TOP_PICK, BuyingGuideSectionKey.RUNNER_UPS, BuyingGuideSectionKey.FAQS);
 
     private final BuyingGuideRepository buyingGuideRepository;
     private final ProductRepository productRepository;
@@ -85,9 +89,8 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         guide.setQuickRecommendations(buildQuickRecommendations(guide, request.quickRecommendations()));
         guide.setComparisonSpecs(buildComparisonSpecs(guide, request.comparisonSpecs()));
         guide.setRecommendationSections(buildRecommendationSections(guide, request.recommendationSections()));
-        guide.setAdviceSections(buildAdviceSections(guide, request.adviceSections()));
         guide.setFaqs(buildFaqs(guide, request.faqs()));
-        guide.setSectionSettings(buildSectionSettings(guide, request.sectionSettings()));
+        guide.setTocEntries(buildTocEntries(guide, request.tocEntries()));
 
         return buyingGuideMapper.toResponse(buyingGuideRepository.save(guide));
     }
@@ -112,7 +115,7 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         guide.setScheduledPublishAt(request.scheduledPublishAt());
         guide.setRecommendedProducts(resolveProducts(request.recommendedProductIds()));
 
-        // These six are owned @OneToMany(cascade=ALL, orphanRemoval=true) children: Hibernate
+        // These five are owned @OneToMany(cascade=ALL, orphanRemoval=true) children: Hibernate
         // rejects reassigning their collection reference on an already-managed entity, so the
         // replacement must mutate the existing collection in place (same reasoning documented on
         // Comparison's update()).
@@ -122,12 +125,18 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         guide.getComparisonSpecs().addAll(buildComparisonSpecs(guide, request.comparisonSpecs()));
         guide.getRecommendationSections().clear();
         guide.getRecommendationSections().addAll(buildRecommendationSections(guide, request.recommendationSections()));
-        guide.getAdviceSections().clear();
-        guide.getAdviceSections().addAll(buildAdviceSections(guide, request.adviceSections()));
         guide.getFaqs().clear();
         guide.getFaqs().addAll(buildFaqs(guide, request.faqs()));
-        guide.getSectionSettings().clear();
-        guide.getSectionSettings().addAll(buildSectionSettings(guide, request.sectionSettings()));
+
+        // tocEntries additionally needs a flush between clear() and addAll(): its structural
+        // rows are backfilled with the same 5 section_key values on nearly every save, so the
+        // orphaned old rows and the freshly built new rows collide on the unique
+        // (buying_guide_id, section_key) index unless the DELETEs are physically committed
+        // before the INSERTs run. Hibernate's default action-queue ordering for an
+        // @OrderColumn collection does not guarantee that on its own within one flush.
+        guide.getTocEntries().clear();
+        buyingGuideRepository.flush();
+        guide.getTocEntries().addAll(buildTocEntries(guide, request.tocEntries()));
 
         return buyingGuideMapper.toResponse(buyingGuideRepository.save(guide));
     }
@@ -175,11 +184,14 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
 
     /**
      * Every cross-entity rule from the design doc in one place: no duplicate products, every
-     * child-section product reference must belong to the guide's own product list (this is also
-     * what rejects "remove a product that's still referenced elsewhere" rather than silently
-     * cascading), every comparison spec must cover the guide's product set exactly, and at most
-     * one Top Pick (backstopped at the DB level by the generated-column unique index on
-     * buying_guide_recommendation_sections).
+     * child-section product reference must belong to the guide's own product list, every
+     * comparison spec must cover the guide's product set exactly, at most one Top Pick
+     * (backstopped at the DB level by the generated-column unique index on
+     * buying_guide_recommendation_sections), no duplicate structural TOC section keys
+     * (backstopped at the DB level by the unique index on buying_guide_toc_entries), every
+     * structural TOC entry must not carry a custom title/content, and every custom TOC entry
+     * must have both. Missing structural keys are NOT rejected here — {@link #buildTocEntries}
+     * backfills them.
      */
     private void validateRequest(BuyingGuideRequest request) {
         Set<Long> productIds = new LinkedHashSet<>(request.recommendedProductIds());
@@ -218,6 +230,33 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         }
         if (topPickCount > 1) {
             throw new InvalidBuyingGuideException("A buying guide can have at most one Top Pick.");
+        }
+
+        validateTocEntries(request.tocEntries());
+    }
+
+    private void validateTocEntries(List<BuyingGuideTocEntryRequest> tocEntries) {
+        Set<BuyingGuideSectionKey> seenKeys = new HashSet<>();
+        for (BuyingGuideTocEntryRequest entry : tocEntries) {
+            if (entry.sectionKey() != null) {
+                if (!seenKeys.add(entry.sectionKey())) {
+                    throw new InvalidBuyingGuideException(
+                            "Section \"" + entry.sectionKey()
+                                    + "\" cannot appear more than once in the table of contents.");
+                }
+                if (entry.title() != null || entry.content() != null) {
+                    throw new InvalidBuyingGuideException(
+                            "Built-in section \"" + entry.sectionKey()
+                                    + "\" cannot have a custom title or content.");
+                }
+            } else {
+                if (entry.title() == null || entry.title().isBlank()) {
+                    throw new InvalidBuyingGuideException("Every custom table of contents entry requires a title.");
+                }
+                if (entry.content() == null || entry.content().isBlank()) {
+                    throw new InvalidBuyingGuideException("Every custom table of contents entry requires content.");
+                }
+            }
         }
     }
 
@@ -286,17 +325,6 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         }
     }
 
-    private List<BuyingGuideAdviceSection> buildAdviceSections(
-            BuyingGuide guide, List<BuyingGuideAdviceSectionRequest> requests) {
-        List<BuyingGuideAdviceSection> result = new ArrayList<>();
-        for (BuyingGuideAdviceSectionRequest req : requests) {
-            result.add(BuyingGuideAdviceSection.builder()
-                    .buyingGuide(guide).title(req.title())
-                    .content(HtmlSanitizer.sanitize(req.content())).build());
-        }
-        return result;
-    }
-
     private List<BuyingGuideFaq> buildFaqs(BuyingGuide guide, List<BuyingGuideFaqRequest> requests) {
         List<BuyingGuideFaq> result = new ArrayList<>();
         for (BuyingGuideFaqRequest req : requests) {
@@ -307,12 +335,33 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         return result;
     }
 
-    private List<BuyingGuideSectionSetting> buildSectionSettings(
-            BuyingGuide guide, List<BuyingGuideSectionSettingRequest> requests) {
-        List<BuyingGuideSectionSetting> result = new ArrayList<>();
-        for (BuyingGuideSectionSettingRequest req : requests) {
-            result.add(BuyingGuideSectionSetting.builder()
-                    .buyingGuide(guide).sectionKey(req.sectionKey()).visible(req.visible()).build());
+    /**
+     * Builds the guide's TOC entries in the request's given order, then appends any of the 5
+     * structural keys the request omitted, each defaulted to {@code visible = true}, in
+     * {@link #DEFAULT_STRUCTURAL_ORDER}. This backfill (not rejection) preserves the ergonomics
+     * the old {@code resolveVisibleSectionOrder} read-time fallback provided — a caller doesn't
+     * have to configure every structural section just to save a guide.
+     */
+    private List<BuyingGuideTocEntry> buildTocEntries(BuyingGuide guide, List<BuyingGuideTocEntryRequest> requests) {
+        List<BuyingGuideTocEntry> result = new ArrayList<>();
+        Set<BuyingGuideSectionKey> seenKeys = new HashSet<>();
+        for (BuyingGuideTocEntryRequest req : requests) {
+            if (req.sectionKey() != null) {
+                seenKeys.add(req.sectionKey());
+            }
+            result.add(BuyingGuideTocEntry.builder()
+                    .buyingGuide(guide)
+                    .sectionKey(req.sectionKey())
+                    .title(req.title())
+                    .content(req.sectionKey() == null ? HtmlSanitizer.sanitize(req.content()) : null)
+                    .visible(req.visible())
+                    .build());
+        }
+        for (BuyingGuideSectionKey key : DEFAULT_STRUCTURAL_ORDER) {
+            if (!seenKeys.contains(key)) {
+                result.add(BuyingGuideTocEntry.builder()
+                        .buyingGuide(guide).sectionKey(key).visible(true).build());
+            }
         }
         return result;
     }
