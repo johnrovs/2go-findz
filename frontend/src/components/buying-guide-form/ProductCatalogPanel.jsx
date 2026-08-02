@@ -31,12 +31,16 @@ function ProductCatalogPanel({ selectedProducts, onAdd, categories }) {
   return (
     <div>
       <h3 className="mb-3 text-small font-medium text-body">Product Catalog</h3>
-      <div className="mb-4 flex flex-wrap items-end gap-4">
-        <div className="min-w-[200px] flex-1">
-          <SearchInput value={catalog.search} onChange={catalog.setSearch} />
+      <div className="mb-4 flex flex-col gap-4">
+        <SearchInput value={catalog.search} onChange={catalog.setSearch} />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="min-w-0">
+            <FilterDropdown label="Category" value={catalog.categoryId} options={categoryOptions} onChange={catalog.setCategoryId} />
+          </div>
+          <div className="min-w-0">
+            <FilterDropdown label="Brand" value={catalog.brand} options={brandOptions} onChange={catalog.setBrand} />
+          </div>
         </div>
-        <FilterDropdown label="Category" value={catalog.categoryId} options={categoryOptions} onChange={catalog.setCategoryId} />
-        <FilterDropdown label="Brand" value={catalog.brand} options={brandOptions} onChange={catalog.setBrand} />
       </div>
 
       {catalog.isLoading ? (
