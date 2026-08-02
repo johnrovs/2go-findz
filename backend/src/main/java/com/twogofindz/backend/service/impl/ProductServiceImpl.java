@@ -51,6 +51,8 @@ public class ProductServiceImpl implements ProductService {
                 .active(effectiveActive)
                 .brand(request.brand())
                 .scheduledPublishAt(request.scheduledPublishAt())
+                .rating(request.rating())
+                .reviewCount(request.reviewCount() != null ? request.reviewCount() : 0)
                 .build();
         return productMapper.toResponse(productRepository.save(product));
     }
@@ -73,6 +75,8 @@ public class ProductServiceImpl implements ProductService {
         product.setActive(effectiveActive);
         product.setBrand(request.brand());
         product.setScheduledPublishAt(request.scheduledPublishAt());
+        product.setRating(request.rating());
+        product.setReviewCount(request.reviewCount() != null ? request.reviewCount() : 0);
 
         return productMapper.toResponse(productRepository.save(product));
     }

@@ -92,7 +92,8 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(new ProductRequest(
                                 name, "Test product for public buying guide.", categoryId, null,
                                 new BigDecimal("25.00"), "https://amazon.com/dp/" + name.replace(" ", "-"),
-                                false, false, true, null, null))))
+                                false, false, true, null, null,
+                null, null))))
                 .andReturn();
         return objectMapper.readTree(result.getResponse().getContentAsString())
                 .path("data").path("id").asLong();

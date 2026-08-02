@@ -1,7 +1,9 @@
 package com.twogofindz.backend.dto.request;
 
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -38,6 +40,13 @@ public record ProductRequest(
         String brand,
 
         @Future(message = "Scheduled publish date must be in the future.")
-        LocalDateTime scheduledPublishAt
+        LocalDateTime scheduledPublishAt,
+
+        @DecimalMin(value = "0.0", message = "Rating must be between 0.0 and 5.0.")
+        @DecimalMax(value = "5.0", message = "Rating must be between 0.0 and 5.0.")
+        BigDecimal rating,
+
+        @Min(value = 0, message = "Review count cannot be negative.")
+        Integer reviewCount
 ) {
 }

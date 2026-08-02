@@ -67,6 +67,12 @@ public class Product {
     @Column(name = "scheduled_publish_at")
     private LocalDateTime scheduledPublishAt;
 
+    @Column(precision = 2, scale = 1)
+    private BigDecimal rating;
+
+    @Column(name = "review_count", nullable = false)
+    private int reviewCount;
+
     @Generated(event = {EventType.INSERT, EventType.UPDATE})
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private LocalDateTime createdAt;

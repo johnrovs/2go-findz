@@ -1,0 +1,3 @@
+ALTER TABLE products
+    ADD COLUMN rating DECIMAL(2,1) NULL,
+    ADD COLUMN review_count INT NOT NULL DEFAULT 0;

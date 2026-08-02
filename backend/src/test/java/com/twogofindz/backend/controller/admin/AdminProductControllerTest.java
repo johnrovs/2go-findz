@@ -24,7 +24,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         Long categoryId = createCategoryId(token, "Kitchen Gadgets");
         ProductRequest request = new ProductRequest(
                 "Air Fryer", "A compact 4-quart air fryer.", categoryId, null,
-                new BigDecimal("79.99"), "https://amazon.com/dp/example", true, false, true, null, null);
+                new BigDecimal("79.99"), "https://amazon.com/dp/example", true, false, true, null, null,
+                null, null);
 
         mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
@@ -41,7 +42,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         Long categoryId = createCategoryId(token, "Negative Price Category");
         ProductRequest request = new ProductRequest(
                 "Bad Product", "Invalid price.", categoryId, null,
-                new BigDecimal("-1.00"), "https://amazon.com/dp/example", false, false, true, null, null);
+                new BigDecimal("-1.00"), "https://amazon.com/dp/example", false, false, true, null, null,
+                null, null);
 
         mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
@@ -56,7 +58,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         Long categoryId = createCategoryId(token, "Insecure Link Category");
         ProductRequest request = new ProductRequest(
                 "Bad Link Product", "Invalid link.", categoryId, null,
-                new BigDecimal("10.00"), "http://amazon.com/dp/example", false, false, true, null, null);
+                new BigDecimal("10.00"), "http://amazon.com/dp/example", false, false, true, null, null,
+                null, null);
 
         mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
@@ -70,7 +73,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         String token = adminToken();
         ProductRequest request = new ProductRequest(
                 "Orphan Product", "No such category.", 999999L, null,
-                new BigDecimal("10.00"), "https://amazon.com/dp/example", false, false, true, null, null);
+                new BigDecimal("10.00"), "https://amazon.com/dp/example", false, false, true, null, null,
+                null, null);
 
         mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
@@ -85,7 +89,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         Long categoryId = createCategoryId(token, "Soft Delete Category");
         ProductRequest request = new ProductRequest(
                 "Deletable Product", "Will be soft-deleted.", categoryId, null,
-                new BigDecimal("20.00"), "https://amazon.com/dp/example", false, false, true, null, null);
+                new BigDecimal("20.00"), "https://amazon.com/dp/example", false, false, true, null, null,
+                null, null);
 
         var createResult = mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
@@ -110,7 +115,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         Long categoryId = createCategoryId(token, "Timestamp Product Category");
         ProductRequest createRequest = new ProductRequest(
                 "Blender", "A powerful countertop blender.", categoryId, null,
-                new BigDecimal("49.99"), "https://amazon.com/dp/blender", false, false, true, null, null);
+                new BigDecimal("49.99"), "https://amazon.com/dp/blender", false, false, true, null, null,
+                null, null);
 
         var createResult = mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
@@ -136,7 +142,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
             ProductRequest updateRequest = new ProductRequest(
                     "Blender", "A powerful countertop blender.", categoryId, null,
                     new BigDecimal("54.99").add(new BigDecimal(attempt)),
-                    "https://amazon.com/dp/blender", false, false, true, null, null);
+                    "https://amazon.com/dp/blender", false, false, true, null, null,
+                null, null);
             var updateResult = mockMvc.perform(put("/api/admin/products/{id}", productId)
                             .header("Authorization", "Bearer " + token)
                             .contentType(APPLICATION_JSON)
@@ -158,7 +165,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         Long categoryId = createCategoryId(token, "Missing Active Field Category");
         ProductRequest createRequest = new ProductRequest(
                 "Toaster", "A basic toaster.", categoryId, null,
-                new BigDecimal("29.99"), "https://amazon.com/dp/toaster", false, false, true, null, null);
+                new BigDecimal("29.99"), "https://amazon.com/dp/toaster", false, false, true, null, null,
+                null, null);
 
         var createResult = mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
@@ -203,7 +211,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         ProductRequest request = new ProductRequest(
                 "Scheduled Product", "Will publish later.", categoryId, null,
                 new BigDecimal("15.00"), "https://amazon.com/dp/scheduled", false, false, true,
-                null, LocalDateTime.now().plusDays(2));
+                null, LocalDateTime.now().plusDays(2),
+                null, null);
 
         mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
@@ -221,7 +230,8 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         ProductRequest request = new ProductRequest(
                 "Branded Product", "Has a brand.", categoryId, null,
                 new BigDecimal("15.00"), "https://amazon.com/dp/branded", false, false, true,
-                "Nike", null);
+                "Nike", null,
+                null, null);
 
         mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
@@ -238,12 +248,49 @@ class AdminProductControllerTest extends AbstractIntegrationTest {
         ProductRequest request = new ProductRequest(
                 "Bad Schedule Product", "Scheduled in the past.", categoryId, null,
                 new BigDecimal("15.00"), "https://amazon.com/dp/pastschedule", false, false, true,
-                null, LocalDateTime.now().minusDays(1));
+                null, LocalDateTime.now().minusDays(1),
+                null, null);
 
         mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void create_withRatingAndReviewCount_returnsThemInResponse() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Rated Product Category");
+        ProductRequest request = new ProductRequest(
+                "Rated Product", "Has rating and reviews.", categoryId, null,
+                new BigDecimal("15.00"), "https://amazon.com/dp/rated", false, false, true,
+                null, null, new BigDecimal("4.5"), 1200);
+
+        mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.rating").value(4.5))
+                .andExpect(jsonPath("$.data.reviewCount").value(1200));
+    }
+
+    @Test
+    void create_withoutReviewCount_defaultsToZero() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Unrated Product Category");
+        ProductRequest request = new ProductRequest(
+                "Unrated Product", "No rating yet.", categoryId, null,
+                new BigDecimal("15.00"), "https://amazon.com/dp/unrated", false, false, true,
+                null, null, null, null);
+
+        mockMvc.perform(post("/api/admin/products")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.rating").doesNotExist())
+                .andExpect(jsonPath("$.data.reviewCount").value(0));
     }
 }
