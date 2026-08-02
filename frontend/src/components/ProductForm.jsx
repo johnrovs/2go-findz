@@ -17,6 +17,7 @@ function ProductForm({ product, categories, onSubmit, onCancel }) {
   const [bestSeller, setBestSeller] = useState(product?.bestSeller ?? false);
   const [active, setActive] = useState(product?.active ?? true);
   const [brand, setBrand] = useState(product?.brand ?? '');
+  const [sku, setSku] = useState(product?.sku ?? '');
   const [isScheduled, setIsScheduled] = useState(Boolean(product?.scheduledPublishAt));
   const [scheduledPublishAt, setScheduledPublishAt] = useState(
     product?.scheduledPublishAt ? product.scheduledPublishAt.slice(0, 16) : ''
@@ -76,6 +77,7 @@ function ProductForm({ product, categories, onSubmit, onCancel }) {
         // toISOString(), which would shift it to UTC and desync it from the value the admin
         // actually picked and from the server's own LocalDateTime.now() comparisons.
         scheduledPublishAt: isScheduled ? `${scheduledPublishAt}:00` : null,
+        sku: sku.trim() || null,
       });
     } catch (error) {
       setFieldErrors(error.fieldErrors ?? {});
@@ -130,6 +132,20 @@ function ProductForm({ product, categories, onSubmit, onCancel }) {
           maxLength={200}
           value={brand}
           onChange={(event) => setBrand(event.target.value)}
+          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="sku" className="mb-1 block text-small font-medium text-body">
+          SKU
+        </label>
+        <input
+          id="sku"
+          type="text"
+          maxLength={64}
+          value={sku}
+          onChange={(event) => setSku(event.target.value)}
           className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>

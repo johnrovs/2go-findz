@@ -42,6 +42,7 @@ describe('ProductForm', () => {
     await user.type(screen.getByLabelText('Description'), 'Compact wireless earbuds.');
     await user.type(screen.getByLabelText('Price ($)'), '49.99');
     await user.type(screen.getByLabelText('Amazon Affiliate Link'), 'https://amazon.com/dp/example');
+    await user.type(screen.getByLabelText('SKU'), 'SKU-001');
     await user.click(screen.getByRole('checkbox', { name: 'Trending' }));
     await user.click(screen.getByRole('button', { name: 'Add Product' }));
 
@@ -57,6 +58,7 @@ describe('ProductForm', () => {
       active: true,
       brand: null,
       scheduledPublishAt: null,
+      sku: 'SKU-001',
     });
   });
 
@@ -74,6 +76,7 @@ describe('ProductForm', () => {
       trending: false,
       bestSeller: true,
       active: true,
+      sku: 'SKU-EXIST',
     };
     render(<ProductForm product={product} categories={categories} onSubmit={onSubmit} onCancel={vi.fn()} />);
 
@@ -95,6 +98,7 @@ describe('ProductForm', () => {
       active: true,
       brand: null,
       scheduledPublishAt: null,
+      sku: 'SKU-EXIST',
     });
   });
 

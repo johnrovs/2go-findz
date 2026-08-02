@@ -47,6 +47,9 @@ public record ProductRequest(
         BigDecimal rating,
 
         @Min(value = 0, message = "Review count cannot be negative.")
-        Integer reviewCount
+        Integer reviewCount,
+
+        @Size(max = 64, message = "SKU must be at most 64 characters.")
+        String sku
 ) {
 }

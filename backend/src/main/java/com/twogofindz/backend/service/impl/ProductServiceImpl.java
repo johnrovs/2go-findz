@@ -53,6 +53,7 @@ public class ProductServiceImpl implements ProductService {
                 .scheduledPublishAt(request.scheduledPublishAt())
                 .rating(request.rating())
                 .reviewCount(request.reviewCount() != null ? request.reviewCount() : 0)
+                .sku(request.sku())
                 .build();
         return productMapper.toResponse(productRepository.save(product));
     }
@@ -77,6 +78,7 @@ public class ProductServiceImpl implements ProductService {
         product.setScheduledPublishAt(request.scheduledPublishAt());
         product.setRating(request.rating());
         product.setReviewCount(request.reviewCount() != null ? request.reviewCount() : 0);
+        product.setSku(request.sku());
 
         return productMapper.toResponse(productRepository.save(product));
     }
@@ -109,11 +111,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ProductResponse> search(String term, Long categoryId, Boolean trending, Boolean bestSeller,
+    public Page<ProductResponse> search(String term, Long categoryId, String brand, Boolean trending, Boolean bestSeller,
                                          Boolean active, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
         Specification<Product> spec = Specification
                 .where(ProductSpecifications.search(term))
                 .and(ProductSpecifications.hasCategoryId(categoryId))
+                .and(ProductSpecifications.hasBrand(brand))
                 .and(ProductSpecifications.isTrending(trending))
                 .and(ProductSpecifications.isBestSeller(bestSeller))
                 .and(ProductSpecifications.isActive(active))
@@ -135,6 +138,12 @@ public class ProductServiceImpl implements ProductService {
                 .flatMap(id -> found.stream().filter(product -> product.getId().equals(id)))
                 .map(productMapper::toResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getDistinctBrands() {
+        return productRepository.findDistinctBrands();
     }
 
     private Product findProduct(Long id) {

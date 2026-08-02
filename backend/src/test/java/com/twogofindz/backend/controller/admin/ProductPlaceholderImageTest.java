@@ -39,7 +39,7 @@ class ProductPlaceholderImageTest extends AbstractIntegrationTest {
         ProductRequest productRequest = new ProductRequest(
                 "No Image Product", "Has no image set.", categoryId, null,
                 new BigDecimal("12.00"), "https://amazon.com/dp/noimage", false, false, true, null, null,
-                null, null);
+                null, null, null);
 
         mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)

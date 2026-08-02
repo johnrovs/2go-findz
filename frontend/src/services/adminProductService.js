@@ -23,3 +23,8 @@ export async function updateProduct(id, payload) {
 export async function deleteProduct(id) {
   await api.delete(`/admin/products/${id}`);
 }
+
+export async function getDistinctBrands() {
+  const response = await api.get('/admin/products/brands');
+  return response.data.data;
+}
