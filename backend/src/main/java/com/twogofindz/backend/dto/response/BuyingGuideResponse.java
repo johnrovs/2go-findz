@@ -20,9 +20,8 @@ public record BuyingGuideResponse(
         List<BuyingGuideQuickRecommendationResponse> quickRecommendations,
         List<BuyingGuideComparisonSpecResponse> comparisonSpecs,
         List<BuyingGuideRecommendationSectionResponse> recommendationSections,
-        List<BuyingGuideAdviceSectionResponse> adviceSections,
         List<BuyingGuideFaqResponse> faqs,
-        List<BuyingGuideSectionSettingResponse> sectionSettings,
+        List<BuyingGuideTocEntryResponse> tocEntries,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

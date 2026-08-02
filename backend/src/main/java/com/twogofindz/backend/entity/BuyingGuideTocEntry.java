@@ -17,13 +17,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "buying_guide_section_settings")
+@Table(name = "buying_guide_toc_entries")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BuyingGuideSectionSetting {
+public class BuyingGuideTocEntry {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,8 +34,14 @@ public class BuyingGuideSectionSetting {
     private BuyingGuide buyingGuide;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "section_key", nullable = false, columnDefinition = "VARCHAR(30)")
+    @Column(name = "section_key", columnDefinition = "VARCHAR(30)")
     private BuyingGuideSectionKey sectionKey;
+
+    @Column(length = 150)
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     @Column(nullable = false)
     private boolean visible;

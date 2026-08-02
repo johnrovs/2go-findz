@@ -27,7 +27,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "Public Active Guide", "public-active-guide", "Excerpt", "Introduction", null,
                         categoryId, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(post("/api/admin/buying-guides")
                 .header("Authorization", "Bearer " + token)
@@ -35,7 +35,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "Public Draft Guide", "public-draft-guide", "Excerpt", "Introduction", null,
                         categoryId, null, null, false, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(get("/api/public/buying-guides"))
                 .andExpect(status().isOk())
@@ -54,7 +54,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "Inactive Detail Guide", "inactive-detail-guide", "Excerpt", "Introduction", null,
                         categoryId, null, null, false, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(get("/api/public/buying-guides/{slug}", "inactive-detail-guide"))
                 .andExpect(status().isNotFound());
@@ -81,7 +81,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                         "Public Detail Guide", "public-detail-guide", "Excerpt", "Full introduction body.",
                         null, guideCategoryId, null, null, true, null,
                         List.of(secondProductId, firstProductId),
-                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(get("/api/public/buying-guides/{slug}", "public-detail-guide"))
                 .andExpect(status().isOk())
@@ -126,9 +126,10 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                      "whyRecommended": "<p>Great value.</p>", "pros": [{"content": "Great sound"}],
                      "cons": [{"content": "Pricey"}], "bestFor": [{"content": "Daily commuters"}]}
                   ],
-                  "adviceSections": [{"title": "What to Look For", "content": "<p>Look for battery life.</p>"}],
                   "faqs": [{"question": "Is it worth it?", "answer": "<p>Yes.</p>"}],
-                  "sectionSettings": []
+                  "tocEntries": [
+                    {"sectionKey": null, "title": "What to Look For", "content": "<p>Look for battery life.</p>", "visible": true}
+                  ]
                 }
                 """.formatted(guideCategoryId, topPickProductId, topPickProductId, topPickProductId, topPickProductId);
 
@@ -144,8 +145,9 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.data.topPick.sectionLabel").value("Our Top Pick"))
                 .andExpect(jsonPath("$.data.topPick.badgeName").value("Best Overall"))
                 .andExpect(jsonPath("$.data.topPick.pros[0]").value("Great sound"))
-                .andExpect(jsonPath("$.data.adviceSections[0].title").value("What to Look For"))
                 .andExpect(jsonPath("$.data.faqs[0].question").value("Is it worth it?"))
-                .andExpect(jsonPath("$.data.visibleSectionOrder", org.hamcrest.Matchers.hasItem("TOP_PICK")));
+                .andExpect(jsonPath("$.data.tocEntries[0].title").value("What to Look For"))
+                .andExpect(jsonPath("$.data.tocEntries[0].content").value("<p>Look for battery life.</p>"))
+                .andExpect(jsonPath("$.data.tocEntries[?(@.sectionKey == 'TOP_PICK')]").exists());
     }
 }
