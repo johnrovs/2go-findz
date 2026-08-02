@@ -20,8 +20,12 @@ function EditorHeader({ isEditMode, status, onPreview, onSaveDraft, onPublish, o
   return (
     // Replaces AdminTopbar entirely on this page (see AdminTopbar's
     // isBuyingGuideEditorPath), so this sticks at the true top of the
-    // viewport and owns the mobile menu button itself.
-    <div className="sticky top-0 z-30 -mx-6 mb-6 border-b border-slate-200 bg-white px-6 py-4">
+    // viewport and owns the mobile menu button itself. -mt-6 cancels out
+    // <main>'s own top padding (AdminLayout's `p-6`) -- without it, the
+    // page background shows through above this header until the user
+    // scrolls at least 24px, since sticky positioning only kicks in once
+    // the element's natural position would go above the viewport.
+    <div className="sticky top-0 z-30 -mx-6 -mt-6 mb-6 border-b border-slate-200 bg-white px-6 py-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-start gap-3">
           <button
