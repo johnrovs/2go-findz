@@ -15,6 +15,8 @@ import {
   AlignRight,
   Link as LinkIcon,
   Image as ImageIcon,
+  Video,
+  Link2,
 } from 'lucide-react';
 
 const EXTENSIONS = [
@@ -124,13 +126,20 @@ function IntroductionEditor({ value, onChange, error }) {
           <button type="button" onClick={handleAddImage} aria-label="Insert image" className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary">
             <ImageIcon size={16} />
           </button>
+          {/* Visual-only for now; real video/embed support needs its own TipTap extension. */}
+          <button type="button" aria-label="Insert video" className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary">
+            <Video size={16} />
+          </button>
+          <button type="button" aria-label="Insert embed" className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary">
+            <Link2 size={16} />
+          </button>
         </div>
         <EditorContent
           editor={editor}
           className="prose max-w-none px-3 py-2 text-slate-900 [&_.ProseMirror]:min-h-[160px] [&_.ProseMirror]:outline-none"
         />
       </div>
-      <p className="mt-1 text-sm text-muted">{wordCount(value)} words</p>
+      <p className="mt-1 text-right text-sm text-muted">Words: {wordCount(value)}</p>
       {error && (
         <p role="alert" className="mt-1 text-sm text-danger">
           {error}

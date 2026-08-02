@@ -10,12 +10,12 @@ describe('IntroductionEditor', () => {
 
   it('shows a word count derived from the content', () => {
     render(<IntroductionEditor value="<p>Hello world</p>" onChange={vi.fn()} />);
-    expect(screen.getByText('2 words')).toBeInTheDocument();
+    expect(screen.getByText('Words: 2')).toBeInTheDocument();
   });
 
   it('shows 0 words for empty content', () => {
     render(<IntroductionEditor value="" onChange={vi.fn()} />);
-    expect(screen.getByText('0 words')).toBeInTheDocument();
+    expect(screen.getByText('Words: 0')).toBeInTheDocument();
   });
 
   it('shows a validation error when provided', () => {
@@ -33,5 +33,7 @@ describe('IntroductionEditor', () => {
     expect(screen.getByRole('button', { name: 'Align left' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Insert link' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Insert image' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Insert video' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Insert embed' })).toBeInTheDocument();
   });
 });
