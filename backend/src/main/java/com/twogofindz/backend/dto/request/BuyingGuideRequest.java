@@ -57,16 +57,12 @@ public record BuyingGuideRequest(
         @Valid
         List<BuyingGuideRecommendationSectionRequest> recommendationSections,
 
-        @NotNull(message = "Advice sections list is required.")
-        @Valid
-        List<BuyingGuideAdviceSectionRequest> adviceSections,
-
         @NotNull(message = "FAQs list is required.")
         @Valid
         List<BuyingGuideFaqRequest> faqs,
 
-        @NotNull(message = "Section settings list is required.")
+        @NotNull(message = "Table of contents entries list is required.")
         @Valid
-        List<BuyingGuideSectionSettingRequest> sectionSettings
+        List<BuyingGuideTocEntryRequest> tocEntries
 ) {
 }

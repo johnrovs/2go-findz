@@ -2,8 +2,9 @@ package com.twogofindz.backend.dto.response;
 
 import com.twogofindz.backend.entity.BuyingGuideSectionKey;
 
-public record BuyingGuideSectionSettingResponse(
+public record PublicBuyingGuideTocEntryResponse(
         BuyingGuideSectionKey sectionKey,
-        boolean visible
+        String title,
+        String content
 ) {
 }

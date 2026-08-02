@@ -91,15 +91,11 @@ public class BuyingGuide {
 
     @OneToMany(mappedBy = "buyingGuide", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderColumn(name = "display_order")
-    private List<BuyingGuideAdviceSection> adviceSections;
-
-    @OneToMany(mappedBy = "buyingGuide", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderColumn(name = "display_order")
     private List<BuyingGuideFaq> faqs;
 
     @OneToMany(mappedBy = "buyingGuide", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderColumn(name = "display_order")
-    private List<BuyingGuideSectionSetting> sectionSettings;
+    private List<BuyingGuideTocEntry> tocEntries;
 
     @Generated(event = {EventType.INSERT, EventType.UPDATE})
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false)

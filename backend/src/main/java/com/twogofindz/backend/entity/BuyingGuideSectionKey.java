@@ -5,6 +5,5 @@ public enum BuyingGuideSectionKey {
     COMPARISON_TABLE,
     TOP_PICK,
     RUNNER_UPS,
-    BUYING_ADVICE,
     FAQS
 }

@@ -27,7 +27,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "Public Active Guide", "public-active-guide", "Excerpt", "Introduction", null,
                         categoryId, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(post("/api/admin/buying-guides")
                 .header("Authorization", "Bearer " + token)
@@ -35,7 +35,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "Public Draft Guide", "public-draft-guide", "Excerpt", "Introduction", null,
                         categoryId, null, null, false, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(get("/api/public/buying-guides"))
                 .andExpect(status().isOk())
@@ -54,7 +54,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "Inactive Detail Guide", "inactive-detail-guide", "Excerpt", "Introduction", null,
                         categoryId, null, null, false, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(get("/api/public/buying-guides/{slug}", "inactive-detail-guide"))
                 .andExpect(status().isNotFound());
@@ -81,7 +81,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                         "Public Detail Guide", "public-detail-guide", "Excerpt", "Full introduction body.",
                         null, guideCategoryId, null, null, true, null,
                         List.of(secondProductId, firstProductId),
-                List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of()))));
 
         mockMvc.perform(get("/api/public/buying-guides/{slug}", "public-detail-guide"))
                 .andExpect(status().isOk())

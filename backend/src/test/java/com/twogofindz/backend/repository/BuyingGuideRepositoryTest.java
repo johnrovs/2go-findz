@@ -2,7 +2,6 @@ package com.twogofindz.backend.repository;
 
 import com.twogofindz.backend.AbstractIntegrationTest;
 import com.twogofindz.backend.entity.BuyingGuide;
-import com.twogofindz.backend.entity.BuyingGuideAdviceSection;
 import com.twogofindz.backend.entity.BuyingGuideComparisonSpec;
 import com.twogofindz.backend.entity.BuyingGuideComparisonValue;
 import com.twogofindz.backend.entity.BuyingGuideFaq;
@@ -10,7 +9,7 @@ import com.twogofindz.backend.entity.BuyingGuideQuickRecommendation;
 import com.twogofindz.backend.entity.BuyingGuideRecommendationItem;
 import com.twogofindz.backend.entity.BuyingGuideRecommendationSection;
 import com.twogofindz.backend.entity.BuyingGuideSectionKey;
-import com.twogofindz.backend.entity.BuyingGuideSectionSetting;
+import com.twogofindz.backend.entity.BuyingGuideTocEntry;
 import com.twogofindz.backend.entity.Product;
 import com.twogofindz.backend.entity.ProductCategory;
 import com.twogofindz.backend.entity.RecommendationItemType;
@@ -78,17 +77,15 @@ class BuyingGuideRepositoryTest extends AbstractIntegrationTest {
         section.setItems(new ArrayList<>(List.of(pro)));
         guide.setRecommendationSections(new ArrayList<>(List.of(section)));
 
-        BuyingGuideAdviceSection advice = BuyingGuideAdviceSection.builder()
-                .buyingGuide(guide).title("What to Look For").content("Look for good battery life.").build();
-        guide.setAdviceSections(new ArrayList<>(List.of(advice)));
-
         BuyingGuideFaq faq = BuyingGuideFaq.builder()
                 .buyingGuide(guide).question("Is it worth it?").answer("Yes.").build();
         guide.setFaqs(new ArrayList<>(List.of(faq)));
 
-        BuyingGuideSectionSetting setting = BuyingGuideSectionSetting.builder()
+        BuyingGuideTocEntry structuralEntry = BuyingGuideTocEntry.builder()
                 .buyingGuide(guide).sectionKey(BuyingGuideSectionKey.FAQS).visible(true).build();
-        guide.setSectionSettings(new ArrayList<>(List.of(setting)));
+        BuyingGuideTocEntry customEntry = BuyingGuideTocEntry.builder()
+                .buyingGuide(guide).title("What to Look For").content("Look for good battery life.").visible(true).build();
+        guide.setTocEntries(new ArrayList<>(List.of(structuralEntry, customEntry)));
 
         BuyingGuide saved = buyingGuideRepository.saveAndFlush(guide);
         entityManager.clear();
@@ -99,9 +96,10 @@ class BuyingGuideRepositoryTest extends AbstractIntegrationTest {
         assertThat(reloaded.getComparisonSpecs().get(0).getValues()).hasSize(1);
         assertThat(reloaded.getRecommendationSections()).hasSize(1);
         assertThat(reloaded.getRecommendationSections().get(0).getItems()).hasSize(1);
-        assertThat(reloaded.getAdviceSections()).hasSize(1);
         assertThat(reloaded.getFaqs()).hasSize(1);
-        assertThat(reloaded.getSectionSettings()).hasSize(1);
+        assertThat(reloaded.getTocEntries()).hasSize(2);
+        assertThat(reloaded.getTocEntries().get(0).getSectionKey()).isEqualTo(BuyingGuideSectionKey.FAQS);
+        assertThat(reloaded.getTocEntries().get(1).getTitle()).isEqualTo("What to Look For");
 
         Long guideId = saved.getId();
         buyingGuideRepository.delete(reloaded);
@@ -112,6 +110,12 @@ class BuyingGuideRepositoryTest extends AbstractIntegrationTest {
                 .setParameter("guideId", guideId)
                 .getSingleResult();
         assertThat(remainingFaqs).isZero();
+
+        Long remainingTocEntries = entityManager.createQuery(
+                        "select count(t) from BuyingGuideTocEntry t where t.buyingGuide.id = :guideId", Long.class)
+                .setParameter("guideId", guideId)
+                .getSingleResult();
+        assertThat(remainingTocEntries).isZero();
 
         Product stillExists = productRepository.findById(product.getId()).orElseThrow();
         assertThat(stillExists).isNotNull();

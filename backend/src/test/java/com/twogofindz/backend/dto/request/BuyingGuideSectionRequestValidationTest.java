@@ -61,9 +61,10 @@ class BuyingGuideSectionRequestValidationTest {
     }
 
     @Test
-    void adviceSectionRequest_rejectsBlankTitle() {
-        BuyingGuideAdviceSectionRequest request = new BuyingGuideAdviceSectionRequest("", "Some content.");
-        Set<ConstraintViolation<BuyingGuideAdviceSectionRequest>> violations = VALIDATOR.validate(request);
+    void tocEntryRequest_rejectsTitleOverMaxLength() {
+        String tooLongTitle = "a".repeat(151);
+        BuyingGuideTocEntryRequest request = new BuyingGuideTocEntryRequest(null, tooLongTitle, "Some content.", true);
+        Set<ConstraintViolation<BuyingGuideTocEntryRequest>> violations = VALIDATOR.validate(request);
         assertThat(violations).isNotEmpty();
     }
 }
