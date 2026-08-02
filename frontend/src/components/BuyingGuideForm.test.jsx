@@ -36,6 +36,22 @@ vi.mock('./buying-guide-form/ProductsStep.jsx', () => ({
   ),
 }));
 
+vi.mock('./buying-guide-form/BuyingGuideQuickPicksStep.jsx', () => ({
+  default: ({ quickRecommendations, onChange }) => (
+    <div>
+      <p>Quick Picks step ({quickRecommendations.length} added)</p>
+      <button
+        type="button"
+        onClick={() =>
+          onChange([...quickRecommendations, { product: { id: 99, name: 'Mock Product' }, badgeName: 'Best Overall' }])
+        }
+      >
+        Add mock quick pick
+      </button>
+    </div>
+  ),
+}));
+
 const categories = [{ id: 1, productCategoryName: 'Kitchen' }];
 
 function renderForm(props = {}) {
@@ -406,5 +422,63 @@ describe('BuyingGuideForm', () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
     const payload = onSubmit.mock.calls[0][0];
     expect(payload.recommendedProductIds).toEqual([99]);
+  });
+
+  it('Next on the Products step advances to Quick Picks and unlocks it in the Stepper', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('Products step (0 selected)');
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText('Quick Picks step (0 added)')).toBeInTheDocument();
+    const quickPicksButton = screen.getByRole('button', { name: /Quick Picks/ });
+    expect(quickPicksButton).toBeEnabled();
+    expect(quickPicksButton).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('Previous on Quick Picks returns to Products without losing the selection', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('Quick Picks step (0 added)');
+
+    await user.click(screen.getByRole('button', { name: 'Previous' }));
+
+    expect(await screen.findByText('Products step (1 selected)')).toBeInTheDocument();
+  });
+
+  it('adding a quick pick and saving includes it in the quickRecommendations payload', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    renderForm({ onSubmit });
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+
+    await user.click(screen.getByRole('button', { name: 'Save as Draft' }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    const payload = onSubmit.mock.calls[0][0];
+    expect(payload.quickRecommendations).toEqual([{ productId: 99, badgeName: 'Best Overall' }]);
+  });
+
+  it('Next on Quick Picks blocks with an error when no quick picks have been added', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('Quick Picks step (0 added)');
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText(/add at least one quick pick/i)).toBeInTheDocument();
   });
 });

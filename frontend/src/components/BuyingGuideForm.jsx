@@ -3,6 +3,7 @@ import EditorHeader from './buying-guide-form/EditorHeader.jsx';
 import Stepper from './buying-guide-form/Stepper.jsx';
 import BasicInfoStep from './buying-guide-form/BasicInfoStep.jsx';
 import ProductsStep from './buying-guide-form/ProductsStep.jsx';
+import BuyingGuideQuickPicksStep from './buying-guide-form/BuyingGuideQuickPicksStep.jsx';
 import LivePreview from './buying-guide-form/LivePreview.jsx';
 import Modal from './Modal.jsx';
 import Button from './Button.jsx';
@@ -21,10 +22,6 @@ function deriveStatus(guide) {
   if (guide.active) return 'Published';
   if (guide.scheduledPublishAt) return 'Scheduled';
   return 'Draft';
-}
-
-function mapQuickRecommendationsFromResponse(quickRecommendations) {
-  return (quickRecommendations ?? []).map((r) => ({ productId: r.product.id, badgeName: r.badgeName }));
 }
 
 function mapComparisonSpecsFromResponse(comparisonSpecs) {
@@ -84,7 +81,10 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
   const [recommendedProducts, setRecommendedProducts] = useState(guide?.recommendedProducts ?? []);
   const [activeStep, setActiveStep] = useState(1);
   const [maxUnlockedStep, setMaxUnlockedStep] = useState(1);
-  const [quickRecommendations] = useState(mapQuickRecommendationsFromResponse(guide?.quickRecommendations));
+  const [quickRecommendations, setQuickRecommendations] = useState(
+    (guide?.quickRecommendations ?? []).map((r) => ({ product: r.product, badgeName: r.badgeName }))
+  );
+  const [quickPicksErrors, setQuickPicksErrors] = useState({});
   const [comparisonSpecs] = useState(mapComparisonSpecsFromResponse(guide?.comparisonSpecs));
   const [recommendationSections] = useState(mapRecommendationSectionsFromResponse(guide?.recommendationSections));
   const [faqs] = useState(mapFaqsFromResponse(guide?.faqs));
@@ -165,7 +165,10 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
       active,
       scheduledPublishAt,
       recommendedProductIds: recommendedProducts.map((product) => product.id),
-      quickRecommendations,
+      quickRecommendations: quickRecommendations.map(({ product, badgeName }) => ({
+        productId: product.id,
+        badgeName: badgeName.trim(),
+      })),
       comparisonSpecs,
       recommendationSections,
       faqs,
@@ -187,6 +190,42 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     if (Object.keys(errors).length > 0) return;
     setMaxUnlockedStep((prev) => Math.max(prev, 2));
     setActiveStep(2);
+  }
+
+  function handleProductsNext() {
+    setMaxUnlockedStep((prev) => Math.max(prev, 3));
+    setActiveStep(3);
+  }
+
+  function validateQuickPicks() {
+    const errors = {};
+    if (quickRecommendations.length === 0) {
+      errors.quickPicksCount = 'Add at least one quick pick before continuing.';
+      return errors;
+    }
+    const seenBadgeNames = new Set();
+    quickRecommendations.forEach(({ product, badgeName }) => {
+      const trimmed = badgeName.trim();
+      if (!trimmed) {
+        errors[product.id] = 'Badge name is required.';
+        return;
+      }
+      const key = trimmed.toLowerCase();
+      if (seenBadgeNames.has(key)) {
+        errors[product.id] = 'Two quick picks cannot use the same badge name.';
+        return;
+      }
+      seenBadgeNames.add(key);
+    });
+    return errors;
+  }
+
+  function handleQuickPicksNext() {
+    const errors = validateQuickPicks();
+    setQuickPicksErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    setMaxUnlockedStep((prev) => Math.max(prev, 4));
+    submit(false);
   }
 
   async function submit(forcePublish) {
@@ -214,6 +253,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     coverImageFilename: basicInfo.coverImageFilename,
     tocEntries,
     settings,
+    quickRecommendations,
   };
 
   return (
@@ -265,9 +305,35 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
                 onSelectedProductsChange={setRecommendedProducts}
                 categories={categories}
               />
-              <div className="mt-6 flex justify-start">
+              <div className="mt-6 flex justify-between">
                 <Button type="button" variant="secondary" onClick={() => setActiveStep(1)}>
                   Previous
+                </Button>
+                <Button type="button" onClick={handleProductsNext}>
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+          {activeStep === 3 && (
+            <>
+              <BuyingGuideQuickPicksStep
+                quickRecommendations={quickRecommendations}
+                onChange={setQuickRecommendations}
+                recommendedProducts={recommendedProducts}
+                fieldErrors={quickPicksErrors}
+              />
+              {quickPicksErrors.quickPicksCount && (
+                <p role="alert" className="mt-4 text-sm text-danger">
+                  {quickPicksErrors.quickPicksCount}
+                </p>
+              )}
+              <div className="mt-6 flex justify-between">
+                <Button type="button" variant="secondary" onClick={() => setActiveStep(2)}>
+                  Previous
+                </Button>
+                <Button type="button" onClick={handleQuickPicksNext}>
+                  Next
                 </Button>
               </div>
             </>

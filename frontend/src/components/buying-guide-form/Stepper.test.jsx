@@ -18,6 +18,13 @@ describe('Stepper', () => {
     expect(screen.getByRole('button', { name: /SEO & Publish/ })).toBeDisabled();
   });
 
+  it('enables Quick Picks once unlocked, but keeps every step after it disabled', () => {
+    render(<Stepper activeStep={3} maxUnlockedStep={3} onStepClick={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /Quick Picks/ })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /Comparison/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /SEO & Publish/ })).toBeDisabled();
+  });
+
   it('keeps Products disabled while still locked', () => {
     render(<Stepper activeStep={1} maxUnlockedStep={1} onStepClick={vi.fn()} />);
     expect(screen.getByRole('button', { name: /Products/ })).toBeDisabled();
