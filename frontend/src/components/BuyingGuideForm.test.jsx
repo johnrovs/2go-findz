@@ -275,6 +275,22 @@ describe('BuyingGuideForm', () => {
     payload.tocEntries.forEach((entry) => expect(entry).not.toHaveProperty('clientId'));
   });
 
+  it('submits null title and content for structural TOC entries, not empty strings', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    renderForm({ onSubmit });
+
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Save as Draft' }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    const payload = onSubmit.mock.calls[0][0];
+    payload.tocEntries.forEach((entry) => {
+      expect(entry.title).toBeNull();
+      expect(entry.content).toBeNull();
+    });
+  });
+
   it('shows a server-side field error and re-enables the button on a failed submit', async () => {
     const onSubmit = vi.fn().mockRejectedValue({ fieldErrors: { slug: 'Slug is already in use.' } });
     const user = userEvent.setup();

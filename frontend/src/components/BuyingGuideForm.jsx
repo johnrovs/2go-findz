@@ -168,7 +168,15 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel }) {
       comparisonSpecs,
       recommendationSections,
       faqs,
-      tocEntries: tocEntries.map(({ clientId, ...entry }) => entry),
+      tocEntries: tocEntries.map(({ sectionKey, title, content, visible }) => ({
+        sectionKey,
+        // The backend rejects a structural entry (sectionKey set) that carries a
+        // non-null title/content -- '' is a non-null string, so the empty-string
+        // default used for controlled inputs must convert back to null here.
+        title: sectionKey ? null : title,
+        content: sectionKey ? null : content,
+        visible,
+      })),
     };
   }
 
