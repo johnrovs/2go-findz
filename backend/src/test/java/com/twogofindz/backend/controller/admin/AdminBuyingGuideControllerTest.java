@@ -427,6 +427,36 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void create_returns400_whenQuickRecommendationsShareABadgeName() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Duplicate Badge Guide Category");
+        Long productCategoryId = createCategoryId(token, "Duplicate Badge Product Category");
+        Long firstProductId = createProductId(token, productCategoryId, "Duplicate Badge Product A");
+        Long secondProductId = createProductId(token, productCategoryId, "Duplicate Badge Product B");
+
+        String requestJson = """
+                {
+                  "title": "Duplicate Badge Guide", "slug": "duplicate-badge-guide",
+                  "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
+                  "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
+                  "scheduledPublishAt": null, "recommendedProductIds": [%d, %d],
+                  "quickRecommendations": [
+                    {"productId": %d, "badgeName": "Best Overall"},
+                    {"productId": %d, "badgeName": "best overall"}
+                  ],
+                  "comparisonSpecs": [], "recommendationSections": [],
+                  "faqs": [], "tocEntries": []
+                }
+                """.formatted(guideCategoryId, firstProductId, secondProductId, firstProductId, secondProductId);
+
+        mockMvc.perform(post("/api/admin/buying-guides")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void create_returns400_whenComparisonSpecMissingValueForAProduct() throws Exception {
         String token = adminToken();
         Long guideCategoryId = createCategoryId(token, "Missing Spec Value Guide Category");

@@ -210,6 +210,14 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
             }
         }
 
+        Set<String> badgeNames = new LinkedHashSet<>();
+        for (BuyingGuideQuickRecommendationRequest quickRec : request.quickRecommendations()) {
+            if (!badgeNames.add(quickRec.badgeName().trim().toLowerCase())) {
+                throw new InvalidBuyingGuideException(
+                        "Two quick picks cannot use the same badge name: \"" + quickRec.badgeName() + "\".");
+            }
+        }
+
         for (BuyingGuideComparisonSpecRequest spec : request.comparisonSpecs()) {
             Set<Long> valueProductIds = spec.values().stream()
                     .map(BuyingGuideComparisonValueRequest::productId)
