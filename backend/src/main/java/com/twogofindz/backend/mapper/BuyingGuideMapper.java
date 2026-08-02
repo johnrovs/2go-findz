@@ -19,10 +19,16 @@ public class BuyingGuideMapper {
         return new BuyingGuideResponse(
                 guide.getId(),
                 guide.getTitle(),
+                guide.getSlug(),
                 guide.getExcerpt(),
-                guide.getContent(),
+                guide.getIntroduction(),
                 guide.getCoverImageFilename(),
+                guide.getCategory() != null ? guide.getCategory().getId() : null,
+                guide.getCategory() != null ? guide.getCategory().getProductCategoryName() : null,
+                guide.getSeoTitle(),
+                guide.getSeoDescription(),
                 guide.getActive(),
+                guide.getScheduledPublishAt(),
                 guide.getRecommendedProducts().stream().map(productMapper::toResponse).toList(),
                 guide.getCreatedAt(),
                 guide.getUpdatedAt()
@@ -33,6 +39,7 @@ public class BuyingGuideMapper {
         return new PublicBuyingGuideSummaryResponse(
                 guide.getId(),
                 guide.getTitle(),
+                guide.getSlug(),
                 guide.getExcerpt(),
                 guide.getCoverImageFilename(),
                 guide.getCreatedAt()
@@ -43,8 +50,13 @@ public class BuyingGuideMapper {
         return new PublicBuyingGuideDetailResponse(
                 guide.getId(),
                 guide.getTitle(),
-                guide.getContent(),
+                guide.getSlug(),
+                guide.getExcerpt(),
+                guide.getIntroduction(),
                 guide.getCoverImageFilename(),
+                guide.getCategory() != null ? guide.getCategory().getProductCategoryName() : null,
+                guide.getSeoTitle(),
+                guide.getSeoDescription(),
                 guide.getCreatedAt(),
                 guide.getRecommendedProducts().stream().map(productMapper::toResponse).toList()
         );

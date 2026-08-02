@@ -26,8 +26,8 @@ public class PublicBuyingGuideController {
         return ApiResponse.success("Buying guides retrieved successfully.", buyingGuideService.getAllForPublic());
     }
 
-    @GetMapping("/{id}")
-    public ApiResponse<PublicBuyingGuideDetailResponse> getById(@PathVariable Long id) {
-        return ApiResponse.success("Buying guide retrieved successfully.", buyingGuideService.getByIdForPublic(id));
+    @GetMapping("/{slug}")
+    public ApiResponse<PublicBuyingGuideDetailResponse> getBySlug(@PathVariable String slug) {
+        return ApiResponse.success("Buying guide retrieved successfully.", buyingGuideService.getBySlugForPublic(slug));
     }
 }
