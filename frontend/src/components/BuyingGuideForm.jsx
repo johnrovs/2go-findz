@@ -10,14 +10,7 @@ import LivePreview from './buying-guide-form/LivePreview.jsx';
 import Modal from './Modal.jsx';
 import Button from './Button.jsx';
 import { getSettings } from '../services/settingsService.js';
-
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
+import { slugify } from '../utils/slugify.js';
 
 function deriveStatus(guide) {
   if (!guide) return 'Draft';
