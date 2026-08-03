@@ -52,6 +52,34 @@ vi.mock('./buying-guide-form/BuyingGuideQuickPicksStep.jsx', () => ({
   ),
 }));
 
+vi.mock('./buying-guide-form/BuyingGuideComparisonStep.jsx', () => ({
+  default: ({ comparisonSpecs, onChange, recommendedProducts, onManageProducts }) => (
+    <div>
+      <p>
+        Comparison step ({comparisonSpecs.length} specs, {recommendedProducts.length} products)
+      </p>
+      <button
+        type="button"
+        onClick={() =>
+          onChange([
+            ...comparisonSpecs,
+            {
+              clientId: 'mock-spec',
+              specificationName: 'Battery Life',
+              values: recommendedProducts.map((p) => ({ productId: p.id, value: '40 Hrs' })),
+            },
+          ])
+        }
+      >
+        Add mock spec
+      </button>
+      <button type="button" onClick={onManageProducts}>
+        Go to Products
+      </button>
+    </div>
+  ),
+}));
+
 const categories = [{ id: 1, productCategoryName: 'Kitchen' }];
 
 function renderForm(props = {}) {
@@ -480,5 +508,91 @@ describe('BuyingGuideForm', () => {
     await user.click(screen.getByRole('button', { name: 'Next' }));
 
     expect(await screen.findByText(/add at least one quick pick/i)).toBeInTheDocument();
+  });
+
+  it('Next on Quick Picks advances to Comparison and unlocks it in the Stepper', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText('Comparison step (0 specs, 1 products)')).toBeInTheDocument();
+    const comparisonButton = screen.getByRole('button', { name: /Comparison/ });
+    expect(comparisonButton).toBeEnabled();
+    expect(comparisonButton).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('Previous on Comparison returns to Quick Picks without losing state', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('Comparison step (0 specs, 1 products)');
+
+    await user.click(screen.getByRole('button', { name: 'Previous' }));
+
+    expect(await screen.findByText('Quick Picks step (1 added)')).toBeInTheDocument();
+  });
+
+  it('the manage-products link on Comparison jumps to the Products step', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Go to Products' }));
+
+    expect(await screen.findByText('Products step (1 selected)')).toBeInTheDocument();
+  });
+
+  it('adding a comparison spec and saving includes it in the comparisonSpecs payload', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    renderForm({ onSubmit });
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+
+    await user.click(screen.getByRole('button', { name: 'Save as Draft' }));
+
+    // Next on Quick Picks auto-saves too, so this is not necessarily the first call --
+    // the assertion needs the most recent submission, made after the mock spec was added.
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    const payload = onSubmit.mock.calls.at(-1)[0];
+    expect(payload.comparisonSpecs).toEqual([
+      { specificationName: 'Battery Life', values: [{ productId: 99, value: '40 Hrs' }] },
+    ]);
+  });
+
+  it('Next on Comparison blocks with an error when no specifications have been added', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('Comparison step (0 specs, 1 products)');
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText(/add at least one specification/i)).toBeInTheDocument();
   });
 });

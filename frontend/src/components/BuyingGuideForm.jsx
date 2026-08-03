@@ -4,6 +4,7 @@ import Stepper from './buying-guide-form/Stepper.jsx';
 import BasicInfoStep from './buying-guide-form/BasicInfoStep.jsx';
 import ProductsStep from './buying-guide-form/ProductsStep.jsx';
 import BuyingGuideQuickPicksStep from './buying-guide-form/BuyingGuideQuickPicksStep.jsx';
+import BuyingGuideComparisonStep from './buying-guide-form/BuyingGuideComparisonStep.jsx';
 import LivePreview from './buying-guide-form/LivePreview.jsx';
 import Modal from './Modal.jsx';
 import Button from './Button.jsx';
@@ -26,6 +27,7 @@ function deriveStatus(guide) {
 
 function mapComparisonSpecsFromResponse(comparisonSpecs) {
   return (comparisonSpecs ?? []).map((spec) => ({
+    clientId: crypto.randomUUID(),
     specificationName: spec.specificationName,
     values: spec.values.map((v) => ({ productId: v.product.id, value: v.specificationValue })),
   }));
@@ -85,7 +87,8 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     (guide?.quickRecommendations ?? []).map((r) => ({ product: r.product, badgeName: r.badgeName }))
   );
   const [quickPicksErrors, setQuickPicksErrors] = useState({});
-  const [comparisonSpecs] = useState(mapComparisonSpecsFromResponse(guide?.comparisonSpecs));
+  const [comparisonSpecs, setComparisonSpecs] = useState(mapComparisonSpecsFromResponse(guide?.comparisonSpecs));
+  const [comparisonErrors, setComparisonErrors] = useState({});
   const [recommendationSections] = useState(mapRecommendationSectionsFromResponse(guide?.recommendationSections));
   const [faqs] = useState(mapFaqsFromResponse(guide?.faqs));
   const [seoTitle] = useState(guide?.seoTitle ?? null);
@@ -101,6 +104,26 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
       .then(setSettings)
       .catch(() => setSettings(null));
   }, []);
+
+  const recommendedProductIdsKey = recommendedProducts.map((product) => product.id).join(',');
+
+  useEffect(() => {
+    setComparisonSpecs((prev) =>
+      prev.map((spec) => {
+        const existingByProductId = new Map(spec.values.map((v) => [v.productId, v.value]));
+        return {
+          ...spec,
+          values: recommendedProducts.map((product) => ({
+            productId: product.id,
+            value: existingByProductId.get(product.id) ?? '',
+          })),
+        };
+      })
+    );
+    // recommendedProducts is intentionally summarized to its id list: the effect only needs to
+    // re-run when membership actually changes, not on every new array reference from a reorder.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recommendedProductIdsKey]);
 
   function handleBasicInfoChange(field, value) {
     setBasicInfo((prev) => {
@@ -169,7 +192,10 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         productId: product.id,
         badgeName: badgeName.trim(),
       })),
-      comparisonSpecs,
+      comparisonSpecs: comparisonSpecs.map(({ specificationName, values }) => ({
+        specificationName: specificationName.trim(),
+        values: values.map(({ productId, value }) => ({ productId, value: value.trim() })),
+      })),
       recommendationSections,
       faqs,
       tocEntries: tocEntries.map(({ sectionKey, title, content, visible }) => ({
@@ -225,6 +251,43 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     setQuickPicksErrors(errors);
     if (Object.keys(errors).length > 0) return;
     setMaxUnlockedStep((prev) => Math.max(prev, 4));
+    setActiveStep(4);
+    submit(false);
+  }
+
+  function validateComparison() {
+    const errors = {};
+    if (comparisonSpecs.length === 0) {
+      errors.specsCount = 'Add at least one specification before continuing.';
+      return errors;
+    }
+    const seenNames = new Set();
+    comparisonSpecs.forEach((spec) => {
+      const trimmedName = spec.specificationName.trim();
+      if (!trimmedName) {
+        errors[`spec-name-${spec.clientId}`] = 'Specification name is required.';
+      } else {
+        const key = trimmedName.toLowerCase();
+        if (seenNames.has(key)) {
+          errors[`spec-name-${spec.clientId}`] = 'Two specifications cannot use the same name.';
+        } else {
+          seenNames.add(key);
+        }
+      }
+      spec.values.forEach((value) => {
+        if (!value.value.trim()) {
+          errors[`spec-value-${spec.clientId}-${value.productId}`] = 'A value is required.';
+        }
+      });
+    });
+    return errors;
+  }
+
+  function handleComparisonNext() {
+    const errors = validateComparison();
+    setComparisonErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    setMaxUnlockedStep((prev) => Math.max(prev, 5));
     submit(false);
   }
 
@@ -254,6 +317,8 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     tocEntries,
     settings,
     quickRecommendations,
+    comparisonSpecs,
+    comparisonProducts: recommendedProducts,
   };
 
   return (
@@ -333,6 +398,30 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
                   Previous
                 </Button>
                 <Button type="button" onClick={handleQuickPicksNext}>
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+          {activeStep === 4 && (
+            <>
+              <BuyingGuideComparisonStep
+                comparisonSpecs={comparisonSpecs}
+                onChange={setComparisonSpecs}
+                recommendedProducts={recommendedProducts}
+                fieldErrors={comparisonErrors}
+                onManageProducts={() => setActiveStep(2)}
+              />
+              {comparisonErrors.specsCount && (
+                <p role="alert" className="mt-4 text-sm text-danger">
+                  {comparisonErrors.specsCount}
+                </p>
+              )}
+              <div className="mt-6 flex justify-between">
+                <Button type="button" variant="secondary" onClick={() => setActiveStep(3)}>
+                  Previous
+                </Button>
+                <Button type="button" onClick={handleComparisonNext}>
                   Next
                 </Button>
               </div>
