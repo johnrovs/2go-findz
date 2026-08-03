@@ -39,10 +39,13 @@ function BuyingGuideFormPage() {
       .finally(() => setIsLoading(false));
   }, [id, isEditMode]);
 
-  async function handleSubmit(payload) {
+  async function handleSubmit(payload, { stayOnPage = false } = {}) {
     if (isEditMode) {
       await updateBuyingGuide(id, payload);
       showToast('Buying guide updated successfully.');
+      // A step-to-step auto-save (e.g. Next on Quick Picks) must land the admin on the
+      // next step, not boot them back to the list like an explicit Save as Draft/Publish does.
+      if (stayOnPage) return;
     } else {
       await createBuyingGuide(payload);
       showToast('Buying guide created successfully.');

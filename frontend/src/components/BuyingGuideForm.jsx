@@ -253,7 +253,9 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     if (Object.keys(errors).length > 0) return;
     setMaxUnlockedStep((prev) => Math.max(prev, 4));
     setActiveStep(4);
-    submit(false);
+    // Comparison exists past this point, so this auto-save must not navigate away like a
+    // Save as Draft/Publish click does -- the user needs to land on Comparison, not the list.
+    submit(false, { stayOnPage: true });
   }
 
   function validateComparison() {
@@ -292,7 +294,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     submit(false);
   }
 
-  async function submit(forcePublish) {
+  async function submit(forcePublish, { stayOnPage = false } = {}) {
     setFormError('');
     const errors = validate();
     setFieldErrors(errors);
@@ -300,7 +302,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
 
     setIsSubmitting(true);
     try {
-      await onSubmit(buildPayload(forcePublish));
+      await onSubmit(buildPayload(forcePublish), { stayOnPage });
     } catch (error) {
       setFieldErrors(error.fieldErrors ?? {});
       if (!error.fieldErrors) {
