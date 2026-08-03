@@ -229,6 +229,14 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
             }
         }
 
+        Set<String> comparisonSpecNames = new LinkedHashSet<>();
+        for (BuyingGuideComparisonSpecRequest spec : request.comparisonSpecs()) {
+            if (!comparisonSpecNames.add(spec.specificationName().trim().toLowerCase())) {
+                throw new InvalidBuyingGuideException(
+                        "Two comparison specifications cannot use the same name: \"" + spec.specificationName() + "\".");
+            }
+        }
+
         int topPickCount = 0;
         for (BuyingGuideRecommendationSectionRequest section : request.recommendationSections()) {
             if (!productIds.contains(section.productId())) {

@@ -486,6 +486,35 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void create_returns400_whenComparisonSpecificationsShareAName() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Duplicate Spec Name Guide Category");
+        Long productCategoryId = createCategoryId(token, "Duplicate Spec Name Product Category");
+        Long productId = createProductId(token, productCategoryId, "Duplicate Spec Name Product");
+
+        String requestJson = """
+                {
+                  "title": "Duplicate Spec Name Guide", "slug": "duplicate-spec-name-guide",
+                  "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
+                  "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
+                  "scheduledPublishAt": null, "recommendedProductIds": [%d],
+                  "quickRecommendations": [],
+                  "comparisonSpecs": [
+                    {"specificationName": "Battery Life", "values": [{"productId": %d, "value": "40 Hrs"}]},
+                    {"specificationName": "battery life", "values": [{"productId": %d, "value": "35 Hrs"}]}
+                  ],
+                  "recommendationSections": [], "faqs": [], "tocEntries": []
+                }
+                """.formatted(guideCategoryId, productId, productId, productId);
+
+        mockMvc.perform(post("/api/admin/buying-guides")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void create_returns400_whenMoreThanOneTopPick() throws Exception {
         String token = adminToken();
         Long guideCategoryId = createCategoryId(token, "Two Top Picks Guide Category");
