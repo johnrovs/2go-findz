@@ -28,7 +28,14 @@ describe('Stepper', () => {
   it('enables Comparison once unlocked, but keeps every step after it disabled', () => {
     render(<Stepper activeStep={4} maxUnlockedStep={4} onStepClick={vi.fn()} />);
     expect(screen.getByRole('button', { name: /Comparison/ })).toBeEnabled();
-    expect(screen.getByRole('button', { name: /Top Pick/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Top Picks & Runner-Ups/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /SEO & Publish/ })).toBeDisabled();
+  });
+
+  it('enables Top Picks & Runner-Ups once unlocked, but keeps every step after it disabled', () => {
+    render(<Stepper activeStep={5} maxUnlockedStep={5} onStepClick={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /Top Picks & Runner-Ups/ })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /Buying Guide/ })).toBeDisabled();
     expect(screen.getByRole('button', { name: /SEO & Publish/ })).toBeDisabled();
   });
 

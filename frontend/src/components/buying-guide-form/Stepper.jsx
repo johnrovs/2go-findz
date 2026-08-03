@@ -3,14 +3,13 @@ const STEPS = [
   'Products',
   'Quick Picks',
   'Comparison',
-  'Top Pick',
-  'Runner-Ups',
+  'Top Picks & Runner-Ups',
   'Buying Guide',
   'FAQs',
   'SEO & Publish',
 ];
 
-const MAX_BUILT_STEP = 4;
+const MAX_BUILT_STEP = 5;
 
 function Stepper({ activeStep, maxUnlockedStep, onStepClick }) {
   return (
