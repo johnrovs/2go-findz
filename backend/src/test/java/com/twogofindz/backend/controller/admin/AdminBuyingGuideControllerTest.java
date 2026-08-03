@@ -549,6 +549,39 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void create_returns400_whenSameProductRecommendedTwice() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Dup Recommendation Guide Category");
+        Long productCategoryId = createCategoryId(token, "Dup Recommendation Product Category");
+        Long productId = createProductId(token, productCategoryId, "Dup Recommendation Product");
+
+        String requestJson = """
+                {
+                  "title": "Dup Recommendation Guide", "slug": "dup-recommendation-guide",
+                  "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
+                  "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
+                  "scheduledPublishAt": null, "recommendedProductIds": [%d],
+                  "quickRecommendations": [], "comparisonSpecs": [],
+                  "recommendationSections": [
+                    {"productId": %d, "recommendationType": "TOP_PICK", "sectionLabel": "Best Overall",
+                     "whyRecommended": "Great.", "pros": [{"content": "Good"}],
+                     "cons": [{"content": "Bad"}], "bestFor": [{"content": "Everyone"}]},
+                    {"productId": %d, "recommendationType": "RUNNER_UP", "sectionLabel": "Runner-Up",
+                     "whyRecommended": "Also fine.", "pros": [{"content": "Good"}],
+                     "cons": [{"content": "Bad"}], "bestFor": [{"content": "Everyone"}]}
+                  ],
+                  "faqs": [], "tocEntries": []
+                }
+                """.formatted(guideCategoryId, productId, productId, productId);
+
+        mockMvc.perform(post("/api/admin/buying-guides")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void delete_cascadesChildSections_butNeverDeletesProducts() throws Exception {
         String token = adminToken();
         Long guideCategoryId = createCategoryId(token, "Cascade Delete Guide Category");

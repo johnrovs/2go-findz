@@ -252,6 +252,14 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
             throw new InvalidBuyingGuideException("A buying guide can have at most one Top Pick.");
         }
 
+        Set<Long> recommendationProductIds = new LinkedHashSet<>();
+        for (BuyingGuideRecommendationSectionRequest section : request.recommendationSections()) {
+            if (!recommendationProductIds.add(section.productId())) {
+                throw new InvalidBuyingGuideException(
+                        "A product cannot be recommended more than once (as Top Pick or Runner-Up).");
+            }
+        }
+
         validateTocEntries(request.tocEntries());
     }
 
