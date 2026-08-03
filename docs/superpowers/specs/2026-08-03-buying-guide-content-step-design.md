@@ -137,10 +137,13 @@ visible: true}` to the end of the custom-entries slice of `tocEntries`,
 auto-expanded, title input focused. Client-side only until Save/Next.
 
 **Edit title**: inline input, trimmed on change; blank titles blocked
-(inline error, mirrors existing patterns); a duplicate title (case-
-insensitive, trimmed) shows a non-blocking warning, matching the Quick
-Picks duplicate-badge-name precedent of warning rather than hard-blocking
-duplicates that aren't otherwise unsafe.
+(inline error). A duplicate title (case-insensitive, trimmed) is also
+blocked with an inline error — re-checking the actual Quick Picks/
+Comparison code during planning showed their duplicate-name checks are
+blocking, not warnings (`errors[...] = 'Two quick picks cannot use the
+same badge name.'` participates in the same `errors` object that gates
+Next); the design doc originally mischaracterized this as "non-blocking."
+Corrected here to match the real precedent.
 
 **Delete**: reuses `ConfirmDialog.jsx` directly via a thin
 `DeleteContentSectionDialog` wrapper, shown only when the section has
@@ -184,17 +187,36 @@ existing safe-render pattern already used for `whyRecommended`, and a
 the preview's *display*, never the saved data).
 
 **Anchors (client-side, preview-only)**: each rendered custom section gets
-a slugified, deduped `id` (new `frontend/src/utils/slugify.js`, extracted
-from the local helper already duplicated in the legacy top-level
-`BuyingGuideForm.jsx`). The existing TOC `<ul>` item for that entry becomes
-a real `<a href="#anchor">`, scrolling to the section within the preview
-panel.
+a slugified, deduped `id` (new `frontend/src/utils/slugify.js`, extracting
+and generalizing the local `slugify()` helper `BuyingGuideForm.jsx` already
+has for deriving the guide's own URL slug from its title — correction from
+an earlier draft of this doc, which mistakenly described that helper as
+living in a separate "legacy" form file; there is only one `BuyingGuideForm.jsx`,
+the current stepped-flow file). The **existing** TOC `<ul>` item for a
+custom entry becomes a real `<a href="#anchor">` pointing at that entry's
+own rendered card, scrolling to it within the preview panel. Structural
+entries (Quick Recommendations, Comparison Table, Top Pick, Runner-Ups)
+are unaffected — no anchors added there, staying in scope.
 
-**Numbering consistency fix**: the TOC `<ul>` currently numbers via raw
-array index while section headers use `computeSectionNumbers()` — these
-diverge once custom sections are interleaved with structural ones. This
-task makes the TOC list consume the same computed numbering so both always
-agree.
+**TOC list numbering is intentionally left as-is (correction from an
+earlier draft of this doc).** The original plan was to make the TOC list
+consume the same numbers as `computeSectionNumbers()`, collapsing every
+custom entry into one combined "Buying Guide" TOC line to match the one
+combined body heading. Prototyping this during planning showed it breaks
+an existing, intentionally-tested behavior: `LivePreview.test.jsx`'s
+"lists only visible TOC entries, showing derived labels for structural
+rows" test asserts a custom entry's own title (e.g. "Warranty Info") is
+what appears in the TOC list — collapsing multiple custom entries into a
+single generic "Buying Guide" label would silently destroy that
+per-section navigability. Corrected approach: the TOC `<ul>` keeps
+showing one line per `tocEntries` item exactly as it does today (each
+custom entry by its own title, raw sequential numbering) — only its
+*content* changes, gaining a real anchor link for custom entries. The
+TOC list's raw sequential number and the body's grouped `"{n}. BUYING
+GUIDE"` heading number are two independently useful counters that don't
+need to match; nothing before this task numbered custom entries in the
+body at all, so this isn't a regression, just an intentionally narrower
+fix than originally scoped.
 
 Preview panel stays sticky on desktop; on narrow viewports it already
 routes through the existing "Preview" modal, same as every other step.
