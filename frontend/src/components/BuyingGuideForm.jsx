@@ -5,6 +5,7 @@ import BasicInfoStep from './buying-guide-form/BasicInfoStep.jsx';
 import ProductsStep from './buying-guide-form/ProductsStep.jsx';
 import BuyingGuideQuickPicksStep from './buying-guide-form/BuyingGuideQuickPicksStep.jsx';
 import BuyingGuideComparisonStep from './buying-guide-form/BuyingGuideComparisonStep.jsx';
+import TopPicksAndRunnerUpsStep from './buying-guide-form/TopPicksAndRunnerUpsStep.jsx';
 import LivePreview from './buying-guide-form/LivePreview.jsx';
 import Modal from './Modal.jsx';
 import Button from './Button.jsx';
@@ -35,13 +36,14 @@ function mapComparisonSpecsFromResponse(comparisonSpecs) {
 
 function mapRecommendationSectionsFromResponse(recommendationSections) {
   return (recommendationSections ?? []).map((section) => ({
-    productId: section.product.id,
+    clientId: crypto.randomUUID(),
+    product: section.product,
     recommendationType: section.recommendationType,
     sectionLabel: section.sectionLabel,
     whyRecommended: section.whyRecommended,
-    pros: section.pros.map((item) => ({ content: item.content })),
-    cons: section.cons.map((item) => ({ content: item.content })),
-    bestFor: section.bestFor.map((item) => ({ content: item.content })),
+    pros: section.pros.map((item) => ({ clientId: crypto.randomUUID(), content: item.content })),
+    cons: section.cons.map((item) => ({ clientId: crypto.randomUUID(), content: item.content })),
+    bestFor: section.bestFor.map((item) => ({ clientId: crypto.randomUUID(), content: item.content })),
   }));
 }
 
@@ -89,7 +91,8 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
   const [quickPicksErrors, setQuickPicksErrors] = useState({});
   const [comparisonSpecs, setComparisonSpecs] = useState(mapComparisonSpecsFromResponse(guide?.comparisonSpecs));
   const [comparisonErrors, setComparisonErrors] = useState({});
-  const [recommendationSections] = useState(mapRecommendationSectionsFromResponse(guide?.recommendationSections));
+  const [recommendationSections, setRecommendationSections] = useState(mapRecommendationSectionsFromResponse(guide?.recommendationSections));
+  const [topPicksRunnerUpsErrors, setTopPicksRunnerUpsErrors] = useState({});
   const [faqs] = useState(mapFaqsFromResponse(guide?.faqs));
   const [seoTitle] = useState(guide?.seoTitle ?? null);
   const [seoDescription] = useState(guide?.seoDescription ?? null);
@@ -112,6 +115,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
   const [syncedProductIdsKey, setSyncedProductIdsKey] = useState(recommendedProductIdsKey);
   if (recommendedProductIdsKey !== syncedProductIdsKey) {
     setSyncedProductIdsKey(recommendedProductIdsKey);
+    const recommendedProductIds = new Set(recommendedProducts.map((product) => product.id));
     setComparisonSpecs((prev) =>
       prev.map((spec) => {
         const existingByProductId = new Map(spec.values.map((v) => [v.productId, v.value]));
@@ -124,6 +128,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         };
       })
     );
+    setRecommendationSections((prev) => prev.filter((section) => recommendedProductIds.has(section.product.id)));
   }
 
   function handleBasicInfoChange(field, value) {
@@ -197,7 +202,17 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         specificationName: specificationName.trim(),
         values: values.map(({ productId, value }) => ({ productId, value: value.trim() })),
       })),
-      recommendationSections,
+      recommendationSections: recommendationSections.map(
+        ({ product, recommendationType, sectionLabel, whyRecommended, pros, cons, bestFor }) => ({
+          productId: product.id,
+          recommendationType,
+          sectionLabel: sectionLabel.trim(),
+          whyRecommended,
+          pros: pros.map(({ content }) => ({ content: content.trim() })),
+          cons: cons.map(({ content }) => ({ content: content.trim() })),
+          bestFor: bestFor.map(({ content }) => ({ content: content.trim() })),
+        })
+      ),
       faqs,
       tocEntries: tocEntries.map(({ sectionKey, title, content, visible }) => ({
         sectionKey,
@@ -291,6 +306,56 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     setComparisonErrors(errors);
     if (Object.keys(errors).length > 0) return;
     setMaxUnlockedStep((prev) => Math.max(prev, 5));
+    setActiveStep(5);
+    // Top Picks & Runner-Ups exists past this point, so this auto-save must not navigate
+    // away like a Save as Draft/Publish click does -- mirrors handleQuickPicksNext.
+    submit(false, { stayOnPage: true });
+  }
+
+  function countWords(html) {
+    const text = html.replace(/<[^>]*>/g, ' ').trim();
+    return text ? text.split(/\s+/).length : 0;
+  }
+
+  function validateTopPicksAndRunnerUps() {
+    const errors = {};
+    const topPick = recommendationSections.find((section) => section.recommendationType === 'TOP_PICK');
+    if (!topPick) {
+      errors.topPickMissing = 'Select a Top Pick before continuing.';
+      return errors;
+    }
+    recommendationSections.forEach((section) => {
+      const key = section.clientId;
+      if (!section.sectionLabel.trim()) {
+        errors[`badge-${key}`] = 'Recommendation badge is required.';
+      }
+      const words = countWords(section.whyRecommended);
+      if (words < 10) {
+        errors[`why-${key}`] = 'Why We Recommend It needs at least 10 words.';
+      } else if (words > 150) {
+        errors[`why-${key}`] = 'Why We Recommend It must be 150 words or fewer.';
+      }
+      if (section.pros.length === 0 || section.pros.some((item) => !item.content.trim())) {
+        errors[`pros-${key}`] = 'Add at least one Pro.';
+      }
+      if (section.cons.length === 0 || section.cons.some((item) => !item.content.trim())) {
+        errors[`cons-${key}`] = 'Add at least one Con.';
+      }
+      if (section.bestFor.length === 0 || section.bestFor.some((item) => !item.content.trim())) {
+        errors[`bestFor-${key}`] = 'Add at least one Best For item.';
+      }
+    });
+    return errors;
+  }
+
+  function handleTopPicksRunnerUpsNext() {
+    const errors = validateTopPicksAndRunnerUps();
+    setTopPicksRunnerUpsErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    setMaxUnlockedStep((prev) => Math.max(prev, 6));
+    // Buying Guide (step 6) is not built yet, so this is the current "last built
+    // step" -- save and return to the list, matching the pattern every prior
+    // step used before the step after it existed (see Comparison's own Next).
     submit(false);
   }
 
@@ -322,6 +387,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     quickRecommendations,
     comparisonSpecs,
     comparisonProducts: recommendedProducts,
+    recommendationSections,
   };
 
   return (
@@ -425,6 +491,29 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
                   Previous
                 </Button>
                 <Button type="button" onClick={handleComparisonNext}>
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+          {activeStep === 5 && (
+            <>
+              <TopPicksAndRunnerUpsStep
+                recommendationSections={recommendationSections}
+                onChange={setRecommendationSections}
+                recommendedProducts={recommendedProducts}
+                fieldErrors={topPicksRunnerUpsErrors}
+              />
+              {topPicksRunnerUpsErrors.topPickMissing && (
+                <p role="alert" className="mt-4 text-sm text-danger">
+                  {topPicksRunnerUpsErrors.topPickMissing}
+                </p>
+              )}
+              <div className="mt-6 flex justify-between">
+                <Button type="button" variant="secondary" onClick={() => setActiveStep(4)}>
+                  Previous
+                </Button>
+                <Button type="button" onClick={handleTopPicksRunnerUpsNext}>
                   Next
                 </Button>
               </div>

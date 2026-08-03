@@ -80,6 +80,36 @@ vi.mock('./buying-guide-form/BuyingGuideComparisonStep.jsx', () => ({
   ),
 }));
 
+vi.mock('./buying-guide-form/TopPicksAndRunnerUpsStep.jsx', () => ({
+  default: ({ recommendationSections, onChange, recommendedProducts }) => (
+    <div>
+      <p>
+        Top Picks &amp; Runner-Ups step ({recommendationSections.length} recommendations, {recommendedProducts.length} products)
+      </p>
+      <button
+        type="button"
+        onClick={() =>
+          onChange([
+            ...recommendationSections,
+            {
+              clientId: 'mock-top-pick',
+              product: recommendedProducts[0],
+              recommendationType: 'TOP_PICK',
+              sectionLabel: 'Best Overall',
+              whyRecommended: '<p>Great sound quality and long battery life for the price.</p>',
+              pros: [{ clientId: 'mock-pro', content: 'Great sound' }],
+              cons: [{ clientId: 'mock-con', content: 'Pricey' }],
+              bestFor: [{ clientId: 'mock-best-for', content: 'Daily commuters' }],
+            },
+          ])
+        }
+      >
+        Add mock Top Pick
+      </button>
+    </div>
+  ),
+}));
+
 const categories = [{ id: 1, productCategoryName: 'Kitchen' }];
 
 function renderForm(props = {}) {
@@ -594,5 +624,90 @@ describe('BuyingGuideForm', () => {
     await user.click(screen.getByRole('button', { name: 'Next' }));
 
     expect(await screen.findByText(/add at least one specification/i)).toBeInTheDocument();
+  });
+
+  it('Next on Comparison advances to Top Picks & Runner-Ups and unlocks it in the Stepper', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText('Top Picks & Runner-Ups step (0 recommendations, 1 products)')).toBeInTheDocument();
+    const step5Button = screen.getByRole('button', { name: /Top Picks & Runner-Ups/ });
+    expect(step5Button).toBeEnabled();
+    expect(step5Button).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('Previous on Top Picks & Runner-Ups returns to Comparison without losing state', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('Top Picks & Runner-Ups step (0 recommendations, 1 products)');
+
+    await user.click(screen.getByRole('button', { name: 'Previous' }));
+
+    expect(await screen.findByText(/comparison step \(1 specs/i)).toBeInTheDocument();
+  });
+
+  it('adding a Top Pick and saving includes it in the recommendationSections payload', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    renderForm({ onSubmit });
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock Top Pick' }));
+
+    await user.click(screen.getByRole('button', { name: 'Save as Draft' }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    const payload = onSubmit.mock.calls.at(-1)[0];
+    expect(payload.recommendationSections).toEqual([
+      {
+        productId: 99,
+        recommendationType: 'TOP_PICK',
+        sectionLabel: 'Best Overall',
+        whyRecommended: '<p>Great sound quality and long battery life for the price.</p>',
+        pros: [{ content: 'Great sound' }],
+        cons: [{ content: 'Pricey' }],
+        bestFor: [{ content: 'Daily commuters' }],
+      },
+    ]);
+  });
+
+  it('Next on Top Picks & Runner-Ups blocks with an error when no Top Pick has been selected', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('Top Picks & Runner-Ups step (0 recommendations, 1 products)');
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText(/select a top pick before continuing/i)).toBeInTheDocument();
   });
 });
