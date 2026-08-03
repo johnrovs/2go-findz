@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Image as ImageIcon, Monitor, Smartphone } from 'lucide-react';
+import { Check, Image as ImageIcon, Monitor, Smartphone, X } from 'lucide-react';
 import AffiliateDisclosure from '../AffiliateDisclosure.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { STRUCTURAL_LABELS } from './TocBuilder.jsx';
@@ -10,7 +10,39 @@ function todayLabel() {
   return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-function LivePreview({ title, excerpt, coverImageFilename, tocEntries, settings, quickRecommendations = [] }) {
+function renderComparisonCellValue(rawValue) {
+  const value = (rawValue ?? '').trim();
+  if (!value) return <span aria-hidden="true">&mdash;</span>;
+  const lower = value.toLowerCase();
+  if (lower === 'yes') {
+    return (
+      <span className="inline-flex items-center gap-1 text-success">
+        <Check size={16} aria-hidden="true" />
+        <span className="sr-only">Yes</span>
+      </span>
+    );
+  }
+  if (lower === 'no') {
+    return (
+      <span className="inline-flex items-center gap-1 text-danger">
+        <X size={16} aria-hidden="true" />
+        <span className="sr-only">No</span>
+      </span>
+    );
+  }
+  return value;
+}
+
+function LivePreview({
+  title,
+  excerpt,
+  coverImageFilename,
+  tocEntries,
+  settings,
+  quickRecommendations = [],
+  comparisonSpecs = [],
+  comparisonProducts = [],
+}) {
   const [device, setDevice] = useState('desktop');
   const previewUrl = getImageUrl(coverImageFilename);
   const visibleEntries = tocEntries.filter((entry) => entry.visible);
@@ -114,6 +146,54 @@ function LivePreview({ title, excerpt, coverImageFilename, tocEntries, settings,
               );
             })}
           </ul>
+        </div>
+      )}
+
+      {comparisonSpecs.length > 0 && comparisonProducts.length > 0 && (
+        <div className="mb-4 overflow-x-auto">
+          <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted">
+            2. Comparison Table
+          </span>
+          <table className="w-full border-collapse text-sm">
+            <caption className="sr-only">
+              Comparison of {comparisonProducts.map((product) => product.name).join(', ')}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" className="border-b border-border p-2 text-left text-xs font-semibold text-muted">
+                  Feature
+                </th>
+                {comparisonProducts.map((product) => {
+                  const imageUrl = getImageUrl(product.imageFileName);
+                  return (
+                    <th key={product.id} scope="col" className="border-b border-border p-2 text-center">
+                      <div className="mx-auto mb-1 h-10 w-10 overflow-hidden rounded-md bg-surface-secondary">
+                        {imageUrl && <img src={imageUrl} alt="" className="h-full w-full object-cover" />}
+                      </div>
+                      <span className="text-xs font-semibold text-heading">{product.name}</span>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {comparisonSpecs.map((spec) => (
+                <tr key={spec.clientId}>
+                  <th scope="row" className="border-b border-border p-2 text-left text-xs font-medium text-body">
+                    {spec.specificationName || 'Untitled Specification'}
+                  </th>
+                  {comparisonProducts.map((product) => {
+                    const cell = spec.values.find((v) => v.productId === product.id);
+                    return (
+                      <td key={product.id} className="border-b border-border p-2 text-center text-xs text-body">
+                        {renderComparisonCellValue(cell?.value)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 

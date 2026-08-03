@@ -89,4 +89,52 @@ describe('LivePreview', () => {
     );
     expect(screen.queryByText(/quick recommendations/i)).not.toBeInTheDocument();
   });
+
+  it('renders the Comparison Table section with formatted values', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[]}
+        settings={null}
+        comparisonProducts={[
+          { id: 1, name: 'Soundcore Liberty 4 NC', imageFileName: null },
+          { id: 2, name: 'TOZO NC9 Hybrid Active', imageFileName: null },
+        ]}
+        comparisonSpecs={[
+          {
+            clientId: 'spec-1',
+            specificationName: 'Active Noise Cancellation',
+            values: [
+              { productId: 1, value: 'Yes' },
+              { productId: 2, value: 'No' },
+            ],
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('2. Comparison Table')).toBeInTheDocument();
+    const table = screen.getByRole('table');
+    expect(within(table).getByText('Active Noise Cancellation')).toBeInTheDocument();
+    expect(within(table).getByText('Soundcore Liberty 4 NC')).toBeInTheDocument();
+    expect(within(table).getByText('Yes')).toHaveClass('sr-only');
+    expect(within(table).getByText('No')).toHaveClass('sr-only');
+  });
+
+  it('omits the Comparison Table section when there are no specs', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[]}
+        settings={null}
+        comparisonProducts={[{ id: 1, name: 'Soundcore Liberty 4 NC', imageFileName: null }]}
+        comparisonSpecs={[]}
+      />
+    );
+    expect(screen.queryByText(/comparison table/i)).not.toBeInTheDocument();
+  });
 });
