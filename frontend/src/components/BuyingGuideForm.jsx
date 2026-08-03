@@ -105,9 +105,13 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
       .catch(() => setSettings(null));
   }, []);
 
+  // Adjusting state during render (React's documented alternative to a sync-only Effect):
+  // reconcile each spec's per-product values against the current product list the moment
+  // recommendedProducts' membership changes, rather than after an extra render+effect pass.
   const recommendedProductIdsKey = recommendedProducts.map((product) => product.id).join(',');
-
-  useEffect(() => {
+  const [syncedProductIdsKey, setSyncedProductIdsKey] = useState(recommendedProductIdsKey);
+  if (recommendedProductIdsKey !== syncedProductIdsKey) {
+    setSyncedProductIdsKey(recommendedProductIdsKey);
     setComparisonSpecs((prev) =>
       prev.map((spec) => {
         const existingByProductId = new Map(spec.values.map((v) => [v.productId, v.value]));
@@ -120,10 +124,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         };
       })
     );
-    // recommendedProducts is intentionally summarized to its id list: the effect only needs to
-    // re-run when membership actually changes, not on every new array reference from a reorder.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recommendedProductIdsKey]);
+  }
 
   function handleBasicInfoChange(field, value) {
     setBasicInfo((prev) => {
