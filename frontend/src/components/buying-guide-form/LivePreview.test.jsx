@@ -64,7 +64,7 @@ describe('LivePreview', () => {
         title="Best Earbuds"
         excerpt=""
         coverImageFilename={null}
-        tocEntries={[]}
+        tocEntries={[{ clientId: 'QUICK_RECOMMENDATIONS', sectionKey: 'QUICK_RECOMMENDATIONS', title: '', content: '', visible: true }]}
         settings={null}
         quickRecommendations={[
           {
@@ -96,7 +96,7 @@ describe('LivePreview', () => {
         title="Best Earbuds"
         excerpt=""
         coverImageFilename={null}
-        tocEntries={[]}
+        tocEntries={[{ clientId: 'COMPARISON_TABLE', sectionKey: 'COMPARISON_TABLE', title: '', content: '', visible: true }]}
         settings={null}
         comparisonProducts={[
           { id: 1, name: 'Soundcore Liberty 4 NC', imageFileName: null },
@@ -115,7 +115,9 @@ describe('LivePreview', () => {
       />
     );
 
-    expect(screen.getByText('2. Comparison Table')).toBeInTheDocument();
+    // Only Comparison Table's own TOC entry is present in this fixture, so it's the
+    // first (and only) numbered section here -- dynamic numbering, not a fixed "2.".
+    expect(screen.getByText('1. Comparison Table')).toBeInTheDocument();
     const table = screen.getByRole('table');
     expect(within(table).getByText('Active Noise Cancellation')).toBeInTheDocument();
     expect(within(table).getByText('Soundcore Liberty 4 NC')).toBeInTheDocument();
@@ -136,5 +138,85 @@ describe('LivePreview', () => {
       />
     );
     expect(screen.queryByText(/comparison table/i)).not.toBeInTheDocument();
+  });
+
+  const topPickSection = {
+    clientId: 'tp-1',
+    product: { id: 1, name: 'Soundcore Liberty 4 NC', imageFileName: null, productPrice: '69.99', productLink: 'https://amazon.com/dp/a', rating: 4.8, reviewCount: 12850 },
+    recommendationType: 'TOP_PICK',
+    sectionLabel: 'Best Overall',
+    whyRecommended: '<p>Great sound and battery life.</p>',
+    pros: [{ clientId: 'p1', content: 'Great sound' }],
+    cons: [{ clientId: 'c1', content: 'Pricey' }],
+    bestFor: [{ clientId: 'b1', content: 'Daily commuters' }],
+  };
+
+  const runnerUpSection = {
+    clientId: 'ru-1',
+    product: { id: 2, name: 'TOZO NC9', imageFileName: null, productPrice: '39.99', productLink: 'https://amazon.com/dp/b', rating: 4.2, reviewCount: 500 },
+    recommendationType: 'RUNNER_UP',
+    sectionLabel: 'Best Budget Alternative',
+    whyRecommended: '<p>Solid value for the price.</p>',
+    pros: [{ clientId: 'p2', content: 'Affordable' }],
+    cons: [{ clientId: 'c2', content: 'Fewer features' }],
+    bestFor: [{ clientId: 'b2', content: 'Budget shoppers' }],
+  };
+
+  it('renders the Top Pick and Runner-Ups sections with content', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[]}
+        settings={null}
+        recommendationSections={[topPickSection, runnerUpSection]}
+      />
+    );
+
+    expect(screen.getByText(/our top pick/i)).toBeInTheDocument();
+    expect(screen.getByText('Best Overall')).toBeInTheDocument();
+    expect(screen.getByText('Soundcore Liberty 4 NC')).toBeInTheDocument();
+    expect(screen.getByText('Great sound')).toBeInTheDocument();
+    expect(screen.getByText(/runner-ups/i)).toBeInTheDocument();
+    expect(screen.getByText('Best Budget Alternative')).toBeInTheDocument();
+    expect(screen.getByText('TOZO NC9')).toBeInTheDocument();
+  });
+
+  it('omits the Top Pick and Runner-Ups sections when there are none', () => {
+    render(
+      <LivePreview title="Best Earbuds" excerpt="" coverImageFilename={null} tocEntries={[]} settings={null} recommendationSections={[]} />
+    );
+    expect(screen.queryByText(/our top pick/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/runner-ups/i)).not.toBeInTheDocument();
+  });
+
+  it('numbers sections dynamically based on visible TOC order, skipping empty sections', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[
+          { clientId: 'QUICK_RECOMMENDATIONS', sectionKey: 'QUICK_RECOMMENDATIONS', title: '', content: '', visible: false },
+          { clientId: 'COMPARISON_TABLE', sectionKey: 'COMPARISON_TABLE', title: '', content: '', visible: true },
+          { clientId: 'TOP_PICK', sectionKey: 'TOP_PICK', title: '', content: '', visible: true },
+          { clientId: 'RUNNER_UPS', sectionKey: 'RUNNER_UPS', title: '', content: '', visible: true },
+        ]}
+        settings={null}
+        quickRecommendations={[
+          { product: { id: 9, name: 'Hidden Product', productPrice: '9.99', productLink: 'https://amazon.com/dp/z', imageFileName: null }, badgeName: 'Hidden' },
+        ]}
+        comparisonSpecs={[]}
+        comparisonProducts={[]}
+        recommendationSections={[topPickSection, runnerUpSection]}
+      />
+    );
+
+    // Quick Recommendations is hidden in the TOC and Comparison has no specs, so
+    // Top Pick becomes "1." and Runner-Ups becomes "2." even though they are the
+    // third and fourth structural sections overall.
+    expect(screen.getByText(/1\. our top pick/i)).toBeInTheDocument();
+    expect(screen.getByText(/2\. runner-ups/i)).toBeInTheDocument();
   });
 });
