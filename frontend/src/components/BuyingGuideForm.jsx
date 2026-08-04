@@ -6,6 +6,7 @@ import ProductsStep from './buying-guide-form/ProductsStep.jsx';
 import BuyingGuideQuickPicksStep from './buying-guide-form/BuyingGuideQuickPicksStep.jsx';
 import BuyingGuideComparisonStep from './buying-guide-form/BuyingGuideComparisonStep.jsx';
 import TopPicksAndRunnerUpsStep from './buying-guide-form/TopPicksAndRunnerUpsStep.jsx';
+import BuyingGuideContentStep from './buying-guide-form/BuyingGuideContentStep.jsx';
 import LivePreview from './buying-guide-form/LivePreview.jsx';
 import Modal from './Modal.jsx';
 import Button from './Button.jsx';
@@ -86,6 +87,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
   const [comparisonErrors, setComparisonErrors] = useState({});
   const [recommendationSections, setRecommendationSections] = useState(mapRecommendationSectionsFromResponse(guide?.recommendationSections));
   const [topPicksRunnerUpsErrors, setTopPicksRunnerUpsErrors] = useState({});
+  const [buyingGuideContentErrors, setBuyingGuideContentErrors] = useState({});
   const [faqs] = useState(mapFaqsFromResponse(guide?.faqs));
   const [seoTitle] = useState(guide?.seoTitle ?? null);
   const [seoDescription] = useState(guide?.seoDescription ?? null);
@@ -346,9 +348,44 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     setTopPicksRunnerUpsErrors(errors);
     if (Object.keys(errors).length > 0) return;
     setMaxUnlockedStep((prev) => Math.max(prev, 6));
-    // Buying Guide (step 6) is not built yet, so this is the current "last built
-    // step" -- save and return to the list, matching the pattern every prior
-    // step used before the step after it existed (see Comparison's own Next).
+    setActiveStep(6);
+    // Buying Guide (step 6) now exists, so this auto-save must not navigate away like a
+    // Save as Draft/Publish click does -- mirrors handleQuickPicksNext/handleComparisonNext.
+    submit(false, { stayOnPage: true });
+  }
+
+  function validateBuyingGuideContent() {
+    const errors = {};
+    const seenTitles = new Set();
+    tocEntries
+      .filter((entry) => !entry.sectionKey)
+      .forEach((entry) => {
+        const trimmedTitle = entry.title.trim();
+        if (!trimmedTitle) {
+          errors[`title-${entry.clientId}`] = 'Section title is required.';
+        } else {
+          const key = trimmedTitle.toLowerCase();
+          if (seenTitles.has(key)) {
+            errors[`title-${entry.clientId}`] = 'Two sections cannot use the same title.';
+          } else {
+            seenTitles.add(key);
+          }
+        }
+        if (!entry.content.replace(/<[^>]*>/g, '').trim()) {
+          errors[`content-${entry.clientId}`] = 'Section content is required.';
+        }
+      });
+    return errors;
+  }
+
+  function handleBuyingGuideContentNext() {
+    const errors = validateBuyingGuideContent();
+    setBuyingGuideContentErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    setMaxUnlockedStep((prev) => Math.max(prev, 7));
+    // FAQs (step 7) is not built yet, so this is the current "last built step" -- save and
+    // return to the list, matching the pattern every prior step used before the step after
+    // it existed (see Top Picks & Runner-Ups' own Next, before this task).
     submit(false);
   }
 
@@ -507,6 +544,24 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
                   Previous
                 </Button>
                 <Button type="button" onClick={handleTopPicksRunnerUpsNext}>
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+          {activeStep === 6 && (
+            <>
+              <BuyingGuideContentStep tocEntries={tocEntries} onChange={setTocEntries} fieldErrors={buyingGuideContentErrors} />
+              {Object.keys(buyingGuideContentErrors).length > 0 && (
+                <p role="alert" className="mt-4 text-sm text-danger">
+                  One or more sections need attention before continuing.
+                </p>
+              )}
+              <div className="mt-6 flex justify-between">
+                <Button type="button" variant="secondary" onClick={() => setActiveStep(5)}>
+                  Previous
+                </Button>
+                <Button type="button" onClick={handleBuyingGuideContentNext}>
                   Next
                 </Button>
               </div>
