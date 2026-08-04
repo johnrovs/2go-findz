@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { HelpCircle, Info, Plus } from 'lucide-react';
@@ -33,17 +33,23 @@ function BuyingGuideContentStep({ tocEntries, onChange, fieldErrors }) {
 
   const customEntries = tocEntries.filter((entry) => !entry.sectionKey);
 
-  useEffect(() => {
+  // Adjusting state during render (React's documented alternative to a sync-only Effect,
+  // already used the same way in BuyingGuideForm.jsx): auto-expand the first invalid section
+  // whenever fieldErrors is a new object reference (a fresh validation pass, or the initial
+  // mount), not on every render -- expanding on every tocEntries edit would fight the admin's
+  // own manual collapse/expand clicks. The sentinel `null` initial value (rather than
+  // `fieldErrors` itself) ensures this also fires correctly if the component ever mounts with
+  // errors already present, not just when they appear on a later render.
+  const [syncedFieldErrors, setSyncedFieldErrors] = useState(null);
+  if (fieldErrors !== syncedFieldErrors) {
+    setSyncedFieldErrors(fieldErrors);
     const firstInvalid = customEntries.find(
       (entry) => fieldErrors[`title-${entry.clientId}`] || fieldErrors[`content-${entry.clientId}`]
     );
     if (firstInvalid) {
       setExpandedIds((prev) => new Set(prev).add(firstInvalid.clientId));
     }
-    // Only re-run when the error set changes -- expanding on every tocEntries edit would
-    // fight the admin's own manual collapse/expand clicks.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fieldErrors]);
+  }
 
   function toggleExpanded(clientId) {
     setExpandedIds((prev) => {
