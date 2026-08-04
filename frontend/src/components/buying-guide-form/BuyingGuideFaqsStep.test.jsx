@@ -1,7 +1,13 @@
+import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import BuyingGuideFaqsStep from './BuyingGuideFaqsStep.jsx';
+
+function StatefulFaqsStep({ initialFaqs }) {
+  const [faqs, setFaqs] = useState(initialFaqs);
+  return <BuyingGuideFaqsStep faqs={faqs} onChange={setFaqs} fieldErrors={{}} />;
+}
 
 describe('BuyingGuideFaqsStep', () => {
   it('shows the empty state when there are no FAQs', () => {
@@ -42,6 +48,25 @@ describe('BuyingGuideFaqsStep', () => {
     const nextFaqs = onChange.mock.calls[0][0];
     expect(nextFaqs).toHaveLength(2);
     expect(nextFaqs[0]).toEqual(faqs[0]);
+  });
+
+  it('focuses the new Question input when Add Your First FAQ is clicked', async () => {
+    const user = userEvent.setup();
+    render(<StatefulFaqsStep initialFaqs={[]} />);
+
+    await user.click(screen.getByRole('button', { name: 'Add Your First FAQ' }));
+
+    expect(screen.getByRole('textbox', { name: 'Question' })).toHaveFocus();
+  });
+
+  it('focuses the new Question input when Add FAQ is clicked with existing FAQs', async () => {
+    const user = userEvent.setup();
+    render(<StatefulFaqsStep initialFaqs={[{ clientId: 'f1', question: 'Existing?', answer: 'Yes.' }]} />);
+
+    await user.click(screen.getByRole('button', { name: 'Add FAQ' }));
+
+    const questionInputs = screen.getAllByRole('textbox', { name: 'Question' });
+    expect(questionInputs[1]).toHaveFocus();
   });
 
   it('disables Add FAQ once the maximum of 20 is reached', () => {

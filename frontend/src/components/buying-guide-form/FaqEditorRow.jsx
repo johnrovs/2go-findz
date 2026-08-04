@@ -21,6 +21,7 @@ function FaqEditorRow({
   onToggleExpanded,
   questionError,
   answerError,
+  autoFocus,
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: faq.clientId });
   const style = { transform: CSS.Transform.toString(transform), transition };
@@ -74,6 +75,7 @@ function FaqEditorRow({
             value={faq.question}
             onChange={(event) => onFieldChange(faq.clientId, 'question', event.target.value)}
             placeholder="Question"
+            autoFocus={autoFocus}
             aria-invalid={Boolean(questionError)}
             aria-describedby={questionError ? `${questionFieldId}-error` : undefined}
             className="w-full rounded-btn border border-border px-2 py-1.5 text-sm font-medium text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"

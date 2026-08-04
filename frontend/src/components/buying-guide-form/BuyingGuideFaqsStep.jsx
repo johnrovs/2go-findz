@@ -31,6 +31,7 @@ function BuyingGuideFaqsStep({ faqs, onChange, fieldErrors }) {
   const [isStructuredDataOpen, setIsStructuredDataOpen] = useState(false);
   const [expandedIds, setExpandedIds] = useState(() => new Set());
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [autoFocusId, setAutoFocusId] = useState(null);
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   // Adjusting state during render (see BuyingGuideContentStep.jsx for the full rationale):
@@ -61,6 +62,7 @@ function BuyingGuideFaqsStep({ faqs, onChange, fieldErrors }) {
     const newFaq = { clientId: nextFaqClientId(), question: '', answer: '' };
     onChange([...faqs, newFaq]);
     setExpandedIds((prev) => new Set(prev).add(newFaq.clientId));
+    setAutoFocusId(newFaq.clientId);
   }
 
   function handleFieldChange(clientId, field, value) {
@@ -188,6 +190,7 @@ function BuyingGuideFaqsStep({ faqs, onChange, fieldErrors }) {
                     onToggleExpanded={toggleExpanded}
                     questionError={fieldErrors[`question-${faq.clientId}`]}
                     answerError={fieldErrors[`answer-${faq.clientId}`]}
+                    autoFocus={faq.clientId === autoFocusId}
                   />
                 ))}
               </ul>
