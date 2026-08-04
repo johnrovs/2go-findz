@@ -219,4 +219,160 @@ describe('LivePreview', () => {
     expect(screen.getByText(/1\. our top pick/i)).toBeInTheDocument();
     expect(screen.getByText(/2\. runner-ups/i)).toBeInTheDocument();
   });
+
+  const customSectionEntry = {
+    clientId: 'custom-1',
+    sectionKey: null,
+    title: 'How We Tested',
+    content: '<p>We tested every product for a full week in real-world conditions to see how it performed.</p>',
+    visible: true,
+  };
+
+  it('renders the Buying Guide section with custom section content', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[customSectionEntry]}
+        settings={null}
+      />
+    );
+
+    expect(screen.getByText(/1\. buying guide/i)).toBeInTheDocument();
+    // The section's title renders twice (once as the TOC link, once as the card heading) --
+    // getAllByText avoids the "multiple matches" throw getByText would raise here.
+    expect(screen.getAllByText('How We Tested').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/we tested every product/i)).toBeInTheDocument();
+  });
+
+  // NOTE: the preview's breadcrumb ("Home / Buying Guides / {title}") always contains the
+  // substring "Buying Guide" (as part of "Buying Guides"), so every assertion below anchors
+  // on a leading number + period ("1. Buying Guide") to target only the dynamic section
+  // heading -- a bare /buying guide/i would false-match the breadcrumb on every render.
+
+  it('omits the Buying Guide section when there are no custom sections with content', () => {
+    render(<LivePreview title="Best Earbuds" excerpt="" coverImageFilename={null} tocEntries={[]} settings={null} />);
+    expect(screen.queryByText(/\d+\.\s*buying guide/i)).not.toBeInTheDocument();
+  });
+
+  it('omits the Buying Guide section when a custom entry is hidden', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[{ ...customSectionEntry, visible: false }]}
+        settings={null}
+      />
+    );
+    expect(screen.queryByText(/\d+\.\s*buying guide/i)).not.toBeInTheDocument();
+  });
+
+  it('groups multiple custom sections under one dynamically-numbered Buying Guide heading, numbered locally', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[
+          { ...customSectionEntry, clientId: 'custom-1', title: 'How We Tested' },
+          { ...customSectionEntry, clientId: 'custom-2', title: 'What to Look For' },
+        ]}
+        settings={null}
+      />
+    );
+
+    expect(screen.getAllByText(/\d+\.\s*buying guide/i)).toHaveLength(1);
+    // Each title also renders twice (TOC link + card heading) -- see note above.
+    expect(screen.getAllByText('How We Tested').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('What to Look For').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('numbers Buying Guide after other present dynamic sections', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[
+          { clientId: 'COMPARISON_TABLE', sectionKey: 'COMPARISON_TABLE', title: '', content: '', visible: true },
+          customSectionEntry,
+        ]}
+        settings={null}
+        comparisonProducts={[{ id: 1, name: 'Product A', imageFileName: null }]}
+        comparisonSpecs={[{ clientId: 'spec-1', specificationName: 'Weight', values: [{ productId: 1, value: '1kg' }] }]}
+      />
+    );
+
+    expect(screen.getByText('1. Comparison Table')).toBeInTheDocument();
+    expect(screen.getByText(/2\. buying guide/i)).toBeInTheDocument();
+  });
+
+  it('shows a Read more toggle for long section content and expands on click', async () => {
+    const user = userEvent.setup();
+    const longContent = `<p>${Array.from({ length: 60 }, (_, i) => `word${i}`).join(' ')}</p>`;
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[{ ...customSectionEntry, content: longContent }]}
+        settings={null}
+      />
+    );
+
+    const readMoreButton = screen.getByRole('button', { name: 'Read more' });
+    expect(readMoreButton).toBeInTheDocument();
+
+    await user.click(readMoreButton);
+
+    expect(screen.getByRole('button', { name: 'Show less' })).toBeInTheDocument();
+  });
+
+  it('does not show a Read more toggle for short section content', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[customSectionEntry]}
+        settings={null}
+      />
+    );
+    expect(screen.queryByRole('button', { name: 'Read more' })).not.toBeInTheDocument();
+  });
+
+  it('gives a custom TOC entry a real anchor link to its own section', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[customSectionEntry]}
+        settings={null}
+      />
+    );
+    const tocList = screen.getByRole('list', { name: 'Table of contents' });
+    const link = within(tocList).getByRole('link', { name: 'How We Tested' });
+    expect(link).toHaveAttribute('href', '#how-we-tested');
+  });
+
+  it('still lists each custom entry by its own title in the TOC, not a combined label', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[
+          { ...customSectionEntry, clientId: 'custom-1', title: 'How We Tested' },
+          { ...customSectionEntry, clientId: 'custom-2', title: 'What to Look For' },
+        ]}
+        settings={null}
+      />
+    );
+    const tocList = screen.getByRole('list', { name: 'Table of contents' });
+    expect(within(tocList).getByText('How We Tested')).toBeInTheDocument();
+    expect(within(tocList).getByText('What to Look For')).toBeInTheDocument();
+  });
 });

@@ -2,27 +2,46 @@ import { useState } from 'react';
 import { Award, Check, Image as ImageIcon, Medal, Monitor, Smartphone, X } from 'lucide-react';
 import AffiliateDisclosure from '../AffiliateDisclosure.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
+import { uniqueSlug } from '../../utils/slugify.js';
 import { STRUCTURAL_LABELS } from './TocBuilder.jsx';
 import QuickPickBadge from './QuickPickBadge.jsx';
 import { isSupportedAmazonUrl } from '../../utils/amazonLink.js';
+import { wordCount } from './RichTextEditor.jsx';
 
 function todayLabel() {
   return new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-function computeSectionNumbers({ tocEntries, hasQuickRecommendations, hasComparison, hasTopPick, hasRunnerUps }) {
+function computeSectionNumbers({
+  tocEntries,
+  hasQuickRecommendations,
+  hasComparison,
+  hasTopPick,
+  hasRunnerUps,
+  hasBuyingGuideContent,
+}) {
   const contentBySectionKey = {
     QUICK_RECOMMENDATIONS: hasQuickRecommendations,
     COMPARISON_TABLE: hasComparison,
     TOP_PICK: hasTopPick,
     RUNNER_UPS: hasRunnerUps,
   };
-  const orderedKeys = tocEntries
-    .filter((entry) => entry.visible && entry.sectionKey && contentBySectionKey[entry.sectionKey])
-    .map((entry) => entry.sectionKey);
   const numbers = {};
-  orderedKeys.forEach((key, index) => {
-    numbers[key] = index + 1;
+  let nextNumber = 1;
+  let buyingGuideNumbered = false;
+  tocEntries.forEach((entry) => {
+    if (entry.sectionKey) {
+      if (entry.visible && contentBySectionKey[entry.sectionKey]) {
+        numbers[entry.sectionKey] = nextNumber;
+        nextNumber += 1;
+      }
+      return;
+    }
+    if (!buyingGuideNumbered && hasBuyingGuideContent && entry.visible) {
+      numbers.BUYING_GUIDE = nextNumber;
+      nextNumber += 1;
+      buyingGuideNumbered = true;
+    }
   });
   return numbers;
 }
@@ -105,6 +124,37 @@ function renderRecommendationCard(section, number) {
   );
 }
 
+const CONTENT_PREVIEW_WORD_LIMIT = 40;
+
+function BuyingGuideSectionPreviewCard({ entry, number, anchorId }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isLong = wordCount(entry.content) > CONTENT_PREVIEW_WORD_LIMIT;
+
+  return (
+    <div id={anchorId} className={`rounded-btn border border-border p-3 ${number > 1 ? 'mt-3' : ''}`}>
+      <div className="mb-1 flex items-center gap-2">
+        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-muted">
+          {number}
+        </span>
+        <span className="text-sm font-semibold text-heading">{entry.title || 'Untitled Section'}</span>
+      </div>
+      <div
+        className={`prose prose-sm max-w-none text-body ${!isExpanded && isLong ? 'line-clamp-4' : ''}`}
+        dangerouslySetInnerHTML={{ __html: entry.content }}
+      />
+      {isLong && (
+        <button
+          type="button"
+          onClick={() => setIsExpanded((open) => !open)}
+          className="mt-1 text-xs font-semibold text-primary hover:underline"
+        >
+          {isExpanded ? 'Show less' : 'Read more'}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function renderComparisonCellValue(rawValue) {
   const value = (rawValue ?? '').trim();
   if (!value) return <span aria-hidden="true">&mdash;</span>;
@@ -144,12 +194,25 @@ function LivePreview({
   const visibleEntries = tocEntries.filter((entry) => entry.visible);
   const topPick = recommendationSections.find((s) => s.recommendationType === 'TOP_PICK') ?? null;
   const runnerUps = recommendationSections.filter((s) => s.recommendationType === 'RUNNER_UP');
+
+  const customSections = tocEntries.filter(
+    (entry) => !entry.sectionKey && entry.visible && entry.title.trim() && entry.content.replace(/<[^>]*>/g, '').trim()
+  );
+  const hasBuyingGuideContent = customSections.length > 0;
+  const usedAnchorSlugs = new Set();
+  const customSectionsWithAnchors = customSections.map((entry) => ({
+    entry,
+    anchorId: uniqueSlug(entry.title, usedAnchorSlugs),
+  }));
+  const anchorsByClientId = new Map(customSectionsWithAnchors.map(({ entry, anchorId }) => [entry.clientId, anchorId]));
+
   const sectionNumbers = computeSectionNumbers({
     tocEntries,
     hasQuickRecommendations: quickRecommendations.length > 0,
     hasComparison: comparisonSpecs.length > 0 && comparisonProducts.length > 0,
     hasTopPick: Boolean(topPick),
     hasRunnerUps: runnerUps.length > 0,
+    hasBuyingGuideContent,
   });
 
   return (
@@ -195,14 +258,24 @@ function LivePreview({
         <div className="mb-4">
           <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted">Table of Contents</span>
           <ul className="space-y-1" aria-label="Table of contents">
-            {visibleEntries.map((entry, index) => (
-              <li key={entry.clientId} className="flex items-center gap-2 text-sm text-primary">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                  {index + 1}
-                </span>
-                <span>{entry.sectionKey ? STRUCTURAL_LABELS[entry.sectionKey] : entry.title || 'Untitled Section'}</span>
-              </li>
-            ))}
+            {visibleEntries.map((entry, index) => {
+              const label = entry.sectionKey ? STRUCTURAL_LABELS[entry.sectionKey] : entry.title || 'Untitled Section';
+              const anchorId = entry.sectionKey ? null : anchorsByClientId.get(entry.clientId);
+              return (
+                <li key={entry.clientId} className="flex items-center gap-2 text-sm text-primary">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                    {index + 1}
+                  </span>
+                  {anchorId ? (
+                    <a href={`#${anchorId}`} className="hover:underline">
+                      {label}
+                    </a>
+                  ) : (
+                    <span>{label}</span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
@@ -317,6 +390,17 @@ function LivePreview({
             {sectionNumbers.RUNNER_UPS}. Runner-Ups
           </span>
           {runnerUps.map((section, index) => renderRecommendationCard(section, index + 1))}
+        </div>
+      )}
+
+      {hasBuyingGuideContent && (
+        <div className="mb-4">
+          <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted">
+            {sectionNumbers.BUYING_GUIDE}. Buying Guide
+          </span>
+          {customSectionsWithAnchors.map(({ entry, anchorId }, index) => (
+            <BuyingGuideSectionPreviewCard key={entry.clientId} entry={entry} number={index + 1} anchorId={anchorId} />
+          ))}
         </div>
       )}
 
