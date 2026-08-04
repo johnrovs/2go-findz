@@ -39,6 +39,13 @@ describe('Stepper', () => {
     expect(screen.getByRole('button', { name: /SEO & Publish/ })).toBeDisabled();
   });
 
+  it('enables Buying Guide once unlocked, but keeps every step after it disabled', () => {
+    render(<Stepper activeStep={6} maxUnlockedStep={6} onStepClick={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /Buying Guide/ })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /FAQs/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /SEO & Publish/ })).toBeDisabled();
+  });
+
   it('keeps Products disabled while still locked', () => {
     render(<Stepper activeStep={1} maxUnlockedStep={1} onStepClick={vi.fn()} />);
     expect(screen.getByRole('button', { name: /Products/ })).toBeDisabled();
