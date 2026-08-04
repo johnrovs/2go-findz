@@ -147,6 +147,29 @@ vi.mock('./buying-guide-form/BuyingGuideContentStep.jsx', () => ({
   },
 }));
 
+vi.mock('./buying-guide-form/BuyingGuideFaqsStep.jsx', () => ({
+  default: ({ faqs, onChange, fieldErrors }) => (
+    <div>
+      <p>FAQs step ({faqs.length} FAQs)</p>
+      {Object.keys(fieldErrors).length > 0 && <p>FAQs have field errors</p>}
+      <button
+        type="button"
+        onClick={() =>
+          onChange([...faqs, { clientId: 'mock-faq', question: 'Is it worth it?', answer: 'Yes, absolutely.' }])
+        }
+      >
+        Add mock FAQ
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange([...faqs, { clientId: 'mock-blank-faq', question: '', answer: '' }])}
+      >
+        Add blank mock FAQ
+      </button>
+    </div>
+  ),
+}));
+
 const categories = [{ id: 1, productCategoryName: 'Kitchen' }];
 
 function renderForm(props = {}) {
@@ -837,5 +860,120 @@ describe('BuyingGuideForm', () => {
 
     expect(await screen.findByText('Buying Guide Content has field errors')).toBeInTheDocument();
     expect(screen.getByText('Buying Guide Content step (1 sections)')).toBeInTheDocument();
+  });
+
+  it('Next on Buying Guide advances to FAQs and unlocks it in the Stepper', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock Top Pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock section' }));
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText('FAQs step (0 FAQs)')).toBeInTheDocument();
+    const step7Button = screen.getByRole('button', { name: /FAQs$/ });
+    expect(step7Button).toBeEnabled();
+    expect(step7Button).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('Previous on FAQs returns to Buying Guide without losing state', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock Top Pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock section' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('FAQs step (0 FAQs)');
+
+    await user.click(screen.getByRole('button', { name: 'Previous' }));
+
+    expect(await screen.findByText('Buying Guide Content step (1 sections)')).toBeInTheDocument();
+  });
+
+  it('adding a FAQ and saving includes it in the faqs payload', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    renderForm({ onSubmit });
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock Top Pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock section' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock FAQ' }));
+
+    await user.click(screen.getByRole('button', { name: 'Save as Draft' }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    const payload = onSubmit.mock.calls.at(-1)[0];
+    expect(payload.faqs).toEqual([{ question: 'Is it worth it?', answer: 'Yes, absolutely.' }]);
+  });
+
+  it('Next on FAQs blocks with an error when a FAQ has a blank question', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock Top Pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock section' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add blank mock FAQ' }));
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText('FAQs have field errors')).toBeInTheDocument();
+    expect(screen.getByText('FAQs step (1 FAQs)')).toBeInTheDocument();
+  });
+
+  it('Next on FAQs blocks with an error when there are no FAQs', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock Top Pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock section' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('FAQs step (0 FAQs)');
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText(/add at least one faq/i)).toBeInTheDocument();
   });
 });

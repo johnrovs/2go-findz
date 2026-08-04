@@ -7,6 +7,7 @@ import BuyingGuideQuickPicksStep from './buying-guide-form/BuyingGuideQuickPicks
 import BuyingGuideComparisonStep from './buying-guide-form/BuyingGuideComparisonStep.jsx';
 import TopPicksAndRunnerUpsStep from './buying-guide-form/TopPicksAndRunnerUpsStep.jsx';
 import BuyingGuideContentStep from './buying-guide-form/BuyingGuideContentStep.jsx';
+import BuyingGuideFaqsStep from './buying-guide-form/BuyingGuideFaqsStep.jsx';
 import LivePreview from './buying-guide-form/LivePreview.jsx';
 import Modal from './Modal.jsx';
 import Button from './Button.jsx';
@@ -42,7 +43,7 @@ function mapRecommendationSectionsFromResponse(recommendationSections) {
 }
 
 function mapFaqsFromResponse(faqs) {
-  return (faqs ?? []).map((faq) => ({ question: faq.question, answer: faq.answer }));
+  return (faqs ?? []).map((faq) => ({ clientId: crypto.randomUUID(), question: faq.question, answer: faq.answer }));
 }
 
 function mapTocEntriesFromResponse(tocEntries) {
@@ -88,7 +89,8 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
   const [recommendationSections, setRecommendationSections] = useState(mapRecommendationSectionsFromResponse(guide?.recommendationSections));
   const [topPicksRunnerUpsErrors, setTopPicksRunnerUpsErrors] = useState({});
   const [buyingGuideContentErrors, setBuyingGuideContentErrors] = useState({});
-  const [faqs] = useState(mapFaqsFromResponse(guide?.faqs));
+  const [faqs, setFaqs] = useState(mapFaqsFromResponse(guide?.faqs));
+  const [faqsErrors, setFaqsErrors] = useState({});
   const [seoTitle] = useState(guide?.seoTitle ?? null);
   const [seoDescription] = useState(guide?.seoDescription ?? null);
   const [settings, setSettings] = useState(null);
@@ -208,7 +210,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
           bestFor: bestFor.map(({ content }) => ({ content: content.trim() })),
         })
       ),
-      faqs,
+      faqs: faqs.map(({ question, answer }) => ({ question: question.trim(), answer: answer.trim() })),
       tocEntries: tocEntries.map(({ sectionKey, title, content, visible }) => ({
         sectionKey,
         // The backend rejects a structural entry (sectionKey set) that carries a
@@ -383,9 +385,47 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     setBuyingGuideContentErrors(errors);
     if (Object.keys(errors).length > 0) return;
     setMaxUnlockedStep((prev) => Math.max(prev, 7));
-    // FAQs (step 7) is not built yet, so this is the current "last built step" -- save and
-    // return to the list, matching the pattern every prior step used before the step after
-    // it existed (see Top Picks & Runner-Ups' own Next, before this task).
+    setActiveStep(7);
+    // FAQs (step 7) now exists, so this auto-save must not navigate away like a Save as
+    // Draft/Publish click does -- mirrors every prior step's Next handler once the step
+    // after it existed.
+    submit(false, { stayOnPage: true });
+  }
+
+  function validateFaqs() {
+    const errors = {};
+    if (faqs.length === 0) {
+      errors.faqsCount = 'Add at least one FAQ before continuing.';
+      return errors;
+    }
+    const seenQuestions = new Set();
+    faqs.forEach((faq) => {
+      const trimmedQuestion = faq.question.trim();
+      if (!trimmedQuestion) {
+        errors[`question-${faq.clientId}`] = 'Question is required.';
+      } else {
+        const key = trimmedQuestion.toLowerCase();
+        if (seenQuestions.has(key)) {
+          errors[`question-${faq.clientId}`] = 'Two FAQs cannot use the same question.';
+        } else {
+          seenQuestions.add(key);
+        }
+      }
+      if (!faq.answer.trim()) {
+        errors[`answer-${faq.clientId}`] = 'Answer is required.';
+      }
+    });
+    return errors;
+  }
+
+  function handleFaqsNext() {
+    const errors = validateFaqs();
+    setFaqsErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    setMaxUnlockedStep((prev) => Math.max(prev, 8));
+    // SEO & Publish (step 8) is not built yet, so this is the current "last built step" --
+    // save and return to the list, matching the pattern every prior step used before the
+    // step after it existed (see Buying Guide Content's own Next, before this task).
     submit(false);
   }
 
@@ -418,6 +458,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     comparisonSpecs,
     comparisonProducts: recommendedProducts,
     recommendationSections,
+    faqs,
   };
 
   return (
@@ -562,6 +603,24 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
                   Previous
                 </Button>
                 <Button type="button" onClick={handleBuyingGuideContentNext}>
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+          {activeStep === 7 && (
+            <>
+              <BuyingGuideFaqsStep faqs={faqs} onChange={setFaqs} fieldErrors={faqsErrors} />
+              {faqsErrors.faqsCount && (
+                <p role="alert" className="mt-4 text-sm text-danger">
+                  {faqsErrors.faqsCount}
+                </p>
+              )}
+              <div className="mt-6 flex justify-between">
+                <Button type="button" variant="secondary" onClick={() => setActiveStep(6)}>
+                  Previous
+                </Button>
+                <Button type="button" onClick={handleFaqsNext}>
                   Next
                 </Button>
               </div>
