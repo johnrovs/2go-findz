@@ -375,4 +375,81 @@ describe('LivePreview', () => {
     expect(within(tocList).getByText('How We Tested')).toBeInTheDocument();
     expect(within(tocList).getByText('What to Look For')).toBeInTheDocument();
   });
+
+  const faqOne = { clientId: 'faq-1', question: 'Is it worth it?', answer: 'Yes, absolutely worth it for the price.' };
+  const faqTwo = { clientId: 'faq-2', question: 'How long does the battery last?', answer: 'About 8 hours per charge.' };
+
+  it('renders the FAQs section as an accordion when FAQs exist', () => {
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[{ clientId: 'FAQS', sectionKey: 'FAQS', title: '', content: '', visible: true }]}
+        settings={null}
+        faqs={[faqOne]}
+      />
+    );
+
+    expect(screen.getByText(/1\. frequently asked questions/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /is it worth it/i })).toBeInTheDocument();
+  });
+
+  it('omits the FAQs section when there are no FAQs', () => {
+    render(<LivePreview title="Best Earbuds" excerpt="" coverImageFilename={null} tocEntries={[]} settings={null} faqs={[]} />);
+    expect(screen.queryByText(/frequently asked questions/i)).not.toBeInTheDocument();
+  });
+
+  it('expands and collapses an FAQ answer independently via its own accordion button', async () => {
+    const user = userEvent.setup();
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[{ clientId: 'FAQS', sectionKey: 'FAQS', title: '', content: '', visible: true }]}
+        settings={null}
+        faqs={[faqOne, faqTwo]}
+      />
+    );
+
+    const trigger = screen.getByRole('button', { name: /is it worth it/i });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('Yes, absolutely worth it for the price.')).not.toBeInTheDocument();
+
+    await user.click(trigger);
+
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('Yes, absolutely worth it for the price.')).toBeInTheDocument();
+    expect(screen.queryByText('About 8 hours per charge.')).not.toBeInTheDocument();
+  });
+
+  it('shows View all N questions when more than 5 FAQs exist, and expands the rest on click', async () => {
+    const user = userEvent.setup();
+    const faqs = Array.from({ length: 7 }, (_, i) => ({ clientId: `faq-${i}`, question: `Question ${i}?`, answer: `Answer ${i}.` }));
+    render(
+      <LivePreview
+        title="Best Earbuds"
+        excerpt=""
+        coverImageFilename={null}
+        tocEntries={[{ clientId: 'FAQS', sectionKey: 'FAQS', title: '', content: '', visible: true }]}
+        settings={null}
+        faqs={faqs}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: /question 4\?/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /question 5\?/i })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'View all 7 questions' }));
+
+    expect(screen.getByRole('button', { name: /question 5\?/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show fewer questions' })).toBeInTheDocument();
+  });
+
+  it('does not show View all when 5 or fewer FAQs exist', () => {
+    const faqs = Array.from({ length: 5 }, (_, i) => ({ clientId: `faq-${i}`, question: `Question ${i}?`, answer: `Answer ${i}.` }));
+    render(<LivePreview title="Best Earbuds" excerpt="" coverImageFilename={null} tocEntries={[]} settings={null} faqs={faqs} />);
+    expect(screen.queryByText(/view all/i)).not.toBeInTheDocument();
+  });
 });

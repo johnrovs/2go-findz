@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Award, Check, Image as ImageIcon, Medal, Monitor, Smartphone, X } from 'lucide-react';
+import { Award, Check, ChevronDown, Image as ImageIcon, Medal, Monitor, Smartphone, X } from 'lucide-react';
 import AffiliateDisclosure from '../AffiliateDisclosure.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { uniqueSlug } from '../../utils/slugify.js';
@@ -19,12 +19,14 @@ function computeSectionNumbers({
   hasTopPick,
   hasRunnerUps,
   hasBuyingGuideContent,
+  hasFaqs,
 }) {
   const contentBySectionKey = {
     QUICK_RECOMMENDATIONS: hasQuickRecommendations,
     COMPARISON_TABLE: hasComparison,
     TOP_PICK: hasTopPick,
     RUNNER_UPS: hasRunnerUps,
+    FAQS: hasFaqs,
   };
   const numbers = {};
   let nextNumber = 1;
@@ -155,6 +157,67 @@ function BuyingGuideSectionPreviewCard({ entry, number, anchorId }) {
   );
 }
 
+const FAQ_PREVIEW_LIMIT = 5;
+
+function FaqAccordionPreview({ faqs }) {
+  const [expandedIds, setExpandedIds] = useState(() => new Set());
+  const [showAll, setShowAll] = useState(false);
+  const visibleFaqs = showAll ? faqs : faqs.slice(0, FAQ_PREVIEW_LIMIT);
+
+  function toggle(clientId) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(clientId)) {
+        next.delete(clientId);
+      } else {
+        next.add(clientId);
+      }
+      return next;
+    });
+  }
+
+  return (
+    <div className="space-y-2">
+      {visibleFaqs.map((faq, index) => {
+        const isExpanded = expandedIds.has(faq.clientId);
+        return (
+          <div key={faq.clientId} className="rounded-btn border border-border p-3">
+            <button
+              type="button"
+              onClick={() => toggle(faq.clientId)}
+              aria-expanded={isExpanded}
+              aria-controls={`faq-preview-answer-${faq.clientId}`}
+              className="flex w-full items-center justify-between gap-2 text-left"
+            >
+              <span className="flex items-center gap-2 text-sm font-semibold text-heading">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-muted">
+                  {index + 1}
+                </span>
+                {faq.question || 'Untitled question'}
+              </span>
+              <ChevronDown size={16} className={`shrink-0 text-muted transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+            </button>
+            {isExpanded && (
+              <p id={`faq-preview-answer-${faq.clientId}`} className="mt-2 whitespace-pre-line text-sm text-body">
+                {faq.answer}
+              </p>
+            )}
+          </div>
+        );
+      })}
+      {faqs.length > FAQ_PREVIEW_LIMIT && (
+        <button
+          type="button"
+          onClick={() => setShowAll((prev) => !prev)}
+          className="text-sm font-semibold text-primary hover:underline"
+        >
+          {showAll ? 'Show fewer questions' : `View all ${faqs.length} questions`}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function renderComparisonCellValue(rawValue) {
   const value = (rawValue ?? '').trim();
   if (!value) return <span aria-hidden="true">&mdash;</span>;
@@ -188,6 +251,7 @@ function LivePreview({
   comparisonSpecs = [],
   comparisonProducts = [],
   recommendationSections = [],
+  faqs = [],
 }) {
   const [device, setDevice] = useState('desktop');
   const previewUrl = getImageUrl(coverImageFilename);
@@ -213,6 +277,7 @@ function LivePreview({
     hasTopPick: Boolean(topPick),
     hasRunnerUps: runnerUps.length > 0,
     hasBuyingGuideContent,
+    hasFaqs: faqs.length > 0,
   });
 
   return (
@@ -401,6 +466,15 @@ function LivePreview({
           {customSectionsWithAnchors.map(({ entry, anchorId }, index) => (
             <BuyingGuideSectionPreviewCard key={entry.clientId} entry={entry} number={index + 1} anchorId={anchorId} />
           ))}
+        </div>
+      )}
+
+      {faqs.length > 0 && (
+        <div className="mb-4">
+          <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted">
+            {sectionNumbers.FAQS}. Frequently Asked Questions
+          </span>
+          <FaqAccordionPreview faqs={faqs} />
         </div>
       )}
 
