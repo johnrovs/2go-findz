@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -50,5 +51,12 @@ public class AdminBuyingGuideController {
     public ApiResponse<Void> delete(@PathVariable Long id) {
         buyingGuideService.delete(id);
         return ApiResponse.success("Buying guide deleted successfully.");
+    }
+
+    @GetMapping("/check-slug")
+    public ApiResponse<Boolean> checkSlug(
+            @RequestParam String slug,
+            @RequestParam(required = false) Long excludeId) {
+        return ApiResponse.success("Slug availability checked.", buyingGuideService.isSlugAvailable(slug, excludeId));
     }
 }

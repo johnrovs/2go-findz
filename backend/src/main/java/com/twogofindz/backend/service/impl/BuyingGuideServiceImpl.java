@@ -33,9 +33,11 @@ import com.twogofindz.backend.repository.ProductCategoryRepository;
 import com.twogofindz.backend.repository.ProductRepository;
 import com.twogofindz.backend.service.BuyingGuideService;
 import com.twogofindz.backend.util.HtmlSanitizer;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -93,6 +95,9 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
                 .openGraphDescription(request.openGraphDescription())
                 .openGraphImageFilename(request.openGraphImageFilename())
                 .twitterCardType(request.twitterCardType())
+                .updatedBy(currentUsername())
+                .publishedAt(Boolean.TRUE.equals(request.active()) ? LocalDateTime.now() : null)
+                .publishedBy(Boolean.TRUE.equals(request.active()) ? currentUsername() : null)
                 .recommendedProducts(resolveProducts(request.recommendedProductIds()))
                 .build();
 
@@ -112,6 +117,7 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         BuyingGuide guide = findEntityById(id);
         ProductCategory category = findCategory(request.categoryId());
         String slug = resolveSlug(request.slug(), request.title(), id);
+        boolean wasPublished = Boolean.TRUE.equals(guide.getActive());
 
         guide.setTitle(request.title());
         guide.setSlug(slug);
@@ -122,6 +128,11 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         guide.setSeoTitle(request.seoTitle());
         guide.setSeoDescription(request.seoDescription());
         guide.setActive(request.active());
+        guide.setUpdatedBy(currentUsername());
+        if (Boolean.TRUE.equals(request.active()) && !wasPublished) {
+            guide.setPublishedAt(LocalDateTime.now());
+            guide.setPublishedBy(currentUsername());
+        }
         guide.setScheduledPublishAt(request.scheduledPublishAt());
         guide.setFocusKeyword(request.focusKeyword());
         guide.setSupportingKeywords(new ArrayList<>(request.supportingKeywords()));
@@ -460,5 +471,18 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
     private BuyingGuide findEntityById(Long id) {
         return buyingGuideRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Buying guide not found with id: " + id));
+    }
+
+    private String currentUsername() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isSlugAvailable(String slug, Long excludeId) {
+        boolean taken = excludeId == null
+                ? buyingGuideRepository.existsBySlug(slug)
+                : buyingGuideRepository.existsBySlugAndIdNot(slug, excludeId);
+        return !taken;
     }
 }

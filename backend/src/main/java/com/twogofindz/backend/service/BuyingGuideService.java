@@ -15,4 +15,5 @@ public interface BuyingGuideService {
     List<BuyingGuideResponse> getAllForAdmin();
     List<PublicBuyingGuideSummaryResponse> getAllForPublic();
     PublicBuyingGuideDetailResponse getBySlugForPublic(String slug);
+    boolean isSlugAvailable(String slug, Long excludeId);
 }

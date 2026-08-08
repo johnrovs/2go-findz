@@ -234,6 +234,53 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void checkSlug_returnsFalse_whenSlugTaken() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Check Slug Guide Category");
+        mockMvc.perform(post("/api/admin/buying-guides")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
+                        "Taken Slug Guide", "taken-slug", "Excerpt", "Introduction", null,
+                        guideCategoryId, null, null, true, null, List.of(),
+                        List.of(), List.of(), List.of(), List.of(), List.of(),
+                        null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image"))));
+
+        mockMvc.perform(get("/api/admin/buying-guides/check-slug").param("slug", "taken-slug")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value(false));
+    }
+
+    @Test
+    void checkSlug_returnsTrue_whenSlugFree() throws Exception {
+        String token = adminToken();
+        mockMvc.perform(get("/api/admin/buying-guides/check-slug").param("slug", "totally-free-slug")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value(true));
+    }
+
+    @Test
+    void create_and_update_setPublishedAtAndUpdatedBy() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Audit Fields Guide Category");
+
+        mockMvc.perform(post("/api/admin/buying-guides")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
+                                "Audit Fields Guide", "audit-fields-guide", "Excerpt", "Introduction", null,
+                                guideCategoryId, null, null, true, null, List.of(),
+                                List.of(), List.of(), List.of(), List.of(), List.of(),
+                                null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.publishedAt").exists())
+                .andExpect(jsonPath("$.data.publishedBy").value("johnrovs"))
+                .andExpect(jsonPath("$.data.updatedBy").value("johnrovs"));
+    }
+
+    @Test
     void getById_returns404_forUnknownGuide() throws Exception {
         String token = adminToken();
 
