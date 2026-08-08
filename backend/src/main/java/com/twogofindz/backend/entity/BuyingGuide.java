@@ -1,8 +1,12 @@
 package com.twogofindz.backend.entity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,6 +26,7 @@ import org.hibernate.annotations.Generated;
 import org.hibernate.generator.EventType;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -67,6 +72,54 @@ public class BuyingGuide {
 
     @Column(name = "scheduled_publish_at")
     private LocalDateTime scheduledPublishAt;
+
+    @Column(name = "focus_keyword", length = 200)
+    private String focusKeyword;
+
+    @ElementCollection
+    @CollectionTable(name = "buying_guide_seo_keywords", joinColumns = @JoinColumn(name = "buying_guide_id"))
+    @OrderColumn(name = "display_order")
+    @Column(name = "keyword", length = 60)
+    @Builder.Default
+    private List<String> supportingKeywords = new ArrayList<>();
+
+    @Column(name = "canonical_url", length = 500)
+    private String canonicalUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "VARCHAR(20)")
+    @Builder.Default
+    private Visibility visibility = Visibility.PUBLIC;
+
+    @Column(name = "robots_index", nullable = false)
+    @Builder.Default
+    private Boolean robotsIndex = true;
+
+    @Column(name = "robots_follow", nullable = false)
+    @Builder.Default
+    private Boolean robotsFollow = true;
+
+    @Column(name = "open_graph_title", length = 70)
+    private String openGraphTitle;
+
+    @Column(name = "open_graph_description", length = 200)
+    private String openGraphDescription;
+
+    @Column(name = "open_graph_image_filename")
+    private String openGraphImageFilename;
+
+    @Column(name = "twitter_card_type", nullable = false, length = 30)
+    @Builder.Default
+    private String twitterCardType = "summary_large_image";
+
+    @Column(name = "published_at")
+    private LocalDateTime publishedAt;
+
+    @Column(name = "published_by", length = 100)
+    private String publishedBy;
+
+    @Column(name = "updated_by", length = 100)
+    private String updatedBy;
 
     @ManyToMany
     @JoinTable(

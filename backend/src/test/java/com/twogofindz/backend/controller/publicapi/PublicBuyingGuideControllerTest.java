@@ -3,6 +3,7 @@ package com.twogofindz.backend.controller.publicapi;
 import com.twogofindz.backend.AbstractIntegrationTest;
 import com.twogofindz.backend.dto.request.BuyingGuideRequest;
 import com.twogofindz.backend.dto.request.ProductRequest;
+import com.twogofindz.backend.entity.Visibility;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -27,7 +28,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "Public Active Guide", "public-active-guide", "Excerpt", "Introduction", null,
                         categoryId, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image"))));
 
         mockMvc.perform(post("/api/admin/buying-guides")
                 .header("Authorization", "Bearer " + token)
@@ -35,7 +36,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "Public Draft Guide", "public-draft-guide", "Excerpt", "Introduction", null,
                         categoryId, null, null, false, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image"))));
 
         mockMvc.perform(get("/api/public/buying-guides"))
                 .andExpect(status().isOk())
@@ -54,7 +55,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "Inactive Detail Guide", "inactive-detail-guide", "Excerpt", "Introduction", null,
                         categoryId, null, null, false, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image"))));
 
         mockMvc.perform(get("/api/public/buying-guides/{slug}", "inactive-detail-guide"))
                 .andExpect(status().isNotFound());
@@ -81,7 +82,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                         "Public Detail Guide", "public-detail-guide", "Excerpt", "Full introduction body.",
                         null, guideCategoryId, null, null, true, null,
                         List.of(secondProductId, firstProductId),
-                List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image"))));
 
         mockMvc.perform(get("/api/public/buying-guides/{slug}", "public-detail-guide"))
                 .andExpect(status().isOk())
@@ -116,7 +117,7 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Public Full Guide", "slug": "public-full-guide",
                   "excerpt": "Excerpt", "introduction": "<p>Introduction</p>", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [%d],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [%d],
                   "quickRecommendations": [{"productId": %d, "badgeName": "Best Overall"}],
                   "comparisonSpecs": [
                     {"specificationName": "Battery Life", "values": [{"productId": %d, "value": "40 Hrs"}]}

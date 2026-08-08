@@ -83,6 +83,16 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
                 .seoDescription(request.seoDescription())
                 .active(request.active())
                 .scheduledPublishAt(request.scheduledPublishAt())
+                .focusKeyword(request.focusKeyword())
+                .supportingKeywords(new ArrayList<>(request.supportingKeywords()))
+                .canonicalUrl(request.canonicalUrl())
+                .visibility(request.visibility())
+                .robotsIndex(request.robotsIndex())
+                .robotsFollow(request.robotsFollow())
+                .openGraphTitle(request.openGraphTitle())
+                .openGraphDescription(request.openGraphDescription())
+                .openGraphImageFilename(request.openGraphImageFilename())
+                .twitterCardType(request.twitterCardType())
                 .recommendedProducts(resolveProducts(request.recommendedProductIds()))
                 .build();
 
@@ -113,6 +123,16 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
         guide.setSeoDescription(request.seoDescription());
         guide.setActive(request.active());
         guide.setScheduledPublishAt(request.scheduledPublishAt());
+        guide.setFocusKeyword(request.focusKeyword());
+        guide.setSupportingKeywords(new ArrayList<>(request.supportingKeywords()));
+        guide.setCanonicalUrl(request.canonicalUrl());
+        guide.setVisibility(request.visibility());
+        guide.setRobotsIndex(request.robotsIndex());
+        guide.setRobotsFollow(request.robotsFollow());
+        guide.setOpenGraphTitle(request.openGraphTitle());
+        guide.setOpenGraphDescription(request.openGraphDescription());
+        guide.setOpenGraphImageFilename(request.openGraphImageFilename());
+        guide.setTwitterCardType(request.twitterCardType());
         guide.setRecommendedProducts(resolveProducts(request.recommendedProductIds()));
 
         // These six are owned @OneToMany(cascade=ALL, orphanRemoval=true) children: Hibernate

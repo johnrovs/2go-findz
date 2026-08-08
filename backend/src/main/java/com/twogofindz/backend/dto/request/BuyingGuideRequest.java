@@ -1,5 +1,6 @@
 package com.twogofindz.backend.dto.request;
 
+import com.twogofindz.backend.entity.Visibility;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -63,6 +64,31 @@ public record BuyingGuideRequest(
 
         @NotNull(message = "Table of contents entries list is required.")
         @Valid
-        List<BuyingGuideTocEntryRequest> tocEntries
+        List<BuyingGuideTocEntryRequest> tocEntries,
+
+        String focusKeyword,
+
+        @NotNull(message = "Supporting keywords list is required.")
+        List<String> supportingKeywords,
+
+        String canonicalUrl,
+
+        @NotNull(message = "Visibility is required.")
+        Visibility visibility,
+
+        @NotNull(message = "Robots index flag is required.")
+        Boolean robotsIndex,
+
+        @NotNull(message = "Robots follow flag is required.")
+        Boolean robotsFollow,
+
+        String openGraphTitle,
+
+        String openGraphDescription,
+
+        String openGraphImageFilename,
+
+        @NotNull(message = "Twitter card type is required.")
+        String twitterCardType
 ) {
 }

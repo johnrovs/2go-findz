@@ -3,6 +3,7 @@ package com.twogofindz.backend.controller.admin;
 import com.twogofindz.backend.AbstractIntegrationTest;
 import com.twogofindz.backend.dto.request.BuyingGuideRequest;
 import com.twogofindz.backend.dto.request.ProductRequest;
+import com.twogofindz.backend.entity.Visibility;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -33,7 +34,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                 "A quick roundup of our favorite kitchen gadgets.",
                 "Full introduction here.", null, guideCategoryId, null, null,
                 true, null, List.of(secondProductId, firstProductId),
-                List.of(), List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image");
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -56,7 +57,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "Best Air Fryers Under $100", "", "Excerpt", "Introduction", null,
                 guideCategoryId, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image");
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -77,7 +78,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                         "First Guide", "shared-slug", "Excerpt", "Introduction", null,
                         guideCategoryId, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of()))));
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image"))));
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -85,7 +86,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                                 "Second Guide", "shared-slug", "Excerpt", "Introduction", null,
                                 guideCategoryId, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of()))))
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image"))))
                 .andExpect(status().isConflict());
     }
 
@@ -95,7 +96,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "Orphan Guide", "orphan-guide", "Excerpt", "Introduction", null,
                 999999L, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image");
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -111,7 +112,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "", "blank-title", "Excerpt", "Introduction", null,
                 guideCategoryId, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image");
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -124,7 +125,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
     void create_returns401_withoutToken() throws Exception {
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "Title", "title", "Excerpt", "Introduction", null, 1L, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image");
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .contentType(APPLICATION_JSON)
@@ -140,7 +141,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "Scheduled Guide", "scheduled-guide", "Excerpt", "Introduction", null,
                 guideCategoryId, null, null, true, scheduledAt, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image");
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -165,7 +166,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                                 "Original Title", "original-title", "Original excerpt", "Original introduction",
                                 null, guideCategoryId, null, null, true, null,
                                 List.of(firstProductId, secondProductId),
-                List.of(), List.of(), List.of(), List.of(), List.of()))))
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image"))))
                 .andReturn();
         Long id = objectMapper.readTree(createResult.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
@@ -173,7 +174,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
         BuyingGuideRequest updateRequest = new BuyingGuideRequest(
                 "Updated Title", "updated-title", "Updated excerpt", "Updated introduction", null,
                 guideCategoryId, null, null, false, null, List.of(secondProductId, firstProductId),
-                List.of(), List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image");
 
         mockMvc.perform(put("/api/admin/buying-guides/{id}", id)
                         .header("Authorization", "Bearer " + token)
@@ -190,6 +191,46 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.title").value("Updated Title"));
+    }
+
+    @Test
+    void update_persistsSeoAndVisibilityFields() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "SEO Fields Guide Category");
+
+        BuyingGuideRequest createRequest = new BuyingGuideRequest(
+                "SEO Fields Guide", "seo-fields-guide", "Excerpt", "Introduction", null,
+                guideCategoryId, null, null, true, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(),
+                null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image");
+
+        String createResponse = mockMvc.perform(post("/api/admin/buying-guides")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createRequest)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        Long guideId = objectMapper.readTree(createResponse).path("data").path("id").asLong();
+
+        BuyingGuideRequest updateRequest = new BuyingGuideRequest(
+                "SEO Fields Guide", "seo-fields-guide", "Excerpt", "Introduction", null,
+                guideCategoryId, null, null, true, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(),
+                "wireless earbuds", List.of("budget", "bluetooth"), "https://2gofindz.com/buying-guides/seo-fields-guide",
+                Visibility.UNLISTED, false, true, "Custom OG Title", null, null, "summary");
+
+        mockMvc.perform(put("/api/admin/buying-guides/" + guideId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.focusKeyword").value("wireless earbuds"))
+                .andExpect(jsonPath("$.data.supportingKeywords[0]").value("budget"))
+                .andExpect(jsonPath("$.data.supportingKeywords[1]").value("bluetooth"))
+                .andExpect(jsonPath("$.data.visibility").value("UNLISTED"))
+                .andExpect(jsonPath("$.data.robotsIndex").value(false))
+                .andExpect(jsonPath("$.data.openGraphTitle").value("Custom OG Title"))
+                .andExpect(jsonPath("$.data.twitterCardType").value("summary"));
     }
 
     @Test
@@ -212,7 +253,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
                                 "Deletable Guide", "deletable-guide", "Excerpt", "Introduction", null,
                                 guideCategoryId, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of()))))
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image"))))
                 .andReturn();
         Long id = objectMapper.readTree(createResult.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
@@ -262,7 +303,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Full Section Guide", "slug": "full-section-guide",
                   "excerpt": "Excerpt", "introduction": "<p>Introduction</p>",
                   "coverImageFilename": null, "categoryId": %d,
-                  "seoTitle": null, "seoDescription": null, "active": true, "scheduledPublishAt": null,
+                  "seoTitle": null, "seoDescription": null, "active": true, "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image",
                   "recommendedProductIds": [%d, %d],
                   "quickRecommendations": [
                     {"productId": %d, "badgeName": "Best Overall"}
@@ -324,7 +365,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Resend Sections Guide", "slug": "resend-sections-guide",
                   "excerpt": "Excerpt", "introduction": "<p>Introduction</p>",
                   "coverImageFilename": null, "categoryId": %d,
-                  "seoTitle": null, "seoDescription": null, "active": true, "scheduledPublishAt": null,
+                  "seoTitle": null, "seoDescription": null, "active": true, "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image",
                   "recommendedProductIds": [%d, %d],
                   "quickRecommendations": [
                     {"productId": %d, "badgeName": "Best Overall"}
@@ -390,7 +431,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "Dup Product Guide", "dup-product-guide", "Excerpt", "Introduction", null,
                 guideCategoryId, null, null, true, null, List.of(productId, productId),
-                List.of(), List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image");
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -412,7 +453,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Orphan Quick Rec Guide", "slug": "orphan-quick-rec-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [%d],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [%d],
                   "quickRecommendations": [{"productId": %d, "badgeName": "Best Overall"}],
                   "comparisonSpecs": [], "recommendationSections": [],
                   "faqs": [], "tocEntries": []
@@ -439,7 +480,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Duplicate Badge Guide", "slug": "duplicate-badge-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [%d, %d],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [%d, %d],
                   "quickRecommendations": [
                     {"productId": %d, "badgeName": "Best Overall"},
                     {"productId": %d, "badgeName": "best overall"}
@@ -469,7 +510,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Missing Spec Value Guide", "slug": "missing-spec-value-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [%d, %d],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [%d, %d],
                   "quickRecommendations": [],
                   "comparisonSpecs": [
                     {"specificationName": "Battery Life", "values": [{"productId": %d, "value": "40 Hrs"}]}
@@ -497,7 +538,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Duplicate Spec Name Guide", "slug": "duplicate-spec-name-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [%d],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [%d],
                   "quickRecommendations": [],
                   "comparisonSpecs": [
                     {"specificationName": "Battery Life", "values": [{"productId": %d, "value": "40 Hrs"}]},
@@ -527,7 +568,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Two Top Picks Guide", "slug": "two-top-picks-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [%d, %d],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [%d, %d],
                   "quickRecommendations": [], "comparisonSpecs": [],
                   "recommendationSections": [
                     {"productId": %d, "recommendationType": "TOP_PICK", "sectionLabel": "Top Pick One",
@@ -560,7 +601,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Dup Recommendation Guide", "slug": "dup-recommendation-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [%d],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [%d],
                   "quickRecommendations": [], "comparisonSpecs": [],
                   "recommendationSections": [
                     {"productId": %d, "recommendationType": "TOP_PICK", "sectionLabel": "Best Overall",
@@ -593,7 +634,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Cascade Delete Guide", "slug": "cascade-delete-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [%d],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [%d],
                   "quickRecommendations": [{"productId": %d, "badgeName": "Best Overall"}],
                   "comparisonSpecs": [], "recommendationSections": [],
                   "faqs": [{"question": "Q?", "answer": "A."}], "tocEntries": []
@@ -626,7 +667,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
         BuyingGuideRequest request = new BuyingGuideRequest(
                 "Backfill Guide", "backfill-guide", "Excerpt", "Introduction", null,
                 guideCategoryId, null, null, true, null, List.of(),
-                List.of(), List.of(), List.of(), List.of(), List.of());
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null, Visibility.PUBLIC, true, true, null, null, null, "summary_large_image");
 
         mockMvc.perform(post("/api/admin/buying-guides")
                         .header("Authorization", "Bearer " + token)
@@ -648,7 +689,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Duplicate TOC Key Guide", "slug": "duplicate-toc-key-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [],
                   "quickRecommendations": [], "comparisonSpecs": [], "recommendationSections": [], "faqs": [],
                   "tocEntries": [
                     {"sectionKey": "FAQS", "title": null, "content": null, "visible": true},
@@ -674,7 +715,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Structural With Title Guide", "slug": "structural-with-title-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [],
                   "quickRecommendations": [], "comparisonSpecs": [], "recommendationSections": [], "faqs": [],
                   "tocEntries": [
                     {"sectionKey": "FAQS", "title": "Not Allowed", "content": null, "visible": true}
@@ -699,7 +740,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Custom Entry Missing Content Guide", "slug": "custom-entry-missing-content-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [],
                   "quickRecommendations": [], "comparisonSpecs": [], "recommendationSections": [], "faqs": [],
                   "tocEntries": [
                     {"sectionKey": null, "title": "How We Tested", "content": "", "visible": true}
@@ -724,7 +765,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Interleaved TOC Guide", "slug": "interleaved-toc-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [],
                   "quickRecommendations": [], "comparisonSpecs": [], "recommendationSections": [], "faqs": [],
                   "tocEntries": [
                     {"sectionKey": "QUICK_RECOMMENDATIONS", "title": null, "content": null, "visible": true},
@@ -761,7 +802,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Remove Custom TOC Entry Guide", "slug": "remove-custom-toc-entry-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [],
                   "quickRecommendations": [], "comparisonSpecs": [], "recommendationSections": [], "faqs": [],
                   "tocEntries": [
                     {"sectionKey": null, "title": "How We Tested", "content": "<p>We tested it.</p>", "visible": true}
@@ -783,7 +824,7 @@ class AdminBuyingGuideControllerTest extends AbstractIntegrationTest {
                   "title": "Remove Custom TOC Entry Guide", "slug": "remove-custom-toc-entry-guide",
                   "excerpt": "Excerpt", "introduction": "Introduction", "coverImageFilename": null,
                   "categoryId": %d, "seoTitle": null, "seoDescription": null, "active": true,
-                  "scheduledPublishAt": null, "recommendedProductIds": [],
+                  "scheduledPublishAt": null, "supportingKeywords": [], "visibility": "PUBLIC", "robotsIndex": true, "robotsFollow": true, "twitterCardType": "summary_large_image", "recommendedProductIds": [],
                   "quickRecommendations": [], "comparisonSpecs": [], "recommendationSections": [], "faqs": [],
                   "tocEntries": []
                 }
