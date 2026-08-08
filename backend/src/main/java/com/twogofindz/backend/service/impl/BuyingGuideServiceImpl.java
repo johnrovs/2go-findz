@@ -24,6 +24,7 @@ import com.twogofindz.backend.entity.Product;
 import com.twogofindz.backend.entity.ProductCategory;
 import com.twogofindz.backend.entity.RecommendationItemType;
 import com.twogofindz.backend.entity.RecommendationType;
+import com.twogofindz.backend.entity.Visibility;
 import com.twogofindz.backend.exception.DuplicateResourceException;
 import com.twogofindz.backend.exception.InvalidBuyingGuideException;
 import com.twogofindz.backend.exception.ResourceNotFoundException;
@@ -200,6 +201,7 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
     @Transactional(readOnly = true)
     public List<PublicBuyingGuideSummaryResponse> getAllForPublic() {
         return buyingGuideRepository.findByActiveTrueOrderByCreatedAtDesc().stream()
+                .filter(guide -> guide.getVisibility() != Visibility.UNLISTED)
                 .map(buyingGuideMapper::toPublicSummary)
                 .toList();
     }
@@ -209,9 +211,11 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
     public PublicBuyingGuideDetailResponse getBySlugForPublic(String slug) {
         BuyingGuide guide = buyingGuideRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Buying guide not found with slug: " + slug));
-        // Deliberately identical to the "not found" outcome above: a draft guide must not
-        // be distinguishable from a nonexistent one via the public API (no information leak).
-        if (!guide.getActive()) {
+        // Deliberately identical to the "not found" outcome above: a draft or private guide
+        // must not be distinguishable from a nonexistent one via the public API (no information
+        // leak). Unlisted guides are intentionally still reachable here -- that's the point of
+        // "unlisted": reachable by direct link, just excluded from the public listing above.
+        if (!guide.getActive() || guide.getVisibility() == Visibility.PRIVATE) {
             throw new ResourceNotFoundException("Buying guide not found with slug: " + slug);
         }
         return buyingGuideMapper.toPublicDetail(guide);

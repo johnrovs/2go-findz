@@ -151,4 +151,57 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.data.tocEntries[0].content").value("<p>Look for battery life.</p>"))
                 .andExpect(jsonPath("$.data.tocEntries[?(@.sectionKey == 'TOP_PICK')]").exists());
     }
+
+    @Test
+    void getAll_excludesUnlistedGuides() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Unlisted Guide Category");
+        mockMvc.perform(post("/api/admin/buying-guides")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
+                        "Unlisted Guide", "unlisted-guide", "Excerpt", "Introduction", null,
+                        guideCategoryId, null, null, true, null, List.of(),
+                        List.of(), List.of(), List.of(), List.of(), List.of(),
+                        null, List.of(), null, Visibility.UNLISTED, true, true, null, null, null, "summary_large_image"))));
+
+        mockMvc.perform(get("/api/public/buying-guides"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[?(@.slug == 'unlisted-guide')]").isEmpty());
+    }
+
+    @Test
+    void getBySlug_returnsGuide_forUnlistedGuide() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Unlisted Direct Guide Category");
+        mockMvc.perform(post("/api/admin/buying-guides")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
+                        "Unlisted Direct Guide", "unlisted-direct-guide", "Excerpt", "Introduction", null,
+                        guideCategoryId, null, null, true, null, List.of(),
+                        List.of(), List.of(), List.of(), List.of(), List.of(),
+                        null, List.of(), null, Visibility.UNLISTED, true, true, null, null, null, "summary_large_image"))));
+
+        mockMvc.perform(get("/api/public/buying-guides/unlisted-direct-guide"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.slug").value("unlisted-direct-guide"));
+    }
+
+    @Test
+    void getBySlug_returns404_forPrivateGuide() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Private Guide Category");
+        mockMvc.perform(post("/api/admin/buying-guides")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new BuyingGuideRequest(
+                        "Private Guide", "private-guide", "Excerpt", "Introduction", null,
+                        guideCategoryId, null, null, true, null, List.of(),
+                        List.of(), List.of(), List.of(), List.of(), List.of(),
+                        null, List.of(), null, Visibility.PRIVATE, true, true, null, null, null, "summary_large_image"))));
+
+        mockMvc.perform(get("/api/public/buying-guides/private-guide"))
+                .andExpect(status().isNotFound());
+    }
 }
