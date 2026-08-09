@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -7,25 +7,49 @@ import Badge from './Badge.jsx';
 const NAV_ITEMS = [
   { to: '/', label: 'Home', end: true },
   { to: '/trending', label: 'Trending' },
-  { to: '/best-sellers', label: 'Best Sellers' },
   { to: '/categories', label: 'Categories' },
   { to: '/compare', label: 'Compare' },
   { to: '/buying-guides', label: 'Buying Guides' },
-  { to: '/comparisons', label: 'Comparisons' },
 ];
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
 function MobileMenu({ isOpen, onClose, compareCount = 0 }) {
+  const panelRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
+
   useEffect(() => {
     if (!isOpen) return undefined;
+
+    previouslyFocusedRef.current = document.activeElement;
+    const panel = panelRef.current;
+    const focusableElements = panel ? Array.from(panel.querySelectorAll(FOCUSABLE_SELECTOR)) : [];
+    focusableElements[0]?.focus();
 
     function handleKeyDown(event) {
       if (event.key === 'Escape') {
         onClose();
+        return;
+      }
+      if (event.key !== 'Tab' || focusableElements.length === 0) return;
+
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     }
 
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previouslyFocusedRef.current?.focus();
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -34,6 +58,7 @@ function MobileMenu({ isOpen, onClose, compareCount = 0 }) {
     <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Site navigation">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <motion.div
+        ref={panelRef}
         initial={{ x: '-100%' }}
         animate={{ x: 0 }}
         transition={{ type: 'tween', duration: 0.2 }}
@@ -60,7 +85,7 @@ function MobileMenu({ isOpen, onClose, compareCount = 0 }) {
             ))}
             <li>
               <Link
-                to="/#catalog"
+                to="/products"
                 onClick={onClose}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
               >

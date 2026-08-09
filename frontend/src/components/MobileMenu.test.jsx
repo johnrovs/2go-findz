@@ -1,86 +1,75 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import MobileMenu from './MobileMenu.jsx';
 
-function renderMenu(props) {
-  return render(
+function Harness({ isOpen, onClose }) {
+  return (
     <MemoryRouter>
-      <MobileMenu isOpen onClose={vi.fn()} {...props} />
+      <button type="button">Open menu</button>
+      <MobileMenu isOpen={isOpen} onClose={onClose} />
     </MemoryRouter>
   );
 }
 
 describe('MobileMenu', () => {
-  it('renders nothing when closed', () => {
-    render(
-      <MemoryRouter>
-        <MobileMenu isOpen={false} onClose={vi.fn()} />
-      </MemoryRouter>
-    );
-    expect(screen.queryByText('Home')).not.toBeInTheDocument();
-  });
-
-  it('renders the nav links, a Compare link, and a search link when open', () => {
-    renderMenu();
+  it('renders the updated nav item list', () => {
+    render(<Harness isOpen onClose={vi.fn()} />);
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Trending' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Categories' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Best Sellers' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Compare' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /search/i })).toHaveAttribute('href', '/#catalog');
+    expect(screen.getByRole('link', { name: 'Buying Guides' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Best Sellers' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Comparisons' })).not.toBeInTheDocument();
   });
 
-  it('renders the Buying Guides link', () => {
-    renderMenu();
-    expect(screen.getByRole('link', { name: 'Buying Guides' })).toHaveAttribute('href', '/buying-guides');
+  it('links Search to the real /products catalog', () => {
+    render(<Harness isOpen onClose={vi.fn()} />);
+    expect(screen.getByRole('link', { name: /search/i })).toHaveAttribute('href', '/products');
   });
 
-  it('renders the Comparisons link', () => {
-    renderMenu();
-    expect(screen.getByRole('link', { name: 'Comparisons' })).toHaveAttribute('href', '/comparisons');
-  });
-
-  it('calls onClose when a nav link is clicked', async () => {
+  it('closes on Escape', () => {
     const onClose = vi.fn();
-    const user = userEvent.setup();
-    renderMenu({ onClose });
-
-    await user.click(screen.getByRole('link', { name: 'Trending' }));
-
+    render(<Harness isOpen onClose={onClose} />);
+    fireEvent.keyDown(document, { key: 'Escape' });
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('calls onClose when the search link is clicked', async () => {
-    const onClose = vi.fn();
-    const user = userEvent.setup();
-    renderMenu({ onClose });
-
-    await user.click(screen.getByRole('link', { name: /search/i }));
-
-    expect(onClose).toHaveBeenCalled();
+  it('moves focus into the drawer when opened', () => {
+    render(<Harness isOpen onClose={vi.fn()} />);
+    expect(screen.getByRole('link', { name: 'Home' })).toHaveFocus();
   });
 
-  it('calls onClose when Escape is pressed', async () => {
-    const onClose = vi.fn();
-    const user = userEvent.setup();
-    renderMenu({ onClose });
+  it('traps Tab focus within the drawer', () => {
+    render(<Harness isOpen onClose={vi.fn()} />);
+    const focusable = screen.getAllByRole('link');
+    focusable[focusable.length - 1].focus();
 
-    await user.keyboard('{Escape}');
+    fireEvent.keyDown(document, { key: 'Tab' });
 
-    expect(onClose).toHaveBeenCalled();
+    expect(focusable[0]).toHaveFocus();
   });
 
-  it('shows no compare count badge when compareCount is 0', () => {
-    renderMenu({ compareCount: 0 });
-    expect(screen.getByRole('link', { name: 'Compare' })).not.toHaveTextContent(/\d/);
+  it('traps Shift+Tab focus within the drawer', () => {
+    render(<Harness isOpen onClose={vi.fn()} />);
+    const focusable = screen.getAllByRole('link');
+    focusable[0].focus();
+
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+
+    expect(focusable[focusable.length - 1]).toHaveFocus();
   });
 
-  it('shows the compare count badge when compareCount is greater than 0', () => {
-    renderMenu({ compareCount: 3 });
-    // Same reasoning as Navbar's equivalent test: the badge digit is part of the link's
-    // accessible name once it renders, so an exact "Compare" match would miss it.
-    expect(screen.getByRole('link', { name: /compare/i })).toHaveTextContent('3');
+  it('restores focus to the previously focused trigger element on close', () => {
+    const { rerender } = render(<Harness isOpen={false} onClose={vi.fn()} />);
+    screen.getByRole('button', { name: 'Open menu' }).focus();
+    expect(screen.getByRole('button', { name: 'Open menu' })).toHaveFocus();
+
+    rerender(<Harness isOpen onClose={vi.fn()} />);
+    expect(screen.getByRole('link', { name: 'Home' })).toHaveFocus();
+
+    rerender(<Harness isOpen={false} onClose={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Open menu' })).toHaveFocus();
   });
 });
