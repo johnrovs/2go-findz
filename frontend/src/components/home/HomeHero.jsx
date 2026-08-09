@@ -16,9 +16,12 @@ function HomeHero({ headline, description }) {
   const { first, rest } = splitHeadline(headline);
 
   return (
-    <section className="relative overflow-hidden bg-surface-secondary py-16 sm:py-20">
-      <div className="mx-auto grid max-w-7xl items-stretch gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1.3fr] lg:px-8">
-        <div className="flex flex-col justify-center">
+    <section
+      className="relative overflow-hidden bg-surface-secondary py-16 sm:py-20 lg:flex lg:min-h-[620px] lg:items-center lg:bg-[image:var(--hero-image)] lg:bg-cover lg:bg-right lg:bg-no-repeat lg:py-0"
+      style={{ '--hero-image': `url(${HOME_HERO_IMAGE})` }}
+    >
+      <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="max-w-xl">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-amazon bg-white px-4 py-1.5 text-small font-semibold uppercase tracking-wide text-amazon">
             <Sparkles size={16} aria-hidden="true" />
             {badge}
@@ -42,7 +45,7 @@ function HomeHero({ headline, description }) {
           src={HOME_HERO_IMAGE}
           alt=""
           loading="eager"
-          className="h-full min-h-[320px] w-full rounded-card object-cover shadow-card-hover"
+          className="mt-10 aspect-[1817/866] w-full rounded-card object-cover shadow-card-hover lg:hidden"
         />
       </div>
     </section>
