@@ -27,4 +27,13 @@ describe('CategoryGridSection', () => {
     expect(screen.getByText('Electronics')).toBeInTheDocument();
     expect(screen.getByText('Home & Kitchen')).toBeInTheDocument();
   });
+
+  it('lays categories out as a single row of up to 8 on large screens', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <CategoryGridSection categories={categories} />
+      </MemoryRouter>
+    );
+    expect(container.firstChild).toHaveClass('lg:grid-cols-8');
+  });
 });

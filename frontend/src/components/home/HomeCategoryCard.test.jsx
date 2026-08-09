@@ -39,4 +39,11 @@ describe('HomeCategoryCard', () => {
     renderCard({ id: 3, productCategoryName: 'Kitchen', imageFileName: null });
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
+
+  it('renders the photo as a plain rounded square, not a bordered circular card', () => {
+    renderCard({ id: 4, productCategoryName: 'Beauty', imageFileName: 'img_beauty.jpg' });
+    expect(screen.getByAltText('')).toHaveClass('h-full', 'w-full', 'object-cover');
+    expect(screen.getByAltText('')).not.toHaveClass('rounded-full');
+    expect(screen.getByRole('link')).not.toHaveClass('border', 'shadow-card');
+  });
 });
