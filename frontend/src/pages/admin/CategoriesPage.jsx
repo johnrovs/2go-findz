@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
 import Button from '../../components/Button.jsx';
 import DataTable from '../../components/DataTable.jsx';
 import Modal from '../../components/Modal.jsx';
@@ -8,6 +8,7 @@ import CategoryForm from '../../components/CategoryForm.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
 import { useToast } from '../../hooks/useToast.js';
+import { getImageUrl } from '../../utils/imageUrl.js';
 import {
   getCategories,
   createCategory,
@@ -94,6 +95,20 @@ function CategoriesPage() {
   }
 
   const columns = [
+    {
+      key: 'imageFileName',
+      label: 'Image',
+      render: (row) => {
+        const url = getImageUrl(row.imageFileName);
+        return url ? (
+          <img src={url} alt={row.productCategoryName} className="h-12 w-12 rounded-md object-cover" />
+        ) : (
+          <div className="flex h-12 w-12 items-center justify-center rounded-md bg-slate-100">
+            <ImageIcon className="h-5 w-5 text-slate-300" />
+          </div>
+        );
+      },
+    },
     { key: 'productCategoryName', label: 'Category Name', sortable: true },
     {
       key: 'commissionRate',

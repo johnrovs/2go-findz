@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import Button from './Button.jsx';
+import ImageUploader from './ImageUploader.jsx';
 
 function CategoryForm({ category, onSubmit, onCancel }) {
   const [name, setName] = useState(category?.productCategoryName ?? '');
   const [commissionRate, setCommissionRate] = useState(
     category?.commissionRate !== undefined ? String(category.commissionRate) : ''
   );
+  const [imageFileName, setImageFileName] = useState(category?.imageFileName ?? null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,7 +33,7 @@ function CategoryForm({ category, onSubmit, onCancel }) {
 
     setIsSubmitting(true);
     try {
-      await onSubmit({ productCategoryName: name.trim(), commissionRate: Number(commissionRate) });
+      await onSubmit({ productCategoryName: name.trim(), commissionRate: Number(commissionRate), imageFileName });
     } catch (error) {
       setFieldErrors(error.fieldErrors ?? {});
       if (!error.fieldErrors) {
@@ -49,6 +51,10 @@ function CategoryForm({ category, onSubmit, onCancel }) {
           {formError}
         </p>
       )}
+
+      <div className="mb-4">
+        <ImageUploader imageFileName={imageFileName} onChange={setImageFileName} label="Category Image" />
+      </div>
 
       <div className="mb-4">
         <label htmlFor="productCategoryName" className="mb-1 block text-small font-medium text-body">

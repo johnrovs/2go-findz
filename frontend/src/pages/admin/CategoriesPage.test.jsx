@@ -6,8 +6,14 @@ import CategoriesPage from './CategoriesPage.jsx';
 import * as adminCategoryService from '../../services/adminCategoryService.js';
 
 const categories = [
-  { id: 1, productCategoryName: 'Electronics', commissionRate: 4, createdAt: '2026-01-10T10:00:00' },
-  { id: 2, productCategoryName: 'Home Goods', commissionRate: 6, createdAt: '2026-02-15T10:00:00' },
+  {
+    id: 1,
+    productCategoryName: 'Electronics',
+    commissionRate: 4,
+    imageFileName: 'img_electronics.jpg',
+    createdAt: '2026-01-10T10:00:00',
+  },
+  { id: 2, productCategoryName: 'Home Goods', commissionRate: 6, imageFileName: null, createdAt: '2026-02-15T10:00:00' },
 ];
 
 function renderPage() {
@@ -30,6 +36,14 @@ describe('CategoriesPage', () => {
     expect(await screen.findByText('Electronics')).toBeInTheDocument();
     expect(screen.getByText('Home Goods')).toBeInTheDocument();
     expect(screen.getByText('4.00%')).toBeInTheDocument();
+  });
+
+  it('renders a thumbnail for categories with an image, and a placeholder icon otherwise', async () => {
+    renderPage();
+    await screen.findByText('Electronics');
+
+    expect(screen.getByAltText('Electronics')).toHaveAttribute('src', expect.stringContaining('img_electronics.jpg'));
+    expect(screen.queryByAltText('Home Goods')).not.toBeInTheDocument();
   });
 
   it('filters the visible rows as the user types in the search box', async () => {

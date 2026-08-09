@@ -1,9 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import CategoryForm from './CategoryForm.jsx';
+import * as adminImageService from '../services/adminImageService.js';
 
 describe('CategoryForm', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('shows validation errors when submitted empty', async () => {
     const user = userEvent.setup();
     render(<CategoryForm category={null} onSubmit={vi.fn()} onCancel={vi.fn()} />);
@@ -34,7 +39,11 @@ describe('CategoryForm', () => {
     await user.type(screen.getByLabelText('Commission Rate (%)'), '4.5');
     await user.click(screen.getByRole('button', { name: 'Add Category' }));
 
-    expect(onSubmit).toHaveBeenCalledWith({ productCategoryName: 'Electronics', commissionRate: 4.5 });
+    expect(onSubmit).toHaveBeenCalledWith({
+      productCategoryName: 'Electronics',
+      commissionRate: 4.5,
+      imageFileName: null,
+    });
   });
 
   it('pre-fills fields and submits an update payload when editing', async () => {
@@ -55,7 +64,45 @@ describe('CategoryForm', () => {
     await user.type(screen.getByLabelText('Commission Rate (%)'), '5');
     await user.click(screen.getByRole('button', { name: 'Save Changes' }));
 
-    expect(onSubmit).toHaveBeenCalledWith({ productCategoryName: 'Electronics', commissionRate: 5 });
+    expect(onSubmit).toHaveBeenCalledWith({
+      productCategoryName: 'Electronics',
+      commissionRate: 5,
+      imageFileName: null,
+    });
+  });
+
+  it('renders an image uploader, pre-filled from the category when editing', () => {
+    render(
+      <CategoryForm
+        category={{ id: 1, productCategoryName: 'Electronics', commissionRate: 4, imageFileName: 'img_electronics.jpg' }}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Category Image')).toBeInTheDocument();
+    expect(screen.getByAltText('Product preview')).toHaveAttribute('src', expect.stringContaining('img_electronics.jpg'));
+  });
+
+  it('includes the uploaded imageFileName in the submit payload', async () => {
+    vi.spyOn(adminImageService, 'uploadImage').mockResolvedValue({ filename: 'img_new_upload.jpg' });
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(<CategoryForm category={null} onSubmit={onSubmit} onCancel={vi.fn()} />);
+
+    const file = new File(['fake-image-bytes'], 'category.jpg', { type: 'image/jpeg' });
+    await user.upload(screen.getByLabelText(/upload image/i), file);
+    await screen.findByAltText('Product preview');
+
+    await user.type(screen.getByLabelText('Category Name'), 'Electronics');
+    await user.type(screen.getByLabelText('Commission Rate (%)'), '4.5');
+    await user.click(screen.getByRole('button', { name: 'Add Category' }));
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      productCategoryName: 'Electronics',
+      commissionRate: 4.5,
+      imageFileName: 'img_new_upload.jpg',
+    });
   });
 
   it('renders a server-side field error under the name input without a generic banner', async () => {
