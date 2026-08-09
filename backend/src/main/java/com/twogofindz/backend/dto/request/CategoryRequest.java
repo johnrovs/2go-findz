@@ -18,6 +18,8 @@ public record CategoryRequest(
         @DecimalMin(value = "0.00", message = "Commission rate must be between 0 and 100.")
         @DecimalMax(value = "100.00", message = "Commission rate must be between 0 and 100.")
         @Digits(integer = 3, fraction = 2, message = "Commission rate must have at most 3 integer and 2 fraction digits.")
-        BigDecimal commissionRate
+        BigDecimal commissionRate,
+
+        String imageFileName
 ) {
 }

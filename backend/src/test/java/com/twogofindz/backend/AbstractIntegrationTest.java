@@ -68,7 +68,7 @@ public abstract class AbstractIntegrationTest {
         var result = mockMvc.perform(post("/api/admin/categories")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new CategoryRequest(name, new BigDecimal("5.00")))))
+                        .content(objectMapper.writeValueAsString(new CategoryRequest(name, new BigDecimal("5.00"), null))))
                 .andReturn();
         return objectMapper.readTree(result.getResponse().getContentAsString())
                 .path("data").path("id").asLong();

@@ -7,6 +7,7 @@ public record CategoryResponse(
         Long id,
         String productCategoryName,
         BigDecimal commissionRate,
+        String imageFileName,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

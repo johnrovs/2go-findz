@@ -36,6 +36,9 @@ public class ProductCategory {
     @Column(name = "commission_rate", nullable = false, precision = 5, scale = 2)
     private BigDecimal commissionRate;
 
+    @Column(name = "image_filename")
+    private String imageFileName;
+
     @Generated(event = {EventType.INSERT, EventType.UPDATE})
     @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private LocalDateTime createdAt;

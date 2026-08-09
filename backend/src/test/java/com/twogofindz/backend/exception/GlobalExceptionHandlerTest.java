@@ -71,7 +71,7 @@ class GlobalExceptionHandlerTest extends AbstractIntegrationTest {
     void createCategory_returns400_whenNameExceedsColumnLength() throws Exception {
         String token = adminToken();
         String overlongName = "A".repeat(101);
-        CategoryRequest request = new CategoryRequest(overlongName, new BigDecimal("5.00"));
+        CategoryRequest request = new CategoryRequest(overlongName, new BigDecimal("5.00"), null);
 
         mockMvc.perform(post("/api/admin/categories")
                         .header("Authorization", "Bearer " + token)

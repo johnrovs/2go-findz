@@ -13,12 +13,13 @@ public class CategoryMapper {
                 category.getId(),
                 category.getProductCategoryName(),
                 category.getCommissionRate(),
+                category.getImageFileName(),
                 category.getCreatedAt(),
                 category.getUpdatedAt()
         );
     }
 
     public PublicCategoryResponse toPublicResponse(ProductCategory category) {
-        return new PublicCategoryResponse(category.getId(), category.getProductCategoryName());
+        return new PublicCategoryResponse(category.getId(), category.getProductCategoryName(), category.getImageFileName());
     }
 }

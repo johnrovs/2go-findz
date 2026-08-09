@@ -42,6 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
         ProductCategory category = ProductCategory.builder()
                 .productCategoryName(request.productCategoryName())
                 .commissionRate(request.commissionRate())
+                .imageFileName(request.imageFileName())
                 .build();
         return categoryMapper.toResponse(categoryRepository.save(category));
     }
@@ -60,6 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         category.setProductCategoryName(request.productCategoryName());
         category.setCommissionRate(request.commissionRate());
+        category.setImageFileName(request.imageFileName());
         return categoryMapper.toResponse(categoryRepository.save(category));
     }
 
