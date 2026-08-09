@@ -13,6 +13,11 @@ export default {
           hover: 'rgb(var(--color-primary-hover-rgb) / <alpha-value>)',
         },
         amazon: { DEFAULT: '#FF9900', hover: '#E68A00' },
+        navy: {
+          950: '#020d18',
+          900: '#071426',
+          800: '#0b1c33',
+        },
         surface: { DEFAULT: '#FFFFFF', secondary: '#F8FAFC' },
         border: '#E5E7EB',
         heading: '#111827',
