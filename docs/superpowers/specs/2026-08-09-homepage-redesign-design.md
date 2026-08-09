@@ -25,7 +25,16 @@ anywhere in this codebase yet.
   `ComparisonDetailPage`) imports the same file. Restyling it dark is a
   site-wide header change, not a homepage-only one.
 - **`Footer.jsx` is similarly shared and currently a single light, centered
-  column** — no multi-column layout exists to build on.
+  column** — no multi-column layout exists to build on. It's imported by 7
+  files, not just `HomePage.jsx`: `CatalogPage.jsx` (a shared wrapper already
+  used by `TrendingPage`, `BestSellersPage`, and `CategoriesPage` — and,
+  discovered only while researching this plan, the exact existing block the
+  spec's "extract the catalog to `/products`" decision (4) can reuse instead
+  of duplicating), plus `BuyingGuidesPage.jsx`, `ComparePage.jsx`,
+  `ComparisonDetailPage.jsx`, `ComparisonsPage.jsx`, and
+  `PublishedBuyingGuidePage.jsx`. All 7 call sites pass the identical
+  `<Footer settings={settings} />`, so swapping to `<PublicFooter
+  settings={settings} />` is a pure drop-in replacement everywhere.
 - **No carousel infrastructure exists anywhere** (`grep` for
   carousel/swiper/embla/keen-slider across `frontend/src` and `package.json`:
   zero matches). Every "carousel" in the reference is a static grid today.
@@ -81,6 +90,13 @@ anywhere in this codebase yet.
 1. **Navbar restyled dark navy in place, site-wide.** One consistent header
    across the whole public site, matching how the reference clearly intends
    the brand to look everywhere — not a homepage-only fork.
+1a. **Footer replaced site-wide too, confirmed explicitly** (`Footer.jsx` →
+    `PublicFooter.jsx` at all 7 import sites: `CatalogPage.jsx`,
+    `HomePage.jsx`, `BuyingGuidesPage.jsx`, `ComparePage.jsx`,
+    `ComparisonDetailPage.jsx`, `ComparisonsPage.jsx`,
+    `PublishedBuyingGuidePage.jsx`) — same site-wide-consistency reasoning as
+    decision 1, and the same identical `settings` prop at every call site
+    makes it a mechanical swap, not a redesign of those other pages.
 2. **New `navy` color tokens added** to `tailwind.config.js` (950/900/800),
    additive alongside the existing palette — product cards, buttons, and every
    other page keep their current light-theme colors outside the header/footer.
@@ -93,11 +109,15 @@ anywhere in this codebase yet.
     doesn't appear anywhere in the reference (nav or footer) — its route
     (`/comparisons`) and page are untouched and still fully reachable by
     direct link, just not advertised in the new nav or footer.
-4. **The full filterable catalog is extracted unchanged to a new `/products`
-   route** (same `SearchInput` + `ProductFilters` + `ProductGrid` +
-   `Pagination`, same behavior, same hooks/services — just relocated). The
-   homepage's `#catalog` section is replaced by the reference's compact
-   `BrowseProductsBanner` linking to `/products`.
+4. **The full filterable catalog is extracted to a new `/products` route by
+   reusing the existing shared `CatalogPage.jsx`** (already used by
+   `TrendingPage`/`BestSellersPage`/`CategoriesPage` for exactly this same
+   `SearchInput` + `ProductFilters` + `ProductGrid` + `Pagination` block) —
+   `AllProductsPage.jsx` becomes a thin wrapper (`<CatalogPage title="All
+   Products" description="Search, filter, and sort our full catalog." />`),
+   not a duplicated copy of the markup. The homepage's `#catalog` section is
+   replaced by the reference's compact `BrowseProductsBanner` linking to
+   `/products`.
 5. **`HeroSection.jsx` is fully replaced**, not incrementally modified — the
    current centered/floating-blob layout is structurally incompatible with the
    reference's left-content/right-image split. It's used only by
@@ -228,6 +248,13 @@ support added once, no duplicated icon code.
   (`getSettings`, `getCategories`, `searchProducts` with `trending`/
   `bestSeller` params), minus the `#catalog` block (moved to `/products`) and
   the two dropped sections.
+- `CatalogPage.jsx` (+ test) — swaps `Footer` for `PublicFooter`; this one
+  change is what makes `TrendingPage`, `BestSellersPage`, `CategoriesPage`,
+  and the new `AllProductsPage` all pick up the dark footer.
+- `BuyingGuidesPage.jsx`, `ComparePage.jsx`, `ComparisonDetailPage.jsx`,
+  `ComparisonsPage.jsx`, `PublishedBuyingGuidePage.jsx` (each + test) — same
+  mechanical `Footer` → `PublicFooter` swap, identical `settings` prop,
+  confirmed as an explicit site-wide decision (1a).
 - `backend/.../entity/SystemSettings.java`,
   `dto/response/SettingsResponse.java`, `dto/request/SettingsRequest.java`,
   `mapper/SettingsMapper.java`, admin settings form component — add
@@ -337,8 +364,9 @@ reused unchanged.
 - `HomePage` integration test covering the full 8-section order and each
   section's real-data wiring (including the "section hidden when no data"
   cases already established elsewhere in the codebase).
-- `AllProductsPage` test confirming the relocated catalog behaves identically
-  to the current `#catalog` block (same filters/search/pagination).
+- `AllProductsPage` test confirming it renders `CatalogPage` with the "All
+  Products" title/description (the filter/search/pagination behavior itself
+  is already covered by `CatalogPage.test.jsx`, unchanged).
 - `Navbar.test.jsx` updated for the dark restyle, dropped Deals item, and the
   new real search input.
 - `MobileMenu` focus-trap-and-restore test (new coverage for an existing gap).
@@ -387,6 +415,17 @@ reused unchanged.
   updated nav list
 - `frontend/src/pages/HomePage.jsx` (+ test) — rebuilt to the reference's
   8-section order
+- `frontend/src/components/CatalogPage.jsx` (+ test) — `Footer` →
+  `PublicFooter`
+- `frontend/src/pages/BuyingGuidesPage.jsx` (+ test) — `Footer` →
+  `PublicFooter`
+- `frontend/src/pages/ComparePage.jsx` (+ test) — `Footer` → `PublicFooter`
+- `frontend/src/pages/ComparisonDetailPage.jsx` (+ test) — `Footer` →
+  `PublicFooter`
+- `frontend/src/pages/ComparisonsPage.jsx` (+ test) — `Footer` →
+  `PublicFooter`
+- `frontend/src/pages/PublishedBuyingGuidePage.jsx` (+ test) — `Footer` →
+  `PublicFooter`
 - `frontend/tailwind.config.js` — new `navy` color tokens
 - `frontend/src/components/SocialLinks.jsx` (+ test) — reads from the new
   shared `socialPlatforms.js` list instead of its own local array
