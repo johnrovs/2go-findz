@@ -10,7 +10,10 @@ function renderHeader(overrides = {}) {
       status="Draft"
       onPreview={vi.fn()}
       onSaveDraft={vi.fn()}
-      onPublish={vi.fn()}
+      onRequestPublish={vi.fn()}
+      onSchedule={vi.fn()}
+      onCopyLink={vi.fn()}
+      onUnpublish={vi.fn()}
       onCancel={vi.fn()}
       onMenuClick={vi.fn()}
       isSubmitting={false}
@@ -65,16 +68,25 @@ describe('EditorHeader', () => {
     expect(onSaveDraft).toHaveBeenCalled();
   });
 
-  it('requires confirmation before calling onPublish', async () => {
-    const onPublish = vi.fn();
+  it('calls onRequestPublish directly when Publish Guide is clicked', async () => {
+    const onRequestPublish = vi.fn();
     const user = userEvent.setup();
-    renderHeader({ onPublish });
+    renderHeader({ onRequestPublish });
 
     await user.click(screen.getByRole('button', { name: 'Publish Guide' }));
-    expect(onPublish).not.toHaveBeenCalled();
 
-    await user.click(screen.getByRole('button', { name: 'Publish' }));
-    expect(onPublish).toHaveBeenCalled();
+    expect(onRequestPublish).toHaveBeenCalled();
+  });
+
+  it('opens the publish action menu and forwards Schedule Publish', async () => {
+    const onSchedule = vi.fn();
+    const user = userEvent.setup();
+    renderHeader({ onSchedule });
+
+    await user.click(screen.getByLabelText('More publish options'));
+    await user.click(screen.getByRole('menuitem', { name: 'Schedule Publish' }));
+
+    expect(onSchedule).toHaveBeenCalled();
   });
 
   it('disables all action buttons while submitting', () => {

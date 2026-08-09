@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { ChevronDown, Eye, Menu } from 'lucide-react';
+import { Eye, Menu } from 'lucide-react';
 import Button from '../Button.jsx';
-import ConfirmDialog from '../ConfirmDialog.jsx';
+import PublishActionMenu from './PublishActionMenu.jsx';
 
 const STATUS_STYLES = {
   Draft: 'bg-slate-100 text-slate-600',
@@ -9,14 +8,19 @@ const STATUS_STYLES = {
   Published: 'bg-success/10 text-success',
 };
 
-function EditorHeader({ isEditMode, status, onPreview, onSaveDraft, onPublish, onCancel, onMenuClick, isSubmitting }) {
-  const [isConfirmingPublish, setIsConfirmingPublish] = useState(false);
-
-  function handleConfirmPublish() {
-    setIsConfirmingPublish(false);
-    onPublish();
-  }
-
+function EditorHeader({
+  isEditMode,
+  status,
+  onPreview,
+  onSaveDraft,
+  onRequestPublish,
+  onSchedule,
+  onCopyLink,
+  onUnpublish,
+  onCancel,
+  onMenuClick,
+  isSubmitting,
+}) {
   return (
     // Replaces AdminTopbar entirely on this page (see AdminTopbar's
     // isBuyingGuideEditorPath), so this sticks at the true top of the
@@ -57,37 +61,21 @@ function EditorHeader({ isEditMode, status, onPreview, onSaveDraft, onPublish, o
             {isSubmitting ? 'Saving...' : 'Save as Draft'}
           </Button>
           <div className="flex">
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => setIsConfirmingPublish(true)}
-              disabled={isSubmitting}
-              className="rounded-r-none"
-            >
+            <Button type="button" size="sm" onClick={onRequestPublish} disabled={isSubmitting} className="rounded-r-none">
               {isSubmitting ? 'Publishing...' : 'Publish Guide'}
             </Button>
-            <Button
-              type="button"
-              size="sm"
+            <PublishActionMenu
+              status={status}
               disabled={isSubmitting}
-              aria-label="More publish options"
-              className="rounded-l-none border-l border-white/20 px-2"
-            >
-              <ChevronDown size={16} />
-            </Button>
+              onPreview={onPreview}
+              onSaveDraft={onSaveDraft}
+              onSchedule={onSchedule}
+              onCopyLink={onCopyLink}
+              onUnpublish={onUnpublish}
+            />
           </div>
         </div>
       </div>
-
-      <ConfirmDialog
-        isOpen={isConfirmingPublish}
-        title="Publish this guide?"
-        message="This makes the guide live immediately, overriding its current status and any scheduled date."
-        confirmLabel="Publish"
-        isLoading={isSubmitting}
-        onConfirm={handleConfirmPublish}
-        onCancel={() => setIsConfirmingPublish(false)}
-      />
     </div>
   );
 }
