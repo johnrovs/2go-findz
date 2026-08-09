@@ -38,18 +38,22 @@ describe('HomeHero', () => {
     expect(screen.getByText('WELCOME TO 2GO FINDZ')).toBeInTheDocument();
   });
 
-  it('renders the hero banner as a stacked image on mobile, hidden at the lg breakpoint', () => {
-    renderHero();
-    const image = screen.getByAltText('');
-    expect(image).toHaveAttribute('src', HOME_HERO_IMAGE);
-    expect(image).toHaveClass('lg:hidden');
-  });
-
-  it('renders the hero banner as a full-bleed section background at the lg breakpoint', () => {
+  it('renders the hero banner as a full-bleed section background at every breakpoint', () => {
     const { container } = renderHero();
     const section = container.querySelector('section');
     expect(section.style.getPropertyValue('--hero-image')).toBe(`url(${HOME_HERO_IMAGE})`);
-    expect(section).toHaveClass('lg:bg-cover', 'lg:bg-right', 'lg:bg-no-repeat');
+    expect(section).toHaveClass('bg-cover', 'bg-center', 'bg-no-repeat');
+  });
+
+  it('does not render a separate banner <img> element', () => {
+    renderHero();
+    expect(screen.queryByAltText('')).not.toBeInTheDocument();
+  });
+
+  it('centers the hero content', () => {
+    renderHero();
+    const heading = screen.getByRole('heading', { level: 1 });
+    expect(heading.closest('div')).toHaveClass('text-center', 'items-center');
   });
 
   it('does not render an avatar row or shopper-count line', () => {

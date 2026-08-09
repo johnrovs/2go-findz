@@ -17,11 +17,11 @@ function HomeHero({ headline, description }) {
 
   return (
     <section
-      className="relative overflow-hidden bg-surface-secondary py-16 sm:py-20 lg:flex lg:min-h-[620px] lg:items-center lg:bg-[image:var(--hero-image)] lg:bg-cover lg:bg-right lg:bg-no-repeat lg:py-0"
+      className="relative flex min-h-[480px] items-center overflow-hidden bg-surface-secondary bg-[image:var(--hero-image)] bg-cover bg-center bg-no-repeat py-16 sm:min-h-[560px] sm:py-20 lg:min-h-[620px] lg:py-0"
       style={{ '--hero-image': `url(${HOME_HERO_IMAGE})` }}
     >
       <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="max-w-xl">
+        <div className="mx-auto flex max-w-xl flex-col items-center text-center">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-amazon bg-white px-4 py-1.5 text-small font-semibold uppercase tracking-wide text-amazon">
             <Sparkles size={16} aria-hidden="true" />
             {badge}
@@ -31,7 +31,7 @@ function HomeHero({ headline, description }) {
             {rest && <span className="block text-amazon">{rest}</span>}
           </h1>
           <p className="mt-6 max-w-xl text-subtitle text-body">{description}</p>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Button variant="primary" to="/trending">
               View Trending Finds
             </Button>
@@ -40,13 +40,6 @@ function HomeHero({ headline, description }) {
             </Button>
           </div>
         </div>
-
-        <img
-          src={HOME_HERO_IMAGE}
-          alt=""
-          loading="eager"
-          className="mt-10 aspect-[1817/866] w-full rounded-card object-cover shadow-card-hover lg:hidden"
-        />
       </div>
     </section>
   );
