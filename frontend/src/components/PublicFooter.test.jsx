@@ -73,8 +73,8 @@ describe('PublicFooter', () => {
     expect(screen.getByRole('link', { name: /instagram/i })).toBeInTheDocument();
   });
 
-  it('renders the newsletter form', () => {
+  it('does not render the newsletter form (hidden pending future development)', () => {
     renderFooter();
-    expect(screen.getByLabelText('Subscribe to our newsletter')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Subscribe to our newsletter')).not.toBeInTheDocument();
   });
 });

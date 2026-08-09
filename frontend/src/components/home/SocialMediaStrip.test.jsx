@@ -45,4 +45,23 @@ describe('SocialMediaStrip', () => {
     const strip = container.firstChild;
     expect(strip).toHaveClass('w-full', 'sm:justify-between');
   });
+
+  it('uses a fixed wrapped layout with no viewport-driven spread when variant is compact', () => {
+    const { container } = render(
+      <SocialMediaStrip settings={{ instagramUrl: 'https://instagram.com/2gofindz' }} variant="compact" />
+    );
+    const strip = container.firstChild;
+    expect(strip).not.toHaveClass('sm:justify-between', 'sm:rounded-full', 'sm:gap-x-6', 'sm:px-8', 'sm:py-3');
+    expect(strip).toHaveClass('rounded-3xl', 'justify-center');
+  });
+
+  it('omits the divider lines when variant is compact, since they only ever suit a single row', () => {
+    const { container } = render(
+      <SocialMediaStrip
+        settings={{ tiktokUrl: 'https://tiktok.com/@2gofindz', instagramUrl: 'https://instagram.com/2gofindz' }}
+        variant="compact"
+      />
+    );
+    expect(container.querySelectorAll('.bg-border')).toHaveLength(0);
+  });
 });

@@ -11,19 +11,24 @@ function extractHandle(url) {
   }
 }
 
-function SocialMediaStrip({ settings }) {
+function SocialMediaStrip({ settings, variant = 'pill' }) {
   const platforms = SOCIAL_PLATFORMS.filter((platform) => settings?.[platform.key]);
   if (platforms.length === 0) return null;
 
+  const isCompact = variant === 'compact';
+  const containerClassName = isCompact
+    ? 'mx-auto flex w-full max-w-full flex-wrap items-center justify-center gap-x-5 gap-y-4 rounded-3xl bg-white px-6 py-4 text-center shadow-card'
+    : 'mx-auto flex w-full max-w-full flex-wrap items-center justify-center gap-x-5 gap-y-4 rounded-3xl bg-white px-6 py-4 text-center shadow-card sm:justify-between sm:gap-x-6 sm:rounded-full sm:px-8 sm:py-3';
+
   return (
-    <div className="mx-auto flex w-full max-w-full flex-wrap items-center justify-center gap-x-5 gap-y-4 rounded-3xl bg-white px-6 py-4 text-center shadow-card sm:justify-between sm:gap-x-6 sm:rounded-full sm:px-8 sm:py-3">
+    <div className={containerClassName}>
       <p className="whitespace-nowrap text-small font-semibold text-heading">Follow 2Go Findz for daily finds & deals</p>
       {platforms.map(({ key, label, Icon, iconBgClassName }) => {
         const url = settings[key];
         const handle = extractHandle(url);
         return (
           <Fragment key={key}>
-            <span className="hidden h-8 w-px bg-border sm:block" aria-hidden="true" />
+            {!isCompact && <span className="hidden h-8 w-px bg-border sm:block" aria-hidden="true" />}
             <a
               href={url}
               target="_blank"

@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import SocialMediaStrip from './home/SocialMediaStrip.jsx';
-import NewsletterForm from './NewsletterForm.jsx';
 import AffiliateDisclosure from './AffiliateDisclosure.jsx';
 
 const SHOP_LINKS = [
@@ -53,15 +52,12 @@ function PublicFooter({ settings }) {
                 'Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.'}
             </p>
             <div className="mt-6">
-              <SocialMediaStrip settings={settings} />
+              <SocialMediaStrip settings={settings} variant="compact" />
             </div>
           </div>
           <FooterColumn title="Shop" links={SHOP_LINKS} />
           <FooterColumn title="Discover" links={DISCOVER_LINKS} />
           <FooterColumn title="Company" links={COMPANY_LINKS} />
-          <div>
-            <NewsletterForm />
-          </div>
         </div>
 
         <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-8 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
