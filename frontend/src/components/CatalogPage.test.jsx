@@ -80,4 +80,12 @@ describe('CatalogPage', () => {
     renderCatalog({ children: <div>Extra Content</div> });
     expect(await screen.findByText('Extra Content')).toBeInTheDocument();
   });
+
+  it('renders the shared public footer with real company links', async () => {
+    renderCatalog();
+    expect(await screen.findByRole('link', { name: 'Affiliate Disclosure' })).toHaveAttribute(
+      'href',
+      '/affiliate-disclosure'
+    );
+  });
 });

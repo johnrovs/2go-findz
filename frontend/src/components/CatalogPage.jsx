@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Navbar from './Navbar.jsx';
-import Footer from './Footer.jsx';
+import PublicFooter from './PublicFooter.jsx';
 import SectionHeading from './SectionHeading.jsx';
 import SearchInput from './SearchInput.jsx';
 import ProductFilters from './ProductFilters.jsx';
@@ -64,7 +64,7 @@ function CatalogPage({ title, description, initialFilter, initialCategoryId, chi
           <Pagination page={productSearch.page} totalPages={productSearch.totalPages} onPageChange={productSearch.setPage} />
         </div>
       </section>
-      <Footer settings={settings} />
+      <PublicFooter settings={settings} />
     </div>
   );
 }

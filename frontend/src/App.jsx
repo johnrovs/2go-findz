@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import CompareBar from './components/CompareBar.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
 import HomePage from './pages/HomePage.jsx';
+import AllProductsPage from './pages/AllProductsPage.jsx';
 import TrendingPage from './pages/TrendingPage.jsx';
 import BestSellersPage from './pages/BestSellersPage.jsx';
 import PublicCategoriesPage from './pages/CategoriesPage.jsx';
@@ -36,6 +37,7 @@ function App() {
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/products" element={<AllProductsPage />} />
                 <Route path="/trending" element={<TrendingPage />} />
                 <Route path="/categories" element={<PublicCategoriesPage />} />
                 <Route path="/best-sellers" element={<BestSellersPage />} />
