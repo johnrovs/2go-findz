@@ -16,7 +16,7 @@ function SocialMediaStrip({ settings }) {
   if (platforms.length === 0) return null;
 
   return (
-    <div className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-x-5 gap-y-4 rounded-3xl bg-white px-6 py-4 text-center shadow-card sm:gap-x-6 sm:rounded-full sm:px-8 sm:py-3">
+    <div className="mx-auto flex w-full max-w-full flex-wrap items-center justify-center gap-x-5 gap-y-4 rounded-3xl bg-white px-6 py-4 text-center shadow-card sm:justify-between sm:gap-x-6 sm:rounded-full sm:px-8 sm:py-3">
       <p className="whitespace-nowrap text-small font-semibold text-heading">Follow 2Go Findz for daily finds & deals</p>
       {platforms.map(({ key, label, Icon, iconBgClassName }) => {
         const url = settings[key];

@@ -39,4 +39,10 @@ describe('SocialMediaStrip', () => {
     const badge = screen.getByRole('link', { name: /tiktok/i }).querySelector('span');
     expect(badge).toHaveClass('rounded-full', 'bg-black');
   });
+
+  it('spans the full available width and spreads content out on larger screens', () => {
+    const { container } = render(<SocialMediaStrip settings={{ instagramUrl: 'https://instagram.com/2gofindz' }} />);
+    const strip = container.firstChild;
+    expect(strip).toHaveClass('w-full', 'sm:justify-between');
+  });
 });
