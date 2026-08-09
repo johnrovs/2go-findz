@@ -118,9 +118,16 @@ describe('PublishedBuyingGuidePage', () => {
     renderAtSlug('best-wireless-earbuds-under-100');
 
     await screen.findByRole('heading', { level: 1 });
-    const scripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
-    const faqSchema = scripts.map((s) => JSON.parse(s.textContent)).find((s) => s['@type'] === 'FAQPage');
-    expect(faqSchema.mainEntity[0].name).toBe('Is it worth it?');
+    // useDocumentHead injects these tags from a useEffect, which React 18
+    // flushes as a passive effect after commit — a plain synchronous check
+    // right after findByRole can observe a render that hasn't had its
+    // effect flushed yet. Poll for the actual condition instead of assuming
+    // it's already true once the (unrelated) heading appears.
+    await waitFor(() => {
+      const scripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
+      const faqSchema = scripts.map((s) => JSON.parse(s.textContent)).find((s) => s['@type'] === 'FAQPage');
+      expect(faqSchema?.mainEntity?.[0]?.name).toBe('Is it worth it?');
+    });
   });
 
   it('shows a not-found message when the guide is unavailable', async () => {

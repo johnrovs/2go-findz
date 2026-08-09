@@ -179,6 +179,12 @@ function PublishedBuyingGuidePage() {
   const seoDescription = guide ? guide.seoDescription || guide.excerpt : undefined;
   const canonicalUrl = guide ? guide.canonicalUrl || buildGuideUrl(guide.slug) : undefined;
   const ogImage = guide ? getImageUrl(guide.openGraphImageFilename || guide.coverImageFilename) : undefined;
+  // buildJsonLd(guide) must stay referentially stable across re-renders that
+  // don't change guide (e.g. settings resolving, activeSectionId updating) —
+  // otherwise useDocumentHead's effect (keyed on jsonLd) tears down and
+  // rebuilds the <script> tags on every render instead of only when the
+  // guide itself changes.
+  const jsonLd = useMemo(() => (guide ? buildJsonLd(guide) : undefined), [guide]);
 
   useDocumentHead({
     title: seoTitle,
@@ -194,7 +200,7 @@ function PublishedBuyingGuidePage() {
     twitterTitle: guide ? guide.openGraphTitle || seoTitle : undefined,
     twitterDescription: guide ? guide.openGraphDescription || seoDescription : undefined,
     twitterImage: ogImage,
-    jsonLd: guide ? buildJsonLd(guide) : undefined,
+    jsonLd,
   });
 
   if (isLoading) {
