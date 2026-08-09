@@ -14,6 +14,7 @@ const settings = {
   pinterestUrl: '',
   instagramUrl: '',
   youtubeUrl: '',
+  facebookUrl: 'https://facebook.com/2gofindz',
   shopBio: 'Curated Amazon finds.',
   heroHeadline: 'Smart Finds. Better Buys.',
   heroDescription: 'Discover trending products.',
@@ -41,6 +42,11 @@ describe('SettingsPage', () => {
     expect(await screen.findByLabelText('Hero Headline')).toHaveValue('Smart Finds. Better Buys.');
     expect(screen.getByLabelText('TikTok URL')).toHaveValue('https://tiktok.com/@2gofindz');
     expect(screen.getByLabelText('Contact Email')).toHaveValue('hello@2gofindz.com');
+  });
+
+  it('loads and pre-fills the Facebook URL', async () => {
+    renderPage();
+    expect(await screen.findByLabelText('Facebook URL')).toHaveValue('https://facebook.com/2gofindz');
   });
 
   it('shows a validation error when affiliate disclosure is cleared', async () => {

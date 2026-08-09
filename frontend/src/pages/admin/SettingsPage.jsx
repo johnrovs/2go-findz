@@ -14,6 +14,7 @@ const INITIAL_SETTINGS = {
   pinterestUrl: '',
   instagramUrl: '',
   youtubeUrl: '',
+  facebookUrl: '',
   shopBio: '',
   heroHeadline: '',
   heroDescription: '',
@@ -32,6 +33,7 @@ function normalizeSettings(data) {
     pinterestUrl: data.pinterestUrl ?? '',
     instagramUrl: data.instagramUrl ?? '',
     youtubeUrl: data.youtubeUrl ?? '',
+    facebookUrl: data.facebookUrl ?? '',
     shopBio: data.shopBio ?? '',
     heroHeadline: data.heroHeadline ?? '',
     heroDescription: data.heroDescription ?? '',
@@ -225,6 +227,18 @@ function SettingsPage() {
                 type="text"
                 value={settings.youtubeUrl}
                 onChange={(event) => handleChange('youtubeUrl', event.target.value)}
+                className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label htmlFor="facebookUrl" className="mb-1 block text-small font-medium text-body">
+                Facebook URL
+              </label>
+              <input
+                id="facebookUrl"
+                type="text"
+                value={settings.facebookUrl}
+                onChange={(event) => handleChange('facebookUrl', event.target.value)}
                 className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
