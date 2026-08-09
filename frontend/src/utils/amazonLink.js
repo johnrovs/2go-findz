@@ -13,3 +13,16 @@ export function isSupportedAmazonUrl(url) {
     (domain) => parsed.hostname === domain || parsed.hostname.endsWith(`.${domain}`)
   );
 }
+
+const MARKETPLACE_BY_HOSTNAME = {
+  'amazon.com': 'US',
+  'amazon.ca': 'CA',
+  'amazon.co.uk': 'UK',
+  'amazon.de': 'DE',
+};
+
+export function getAmazonMarketplace(url) {
+  if (!isSupportedAmazonUrl(url)) return null;
+  const hostname = new URL(url).hostname.replace(/^www\./, '');
+  return MARKETPLACE_BY_HOSTNAME[hostname] ?? null;
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isSupportedAmazonUrl } from './amazonLink.js';
+import { getAmazonMarketplace, isSupportedAmazonUrl } from './amazonLink.js';
 
 describe('isSupportedAmazonUrl', () => {
   it('accepts https amazon.com links', () => {
@@ -25,5 +25,21 @@ describe('isSupportedAmazonUrl', () => {
   it('rejects null or empty input', () => {
     expect(isSupportedAmazonUrl(null)).toBe(false);
     expect(isSupportedAmazonUrl('')).toBe(false);
+  });
+});
+
+describe('getAmazonMarketplace', () => {
+  it('maps supported hostnames to their marketplace code', () => {
+    expect(getAmazonMarketplace('https://amazon.com/dp/B00TEST')).toBe('US');
+    expect(getAmazonMarketplace('https://www.amazon.com/dp/B00TEST')).toBe('US');
+    expect(getAmazonMarketplace('https://amazon.ca/dp/B00TEST')).toBe('CA');
+    expect(getAmazonMarketplace('https://amazon.co.uk/dp/B00TEST')).toBe('UK');
+    expect(getAmazonMarketplace('https://amazon.de/dp/B00TEST')).toBe('DE');
+  });
+
+  it('returns null for unsupported or invalid URLs', () => {
+    expect(getAmazonMarketplace('https://example.com/dp/B00TEST')).toBeNull();
+    expect(getAmazonMarketplace('not a url')).toBeNull();
+    expect(getAmazonMarketplace(null)).toBeNull();
   });
 });
