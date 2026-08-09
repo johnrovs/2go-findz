@@ -29,4 +29,14 @@ describe('HomeCategoryCard', () => {
     renderCard({ id: 9, productCategoryName: 'Miscellaneous Widgets' });
     expect(screen.getByText('Miscellaneous Widgets')).toBeInTheDocument();
   });
+
+  it('renders a real uploaded image instead of the icon when one is configured', () => {
+    renderCard({ id: 2, productCategoryName: 'Beauty', imageFileName: 'img_beauty.jpg' });
+    expect(screen.getByAltText('')).toHaveAttribute('src', expect.stringContaining('img_beauty.jpg'));
+  });
+
+  it('falls back to the icon when no image is configured', () => {
+    renderCard({ id: 3, productCategoryName: 'Kitchen', imageFileName: null });
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
 });
