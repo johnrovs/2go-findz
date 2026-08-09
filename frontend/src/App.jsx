@@ -8,6 +8,11 @@ import CompareBar from './components/CompareBar.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
 import HomePage from './pages/HomePage.jsx';
 import AllProductsPage from './pages/AllProductsPage.jsx';
+import AboutPage from './pages/AboutPage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
+import TermsOfUsePage from './pages/TermsOfUsePage.jsx';
+import AffiliateDisclosurePage from './pages/AffiliateDisclosurePage.jsx';
 import TrendingPage from './pages/TrendingPage.jsx';
 import BestSellersPage from './pages/BestSellersPage.jsx';
 import PublicCategoriesPage from './pages/CategoriesPage.jsx';
@@ -38,6 +43,11 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/products" element={<AllProductsPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                <Route path="/terms-of-use" element={<TermsOfUsePage />} />
+                <Route path="/affiliate-disclosure" element={<AffiliateDisclosurePage />} />
                 <Route path="/trending" element={<TrendingPage />} />
                 <Route path="/categories" element={<PublicCategoriesPage />} />
                 <Route path="/best-sellers" element={<BestSellersPage />} />

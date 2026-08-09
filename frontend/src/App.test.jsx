@@ -14,4 +14,10 @@ describe('App', () => {
     render(<App />);
     expect(screen.getByText('Page not found')).toBeInTheDocument();
   });
+
+  it('renders the about page at /about', () => {
+    window.history.pushState({}, '', '/about');
+    render(<App />);
+    expect(screen.getByRole('heading', { level: 1, name: 'About Us' })).toBeInTheDocument();
+  });
 });
