@@ -15,4 +15,11 @@ class PublicSettingsControllerTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.affiliateDisclosure").isNotEmpty());
     }
+
+    @Test
+    void get_includesFacebookUrlField_forCompleteness() throws Exception {
+        mockMvc.perform(get("/api/public/settings"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.hasKey("facebookUrl")));
+    }
 }

@@ -27,6 +27,7 @@ class ProductPlaceholderImageTest extends AbstractIntegrationTest {
                 "logo.png", "hero.jpg", "configured-placeholder.png",
                 "https://tiktok.com/@2gofindz", "https://pinterest.com/2gofindz",
                 "https://instagram.com/2gofindz", "https://youtube.com/@2gofindz",
+                "https://facebook.com/2gofindz",
                 "Shop bio for placeholder test.", "Placeholder Test Headline",
                 "Placeholder test description.", "Placeholder test disclosure.",
                 "placeholder-test@2gofindz.com");

@@ -45,6 +45,9 @@ public class SystemSettings {
     @Column(name = "youtube_url", length = 500)
     private String youtubeUrl;
 
+    @Column(name = "facebook_url", length = 500)
+    private String facebookUrl;
+
     @Column(name = "shop_bio", columnDefinition = "TEXT")
     private String shopBio;
 

@@ -8,6 +8,7 @@ public record SettingsResponse(
         String pinterestUrl,
         String instagramUrl,
         String youtubeUrl,
+        String facebookUrl,
         String shopBio,
         String heroHeadline,
         String heroDescription,

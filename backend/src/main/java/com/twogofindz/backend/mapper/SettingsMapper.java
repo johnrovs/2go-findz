@@ -16,6 +16,7 @@ public class SettingsMapper {
                 settings.getPinterestUrl(),
                 settings.getInstagramUrl(),
                 settings.getYoutubeUrl(),
+                settings.getFacebookUrl(),
                 settings.getShopBio(),
                 settings.getHeroHeadline(),
                 settings.getHeroDescription(),

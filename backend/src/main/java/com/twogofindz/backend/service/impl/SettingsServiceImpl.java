@@ -40,6 +40,7 @@ public class SettingsServiceImpl implements SettingsService {
         settings.setPinterestUrl(request.pinterestUrl());
         settings.setInstagramUrl(request.instagramUrl());
         settings.setYoutubeUrl(request.youtubeUrl());
+        settings.setFacebookUrl(request.facebookUrl());
         settings.setShopBio(request.shopBio());
         settings.setHeroHeadline(request.heroHeadline());
         settings.setHeroDescription(request.heroDescription());

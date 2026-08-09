@@ -28,6 +28,7 @@ class AdminSettingsControllerTest extends AbstractIntegrationTest {
                 "logo.png", "hero.jpg", "placeholder.png",
                 "https://tiktok.com/@2gofindz", "https://pinterest.com/2gofindz",
                 "https://instagram.com/2gofindz", "https://youtube.com/@2gofindz",
+                "https://facebook.com/2gofindz",
                 "Updated shop bio.", "Updated Headline", "Updated description.",
                 "Updated disclosure.", "contact@2gofindz.com");
 
@@ -37,17 +38,19 @@ class AdminSettingsControllerTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.heroHeadline").value("Updated Headline"))
-                .andExpect(jsonPath("$.data.contactEmail").value("contact@2gofindz.com"));
+                .andExpect(jsonPath("$.data.contactEmail").value("contact@2gofindz.com"))
+                .andExpect(jsonPath("$.data.facebookUrl").value("https://facebook.com/2gofindz"));
 
         mockMvc.perform(get("/api/admin/settings").header("Authorization", "Bearer " + token))
-                .andExpect(jsonPath("$.data.shopBio").value("Updated shop bio."));
+                .andExpect(jsonPath("$.data.shopBio").value("Updated shop bio."))
+                .andExpect(jsonPath("$.data.facebookUrl").value("https://facebook.com/2gofindz"));
     }
 
     @Test
     void update_returns400_forInvalidEmail() throws Exception {
         String token = adminToken();
         SettingsRequest request = new SettingsRequest(
-                null, null, null, null, null, null, null, null, null, null, null, "not-an-email");
+                null, null, null, null, null, null, null, null, null, null, null, null, "not-an-email");
 
         mockMvc.perform(put("/api/admin/settings")
                         .header("Authorization", "Bearer " + token)
@@ -68,7 +71,7 @@ class AdminSettingsControllerTest extends AbstractIntegrationTest {
         // affiliateDisclosure omitted (null) — since PUT is a full-replace, this would otherwise
         // silently null out the Amazon Associates compliance disclosure served by the public API.
         SettingsRequest request = new SettingsRequest(
-                null, null, null, null, null, null, null, null, null, null, null, "contact@2gofindz.com");
+                null, null, null, null, null, null, null, null, null, null, null, null, "contact@2gofindz.com");
 
         mockMvc.perform(put("/api/admin/settings")
                         .header("Authorization", "Bearer " + token)
