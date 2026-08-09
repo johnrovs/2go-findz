@@ -64,6 +64,13 @@ anywhere in this codebase yet.
 - **The reference's social strip includes Facebook**, but `SystemSettings`
   (`backend/.../entity/SystemSettings.java` lines 37-46) only has
   `tiktokUrl`/`pinterestUrl`/`instagramUrl`/`youtubeUrl` — no Facebook field.
+- **`ProductCategory` has no image field at all** (confirmed:
+  `backend/.../entity/ProductCategory.java` has no image column) — the
+  existing `CategoryCard.jsx` is text-only today. The reference shows
+  category cards with photos, but adding real per-category image upload
+  (entity + migration + DTO + admin upload UI) is a meaningfully bigger
+  backend feature than the one-field `facebookUrl` addition, not a
+  "redesign the homepage" change.
 - **`SocialLinks.jsx`'s platform list (including its custom TikTok/Pinterest
   SVG icons) is a local, unexported constant** inside that one file — there's
   nothing for a new `SocialMediaStrip.jsx` to import without either
@@ -115,6 +122,13 @@ anywhere in this codebase yet.
 10. **"Featured Products" keeps the existing newest-first behavior** — no new
     backend `featured` flag. Scoped to visuals/layout, not new curation
     concepts.
+10a. **Category cards use a generic icon on a soft tinted background**, not
+    a real per-category photo — matching the reference's "soft tinted
+    background behind each image" visual treatment honestly, without
+    fabricating category photos or building new image-upload infrastructure.
+    A small icon lookup (by category name keyword, generic fallback icon
+    otherwise) using the existing `lucide-react` dependency — no new asset
+    pipeline.
 11. **A real `facebookUrl` field is added to `SystemSettings`** (migration +
     entity + DTO + admin settings form field) — this is the one small,
     purely-additive backend change in an otherwise frontend-only task,
@@ -177,7 +191,8 @@ out of the general `components/` folder.
 | `CompactProductRow.jsx` | Thumbnail + name row, same real-link-and-tracking behavior as `HomepageProductCard.jsx`, used inside Trending/Best Sellers |
 | `TrendingRightNowSection.jsx` | 3 `CompactProductRow`s + 1 larger image (first trending product), inside `HomeSectionCard` |
 | `BestSellersSection.jsx` | 3 `CompactProductRow`s only, inside `HomeSectionCard` — deliberately asymmetric with Trending, matching the reference |
-| `CategoryGridSection.jsx` | Responsive grid of existing `CategoryCard.jsx`, inside `HomeSectionCard` |
+| `CategoryGridSection.jsx` | Responsive grid of `HomeCategoryCard.jsx`, inside `HomeSectionCard` |
+| `HomeCategoryCard.jsx` | Icon (soft tinted background) + category name, entire card is a real link to `/categories?category={id}`. A new component, not a modification of `CategoryCard.jsx` — that component is also used by `CategoriesPage.jsx`, which is out of scope for this redesign |
 | `BrowseProductsBanner.jsx` | Promo banner: two decorative placeholder images + copy + button → `/products` |
 | `PublicFooter.jsx` | Replaces `Footer.jsx`: dark 5-column layout (Brand/Shop/Discover/Company/Newsletter) |
 | `NewsletterForm.jsx` | Real form, honest "not available yet" message on submit (see scope decision 9) |
@@ -185,7 +200,8 @@ out of the general `components/` folder.
 ### Reused as-is
 
 `ProductCard.jsx` (still used by the new `/products` page, unchanged),
-`CategoryCard.jsx`, `Badge.jsx`, `useProductSearch.js`,
+`CategoryCard.jsx` (unchanged — still used by `CategoriesPage.jsx`, out of
+scope for this redesign), `Badge.jsx`, `useProductSearch.js`,
 `productService.js`, `categoryService.js`, `settingsService.js`,
 `AffiliateDisclosure.jsx` (reused by the new `/affiliate-disclosure` page).
 
@@ -346,6 +362,7 @@ reused unchanged.
 - `frontend/src/components/home/TrendingRightNowSection.jsx` (+ test)
 - `frontend/src/components/home/BestSellersSection.jsx` (+ test)
 - `frontend/src/components/home/CategoryGridSection.jsx` (+ test)
+- `frontend/src/components/home/HomeCategoryCard.jsx` (+ test)
 - `frontend/src/components/home/BrowseProductsBanner.jsx` (+ test)
 - `frontend/src/components/PublicFooter.jsx` (+ test)
 - `frontend/src/components/NewsletterForm.jsx` (+ test)
