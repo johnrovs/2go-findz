@@ -11,22 +11,21 @@ const KEYWORD_ICONS = [
   { keywords: ['beauty', 'health', 'personal care'], icon: Sparkles },
 ];
 
-function iconForCategory(name = '') {
+function renderCategoryIcon(name = '') {
   const lower = name.toLowerCase();
   const match = KEYWORD_ICONS.find(({ keywords }) => keywords.some((keyword) => lower.includes(keyword)));
-  return match ? match.icon : Tag;
+  const IconComponent = match ? match.icon : Tag;
+  return <IconComponent size={24} aria-hidden="true" />;
 }
 
 function HomeCategoryCard({ category }) {
-  const Icon = iconForCategory(category.productCategoryName);
-
   return (
     <Link
       to={`/categories?category=${category.id}`}
       className="flex flex-col items-center gap-3 rounded-card border border-slate-200 bg-white px-6 py-8 text-center shadow-card transition hover:-translate-y-1 hover:shadow-card-hover focus:outline-none focus:ring-2 focus:ring-primary"
     >
       <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Icon size={24} aria-hidden="true" />
+        {renderCategoryIcon(category.productCategoryName)}
       </span>
       <span className="text-card-title text-heading">{category.productCategoryName}</span>
     </Link>

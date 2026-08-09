@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import HomePage from './HomePage.jsx';
@@ -27,7 +27,7 @@ const product = {
   productPrice: '49.99',
   productLink: 'https://amazon.com/dp/example',
   trending: true,
-  bestSeller: false,
+  bestSeller: true,
   active: true,
   createdAt: '2026-07-20T10:00:00',
 };
@@ -57,21 +57,45 @@ describe('HomePage', () => {
     vi.spyOn(trackingService, 'recordView').mockResolvedValue({ sessionId: 'session-abc' });
   });
 
-  it('renders the hero headline from settings', async () => {
+  it('renders the hero headline as the single h1', async () => {
     renderHomePage();
-    expect(await screen.findByRole('heading', { name: settings.heroHeadline })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: settings.heroHeadline })).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
   });
 
-  it('renders the shop-by-category section and the main catalog with fetched products', async () => {
+  it('renders the section headings in the reference order', async () => {
     renderHomePage();
 
-    await waitFor(() => expect(screen.getAllByText('Electronics').length).toBeGreaterThan(0));
+    await waitFor(() => {
+      const sectionHeadings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+      expect(sectionHeadings).toEqual([
+        'Featured Products',
+        'Trending Right Now',
+        'Best Sellers',
+        'Shop by Category',
+        'Browse All Products',
+      ]);
+    });
+  });
+
+  it('renders the social strip from settings', async () => {
+    renderHomePage();
+    const main = screen.getByRole('main');
+    expect(await within(main).findByRole('link', { name: /tiktok/i })).toHaveAttribute('href', settings.tiktokUrl);
+  });
+
+  it('renders fetched products inside the Featured Products carousel', async () => {
+    renderHomePage();
     await waitFor(() => expect(screen.getAllByText('Wireless Earbuds').length).toBeGreaterThan(0));
+  });
+
+  it('renders the Browse All Products banner linking to /products', async () => {
+    renderHomePage();
+    expect(await screen.findByRole('link', { name: 'Browse All Products' })).toHaveAttribute('href', '/products');
   });
 
   it('records a website view exactly once per session on mount', async () => {
     renderHomePage();
-
     await waitFor(() => expect(trackingService.recordView).toHaveBeenCalledTimes(1));
     expect(sessionStorage.getItem('sessionId')).toBe('session-abc');
   });
@@ -80,22 +104,12 @@ describe('HomePage', () => {
     sessionStorage.setItem('sessionId', 'existing-session');
     renderHomePage();
 
-    await screen.findByRole('heading', { name: settings.heroHeadline });
+    await screen.findByRole('heading', { level: 1, name: settings.heroHeadline });
     expect(trackingService.recordView).not.toHaveBeenCalled();
   });
 
   it('renders the affiliate disclosure in the footer', async () => {
     renderHomePage();
     expect(await screen.findByText(settings.affiliateDisclosure)).toBeInTheDocument();
-  });
-
-  it('scrolls to the catalog section when arriving with a #catalog hash', async () => {
-    const scrollIntoViewSpy = vi.fn();
-    vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(scrollIntoViewSpy);
-
-    renderHomePage(['/#catalog']);
-
-    await screen.findByRole('heading', { name: settings.heroHeadline });
-    await waitFor(() => expect(scrollIntoViewSpy).toHaveBeenCalledWith({ behavior: 'smooth' }));
   });
 });

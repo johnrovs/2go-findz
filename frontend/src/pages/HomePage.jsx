@@ -1,36 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { Award, Flame, LayoutGrid, Sparkles } from 'lucide-react';
 import Navbar from '../components/Navbar.jsx';
-import HeroSection from '../components/HeroSection.jsx';
-import SocialLinks from '../components/SocialLinks.jsx';
-import SectionHeading from '../components/SectionHeading.jsx';
-import ProductGrid from '../components/ProductGrid.jsx';
-import CategoryCard from '../components/CategoryCard.jsx';
-import ProductFilters from '../components/ProductFilters.jsx';
-import SearchInput from '../components/SearchInput.jsx';
-import Pagination from '../components/Pagination.jsx';
 import PublicFooter from '../components/PublicFooter.jsx';
-import { useProductSearch } from '../hooks/useProductSearch.js';
+import HomeHero from '../components/home/HomeHero.jsx';
+import SocialMediaStrip from '../components/home/SocialMediaStrip.jsx';
+import HomeSectionCard from '../components/home/HomeSectionCard.jsx';
+import ProductCarousel from '../components/home/ProductCarousel.jsx';
+import TrendingRightNowSection from '../components/home/TrendingRightNowSection.jsx';
+import BestSellersSection from '../components/home/BestSellersSection.jsx';
+import CategoryGridSection from '../components/home/CategoryGridSection.jsx';
+import BrowseProductsBanner from '../components/home/BrowseProductsBanner.jsx';
 import { getSettings } from '../services/settingsService.js';
 import { getCategories } from '../services/categoryService.js';
 import { searchProducts } from '../services/productService.js';
 import { recordView } from '../services/trackingService.js';
-
-const WHY_SHOP_ITEMS = [
-  {
-    title: 'Handpicked Selections',
-    description: 'Every product is carefully chosen to save you time and help you shop smarter.',
-  },
-  {
-    title: 'Always Up to Date',
-    description: 'New trending finds and best sellers are added regularly.',
-  },
-  {
-    title: 'Trusted Recommendations',
-    description: 'Transparent, honest picks — no gimmicks, just genuinely useful products.',
-  },
-];
 
 function useTeaserProducts(params) {
   const [products, setProducts] = useState([]);
@@ -60,10 +43,8 @@ function useTeaserProducts(params) {
 }
 
 function HomePage() {
-  const location = useLocation();
   const [settings, setSettings] = useState(null);
   const [categories, setCategories] = useState([]);
-  const productSearch = useProductSearch();
   const featured = useTeaserProducts({ sort: 'createdAt,desc' });
   const trending = useTeaserProducts({ trending: true, sort: 'createdAt,desc' });
   const bestSellers = useTeaserProducts({ bestSeller: true, sort: 'createdAt,desc' });
@@ -87,139 +68,88 @@ function HomePage() {
     }
   }, []);
 
-  function scrollToCatalog() {
-    document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  useEffect(() => {
-    if (location.hash !== '#catalog') return;
-    // Re-running the scroll as each async section finishes loading corrects for the
-    // layout shift its content causes above the catalog section; a single scroll on
-    // mount lands short because the teaser grids are still collapsed to their
-    // loading-spinner height at that point.
-    scrollToCatalog();
-  }, [location.hash, featured.isLoading, trending.isLoading, bestSellers.isLoading]);
-
-  function handleCategorySelect(categoryId) {
-    productSearch.setCategoryId(String(categoryId));
-    scrollToCatalog();
-  }
-
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      <HeroSection
-        headline={settings?.heroHeadline ?? 'Smart Finds. Better Buys. All in One Place.'}
-        description={
-          settings?.heroDescription ??
-          'Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.'
-        }
-        onExploreClick={scrollToCatalog}
-        onTrendingClick={() => {
-          productSearch.setFilter('trending');
-          scrollToCatalog();
-        }}
-      />
+      <main>
+        <HomeHero
+          headline={settings?.heroHeadline ?? 'Smart Finds. Better Buys. All in One Place.'}
+          description={
+            settings?.heroDescription ??
+            'Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.'
+          }
+        />
 
-      <section className="py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SocialLinks settings={settings} />
-        </div>
-      </section>
-
-      {featured.products.length > 0 && (
-        <section className="bg-surface-secondary py-24">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SectionHeading title="Featured Products" />
-            <ProductGrid products={featured.products} isLoading={featured.isLoading} error={null} />
-          </div>
-        </section>
-      )}
-
-      {trending.products.length > 0 && (
         <section className="py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SectionHeading title="Trending Finds" />
-            <ProductGrid products={trending.products} isLoading={trending.isLoading} error={null} />
+            <SocialMediaStrip settings={settings} />
           </div>
         </section>
-      )}
 
-      {bestSellers.products.length > 0 && (
-        <section className="bg-surface-secondary py-24">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SectionHeading title="Best Sellers" />
-            <ProductGrid products={bestSellers.products} isLoading={bestSellers.isLoading} error={null} />
-          </div>
-        </section>
-      )}
-
-      {categories.length > 0 && (
-        <section className="py-24">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <SectionHeading title="Shop by Category" />
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {categories.map((category) => (
-                <CategoryCard key={category.id} category={category} onClick={handleCategorySelect} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      <section id="catalog" className="scroll-mt-20 bg-surface-secondary py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading title="Browse All Products" description="Search, filter, and sort our full catalog." />
-          <div className="mb-6">
-            <SearchInput value={productSearch.search} onChange={productSearch.setSearch} />
-          </div>
-          <div className="mb-8">
-            <ProductFilters
-              filter={productSearch.filter}
-              onFilterChange={productSearch.setFilter}
-              categoryId={productSearch.categoryId}
-              categories={categories}
-              onCategoryChange={productSearch.setCategoryId}
-              sort={productSearch.sort}
-              onSortChange={productSearch.setSort}
-            />
-          </div>
-          <ProductGrid
-            products={productSearch.products}
-            isLoading={productSearch.isLoading}
-            error={productSearch.error}
-          />
-          <Pagination page={productSearch.page} totalPages={productSearch.totalPages} onPageChange={productSearch.setPage} />
-        </div>
-      </section>
-
-      <section className="py-24">
-        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <SectionHeading title="Why Shop with 2Go Findz" />
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-            {WHY_SHOP_ITEMS.map((item, index) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
+        {featured.products.length > 0 && (
+          <section className="bg-surface-secondary py-24">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <HomeSectionCard
+                icon={Sparkles}
+                title="Featured Products"
+                description="Hand-picked finds worth a closer look."
+                viewAllHref="/products"
               >
-                <h3 className="text-card-title text-heading">{item.title}</h3>
-                <p className="mt-2 text-small text-body">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+                <ProductCarousel products={featured.products} />
+              </HomeSectionCard>
+            </div>
+          </section>
+        )}
 
-      <section className="bg-surface-secondary py-24">
-        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <SectionHeading title="Follow Us for More Finds" description="Join our community for daily deals and new arrivals." />
-          <SocialLinks settings={settings} />
-        </div>
-      </section>
+        {(trending.products.length > 0 || bestSellers.products.length > 0) && (
+          <section className="py-24">
+            <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+              {trending.products.length > 0 && (
+                <HomeSectionCard
+                  icon={Flame}
+                  title="Trending Right Now"
+                  description="What everyone's buying."
+                  viewAllHref="/trending"
+                >
+                  <TrendingRightNowSection products={trending.products} />
+                </HomeSectionCard>
+              )}
+              {bestSellers.products.length > 0 && (
+                <HomeSectionCard
+                  icon={Award}
+                  title="Best Sellers"
+                  description="Our most popular picks."
+                  viewAllHref="/best-sellers"
+                >
+                  <BestSellersSection products={bestSellers.products} />
+                </HomeSectionCard>
+              )}
+            </div>
+          </section>
+        )}
+
+        {categories.length > 0 && (
+          <section className="bg-surface-secondary py-24">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <HomeSectionCard
+                icon={LayoutGrid}
+                title="Shop by Category"
+                description="Browse curated recommendations by category."
+                viewAllHref="/categories"
+              >
+                <CategoryGridSection categories={categories} />
+              </HomeSectionCard>
+            </div>
+          </section>
+        )}
+
+        <section className="py-24">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <BrowseProductsBanner />
+          </div>
+        </section>
+      </main>
 
       <PublicFooter settings={settings} />
     </div>
