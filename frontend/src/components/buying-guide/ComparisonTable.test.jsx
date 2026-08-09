@@ -42,4 +42,14 @@ describe('ComparisonTable', () => {
     const { container } = render(<ComparisonTable comparisonTable={null} />);
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('uses a custom renderProductHeader when provided', () => {
+    render(
+      <ComparisonTable
+        comparisonTable={comparisonTable}
+        renderProductHeader={(product) => <a href={`#custom-${product.id}`}>{product.name} (custom)</a>}
+      />
+    );
+    expect(screen.getByRole('link', { name: 'TOZO NC9 (custom)' })).toBeInTheDocument();
+  });
 });

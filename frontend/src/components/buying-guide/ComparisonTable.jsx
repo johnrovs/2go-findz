@@ -24,7 +24,7 @@ function renderCellValue(rawValue) {
   return value;
 }
 
-function ComparisonTable({ comparisonTable }) {
+function ComparisonTable({ comparisonTable, renderProductHeader }) {
   if (!comparisonTable || comparisonTable.rows.length === 0) return null;
   const { specificationNames, rows } = comparisonTable;
 
@@ -49,7 +49,7 @@ function ComparisonTable({ comparisonTable }) {
                       className="mx-auto mb-1 h-10 w-10 rounded-md object-cover"
                     />
                   )}
-                  {row.product.name}
+                  {renderProductHeader ? renderProductHeader(row.product) : row.product.name}
                 </th>
               );
             })}
