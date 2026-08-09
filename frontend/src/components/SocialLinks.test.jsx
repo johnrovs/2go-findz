@@ -35,4 +35,12 @@ describe('SocialLinks', () => {
     const { container } = render(<SocialLinks settings={null} />);
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('renders a Facebook link when facebookUrl is configured', () => {
+    render(<SocialLinks settings={{ facebookUrl: 'https://facebook.com/2gofindz' }} />);
+    expect(screen.getByRole('link', { name: /facebook/i })).toHaveAttribute(
+      'href',
+      'https://facebook.com/2gofindz'
+    );
+  });
 });
