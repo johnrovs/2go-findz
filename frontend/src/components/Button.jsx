@@ -4,8 +4,8 @@ const BASE_CLASSES =
   'inline-flex items-center justify-center gap-2 rounded-btn text-btn transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60';
 
 const VARIANT_CLASSES = {
-  primary: 'bg-primary text-white shadow-card hover:bg-primary-hover',
-  secondary: 'bg-white text-primary border border-primary hover:bg-primary/5',
+  primary: 'bg-amazon text-white shadow-card hover:bg-amazon-hover',
+  secondary: 'bg-white text-heading border border-heading hover:bg-heading/5',
   amazon: 'bg-amazon text-[#111827] shadow-card hover:bg-amazon-hover',
   danger: 'bg-danger text-white shadow-card hover:bg-red-700',
 };

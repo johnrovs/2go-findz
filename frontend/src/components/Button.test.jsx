@@ -30,17 +30,17 @@ describe('Button', () => {
     );
     const link = screen.getByRole('link', { name: 'Add Product' });
     expect(link).toHaveAttribute('href', '/admin/products/new');
-    expect(link).toHaveClass('bg-primary', 'text-white');
+    expect(link).toHaveClass('bg-amazon', 'text-white');
   });
 
   it('applies primary variant classes by default', () => {
     render(<Button>Primary</Button>);
-    expect(screen.getByRole('button', { name: 'Primary' })).toHaveClass('bg-primary', 'text-white');
+    expect(screen.getByRole('button', { name: 'Primary' })).toHaveClass('bg-amazon', 'text-white');
   });
 
   it('applies secondary variant classes', () => {
     render(<Button variant="secondary">Secondary</Button>);
-    expect(screen.getByRole('button', { name: 'Secondary' })).toHaveClass('bg-white', 'text-primary', 'border-primary');
+    expect(screen.getByRole('button', { name: 'Secondary' })).toHaveClass('bg-white', 'text-heading', 'border-heading');
   });
 
   it('applies amazon variant classes', () => {
@@ -74,6 +74,6 @@ describe('Button', () => {
 
   it('merges a passed className with the variant/size classes', () => {
     render(<Button className="w-full">Full width</Button>);
-    expect(screen.getByRole('button', { name: 'Full width' })).toHaveClass('w-full', 'bg-primary');
+    expect(screen.getByRole('button', { name: 'Full width' })).toHaveClass('w-full', 'bg-amazon');
   });
 });
