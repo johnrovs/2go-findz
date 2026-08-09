@@ -9,6 +9,7 @@ import * as categoryService from '../services/categoryService.js';
 
 const guide = {
   id: 1,
+  slug: 'best-kitchen-gadgets-2026',
   title: 'Best Kitchen Gadgets 2026',
   excerpt: 'A quick roundup of our favorite kitchen gadgets.',
   coverImageFilename: null,
@@ -40,7 +41,7 @@ describe('BuyingGuidesPage (public)', () => {
     expect(screen.getByText('A quick roundup of our favorite kitchen gadgets.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Best Kitchen Gadgets 2026/ })).toHaveAttribute(
       'href',
-      '/buying-guides/1'
+      '/buying-guides/best-kitchen-gadgets-2026'
     );
   });
 

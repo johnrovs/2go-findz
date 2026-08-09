@@ -46,7 +46,7 @@ function BuyingGuidesPage() {
               {guides.map((guide) => (
                 <Link
                   key={guide.id}
-                  to={`/buying-guides/${guide.id}`}
+                  to={`/buying-guides/${guide.slug}`}
                   className="group flex flex-col overflow-hidden rounded-card border border-slate-200 bg-white shadow-card transition-shadow duration-200 hover:shadow-card-hover"
                 >
                   <div className="aspect-video overflow-hidden bg-slate-100">

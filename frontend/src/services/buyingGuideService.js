@@ -5,7 +5,7 @@ export async function getBuyingGuides() {
   return response.data.data;
 }
 
-export async function getBuyingGuideById(id) {
-  const response = await api.get(`/public/buying-guides/${id}`);
+export async function getBuyingGuideBySlug(slug) {
+  const response = await api.get(`/public/buying-guides/${slug}`);
   return response.data.data;
 }
