@@ -1,20 +1,8 @@
-// Temporary hero image: replace this source with the final 2Go Findz hero asset.
-export const HOME_HERO_IMAGE = '/images/home/hero-placeholder.webp';
+// Hero banner asset, provided by the 2Go Findz team. Edit here, not inline in HomeHero.jsx,
+// if the asset ever needs to be swapped.
+export const HOME_HERO_IMAGE = '/images/home/hero_banner.png';
 
-// Promotional copy shown on the homepage hero. These are marketing statements, not
-// verified real-time statistics (the site has no aggregate review/shopper-count
-// system). Edit here, not inline in HomeHero.jsx.
+// Promotional copy shown on the homepage hero.
 export const HOME_HERO_CONTENT = {
   badge: 'WELCOME TO 2GO FINDZ',
-  shopperCountLabel: 'Join 25,000+ smart shoppers finding the best every day.',
-  trustCards: {
-    topRated: {
-      ratingValue: '4.8/5',
-      ratingLabel: 'average rating',
-      reviewCountLabel: 'from 10,000+ reviews',
-    },
-    handpicked: {
-      description: 'Only the best quality products for you',
-    },
-  },
 };

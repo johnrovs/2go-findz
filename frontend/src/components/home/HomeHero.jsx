@@ -1,12 +1,9 @@
-import { Sparkles, Star } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import Button from '../Button.jsx';
-import HeroTrustCard from './HeroTrustCard.jsx';
 import { HOME_HERO_CONTENT, HOME_HERO_IMAGE } from '../../config/homeContent.js';
 
-const AVATAR_INITIALS = ['A', 'M', 'S', 'K'];
-
 function HomeHero({ headline, description }) {
-  const { badge, shopperCountLabel, trustCards } = HOME_HERO_CONTENT;
+  const { badge } = HOME_HERO_CONTENT;
 
   return (
     <section className="relative overflow-hidden bg-surface-secondary py-16 sm:py-20">
@@ -26,42 +23,16 @@ function HomeHero({ headline, description }) {
               Browse Categories
             </Button>
           </div>
-          <div className="mt-10 flex items-center gap-3">
-            <div className="flex -space-x-3" aria-hidden="true">
-              {AVATAR_INITIALS.map((initial, index) => (
-                <span
-                  key={initial}
-                  style={{ zIndex: AVATAR_INITIALS.length - index }}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-primary text-small font-semibold text-white"
-                >
-                  {initial}
-                </span>
-              ))}
-            </div>
-            <p className="text-small text-body">{shopperCountLabel}</p>
-          </div>
         </div>
 
-        <div className="relative">
-          <img
-            src={HOME_HERO_IMAGE}
-            alt=""
-            loading="eager"
-            width={640}
-            height={640}
-            className="aspect-square w-full rounded-card object-cover shadow-card-hover"
-          />
-          <div className="absolute -left-4 top-8 hidden w-64 sm:block">
-            <HeroTrustCard
-              icon={Star}
-              title="Top Rated"
-              description={`${trustCards.topRated.ratingValue} ${trustCards.topRated.ratingLabel} — ${trustCards.topRated.reviewCountLabel}`}
-            />
-          </div>
-          <div className="absolute -right-4 bottom-8 hidden w-64 sm:block">
-            <HeroTrustCard icon={Sparkles} title="Handpicked" description={trustCards.handpicked.description} />
-          </div>
-        </div>
+        <img
+          src={HOME_HERO_IMAGE}
+          alt=""
+          loading="eager"
+          width={1817}
+          height={866}
+          className="aspect-[1817/866] w-full rounded-card object-cover shadow-card-hover"
+        />
       </div>
     </section>
   );

@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import HomeHero from './HomeHero.jsx';
+import { HOME_HERO_IMAGE } from '../../config/homeContent.js';
 
 function renderHero(props = {}) {
   return render(
@@ -32,19 +33,18 @@ describe('HomeHero', () => {
     expect(screen.getByRole('link', { name: 'Browse Categories' })).toHaveAttribute('href', '/categories');
   });
 
-  it('renders the Top Rated and Handpicked trust cards', () => {
-    renderHero();
-    expect(screen.getByText('Top Rated')).toBeInTheDocument();
-    expect(screen.getByText('Handpicked')).toBeInTheDocument();
-  });
-
-  it('renders the promotional shopper-count label', () => {
-    renderHero();
-    expect(screen.getByText(/join 25,000\+ smart shoppers/i)).toBeInTheDocument();
-  });
-
   it('renders the welcome badge', () => {
     renderHero();
     expect(screen.getByText('WELCOME TO 2GO FINDZ')).toBeInTheDocument();
+  });
+
+  it('renders the hero banner image', () => {
+    renderHero();
+    expect(screen.getByAltText('')).toHaveAttribute('src', HOME_HERO_IMAGE);
+  });
+
+  it('does not render an avatar row or shopper-count line', () => {
+    renderHero();
+    expect(screen.queryByText(/smart shoppers/i)).not.toBeInTheDocument();
   });
 });
