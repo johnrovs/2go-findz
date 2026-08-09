@@ -23,3 +23,8 @@ export async function updateBuyingGuide(id, payload) {
 export async function deleteBuyingGuide(id) {
   await api.delete(`/admin/buying-guides/${id}`);
 }
+
+export async function checkSlug(slug, excludeId) {
+  const response = await api.get('/admin/buying-guides/check-slug', { params: { slug, excludeId } });
+  return response.data.data;
+}

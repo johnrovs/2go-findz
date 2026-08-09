@@ -170,6 +170,17 @@ vi.mock('./buying-guide-form/BuyingGuideFaqsStep.jsx', () => ({
   ),
 }));
 
+vi.mock('./buying-guide-form/BuyingGuideSeoPublishStep.jsx', () => ({
+  default: ({ onNavigateStep }) => (
+    <div>
+      <p>SEO & Publish step</p>
+      <button type="button" onClick={() => onNavigateStep(7)}>
+        Go to FAQs from checklist
+      </button>
+    </div>
+  ),
+}));
+
 const categories = [{ id: 1, productCategoryName: 'Kitchen' }];
 
 function renderForm(props = {}) {
@@ -420,7 +431,7 @@ describe('BuyingGuideForm', () => {
     expect(payload.seoDescription).toBe('Existing SEO description.');
   });
 
-  it('sends empty collections and null SEO fields for a brand-new guide', async () => {
+  it('sends empty collections for a brand-new guide, with SEO title/description falling back to Basic Info', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     const user = userEvent.setup();
     renderForm({ onSubmit });
@@ -435,8 +446,11 @@ describe('BuyingGuideForm', () => {
     expect(payload.comparisonSpecs).toEqual([]);
     expect(payload.recommendationSections).toEqual([]);
     expect(payload.faqs).toEqual([]);
-    expect(payload.seoTitle).toBeNull();
-    expect(payload.seoDescription).toBeNull();
+    // No custom SEO Title/Meta Description has been entered (that happens on step 8), so the
+    // payload falls back to Basic Info's Title/Excerpt -- the guide never saves with a blank
+    // SEO title, matching the SeoSettingsForm prefill-until-edited behavior.
+    expect(payload.seoTitle).toBe('Guide Title');
+    expect(payload.seoDescription).toBe('Excerpt text.');
   });
 
   it('strips the internal clientId from every TOC entry before submitting', async () => {
@@ -975,5 +989,54 @@ describe('BuyingGuideForm', () => {
     await user.click(screen.getByRole('button', { name: 'Next' }));
 
     expect(await screen.findByText(/add at least one faq/i)).toBeInTheDocument();
+  });
+
+  it('Next on FAQs advances to SEO & Publish and unlocks it in the Stepper', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock Top Pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock section' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock FAQ' }));
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText('SEO & Publish step')).toBeInTheDocument();
+    const step8Button = screen.getByRole('button', { name: /SEO & Publish$/ });
+    expect(step8Button).toBeEnabled();
+    expect(step8Button).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('Previous on SEO & Publish returns to FAQs without losing state', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock Top Pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock section' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock FAQ' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('SEO & Publish step');
+
+    await user.click(screen.getByRole('button', { name: 'Previous' }));
+
+    expect(await screen.findByText('FAQs step (1 FAQs)')).toBeInTheDocument();
   });
 });

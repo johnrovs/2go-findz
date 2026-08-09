@@ -8,11 +8,14 @@ import BuyingGuideComparisonStep from './buying-guide-form/BuyingGuideComparison
 import TopPicksAndRunnerUpsStep from './buying-guide-form/TopPicksAndRunnerUpsStep.jsx';
 import BuyingGuideContentStep from './buying-guide-form/BuyingGuideContentStep.jsx';
 import BuyingGuideFaqsStep from './buying-guide-form/BuyingGuideFaqsStep.jsx';
+import BuyingGuideSeoPublishStep from './buying-guide-form/BuyingGuideSeoPublishStep.jsx';
 import LivePreview from './buying-guide-form/LivePreview.jsx';
 import Modal from './Modal.jsx';
 import Button from './Button.jsx';
+import ConfirmDialog from './ConfirmDialog.jsx';
 import { getSettings } from '../services/settingsService.js';
 import { slugify } from '../utils/slugify.js';
+import { buildGuideUrl } from '../utils/siteUrl.js';
 
 function deriveStatus(guide) {
   if (!guide) return 'Draft';
@@ -91,8 +94,21 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
   const [buyingGuideContentErrors, setBuyingGuideContentErrors] = useState({});
   const [faqs, setFaqs] = useState(mapFaqsFromResponse(guide?.faqs));
   const [faqsErrors, setFaqsErrors] = useState({});
-  const [seoTitle] = useState(guide?.seoTitle ?? null);
-  const [seoDescription] = useState(guide?.seoDescription ?? null);
+  const [seoTitle, setSeoTitle] = useState(guide?.seoTitle ?? null);
+  const [seoDescription, setSeoDescription] = useState(guide?.seoDescription ?? null);
+  const [focusKeyword, setFocusKeyword] = useState(guide?.focusKeyword ?? '');
+  const [supportingKeywords, setSupportingKeywords] = useState(guide?.supportingKeywords ?? []);
+  const [canonicalUrl, setCanonicalUrl] = useState(guide?.canonicalUrl ?? '');
+  const [visibility, setVisibility] = useState(guide?.visibility ?? 'PUBLIC');
+  const [advancedSeo, setAdvancedSeo] = useState({
+    robotsIndex: guide?.robotsIndex ?? true,
+    robotsFollow: guide?.robotsFollow ?? true,
+    openGraphTitle: guide?.openGraphTitle ?? '',
+    openGraphDescription: guide?.openGraphDescription ?? '',
+    openGraphImageFilename: guide?.openGraphImageFilename ?? null,
+    twitterCardType: guide?.twitterCardType ?? 'summary_large_image',
+  });
+  const [isConfirmingPublish, setIsConfirmingPublish] = useState(false);
   const [settings, setSettings] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -186,10 +202,20 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
       introduction,
       coverImageFilename: basicInfo.coverImageFilename,
       categoryId: Number(basicInfo.categoryId),
-      seoTitle,
-      seoDescription,
+      seoTitle: seoTitle ?? basicInfo.title,
+      seoDescription: seoDescription ?? basicInfo.excerpt,
       active,
       scheduledPublishAt,
+      focusKeyword: focusKeyword.trim(),
+      supportingKeywords,
+      canonicalUrl: canonicalUrl.trim() || null,
+      visibility,
+      robotsIndex: advancedSeo.robotsIndex,
+      robotsFollow: advancedSeo.robotsFollow,
+      openGraphTitle: advancedSeo.openGraphTitle.trim() || null,
+      openGraphDescription: advancedSeo.openGraphDescription.trim() || null,
+      openGraphImageFilename: advancedSeo.openGraphImageFilename,
+      twitterCardType: advancedSeo.twitterCardType,
       recommendedProductIds: recommendedProducts.map((product) => product.id),
       quickRecommendations: quickRecommendations.map(({ product, badgeName }) => ({
         productId: product.id,
@@ -423,11 +449,68 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     setFaqsErrors(errors);
     if (Object.keys(errors).length > 0) return;
     setMaxUnlockedStep((prev) => Math.max(prev, 8));
-    // SEO & Publish (step 8) is not built yet, so this is the current "last built step" --
-    // save and return to the list, matching the pattern every prior step used before the
-    // step after it existed (see Buying Guide Content's own Next, before this task).
-    submit(false);
+    setActiveStep(8);
+    submit(false, { stayOnPage: true });
   }
+
+  function handleRequestPublish() {
+    setIsConfirmingPublish(true);
+  }
+
+  function handleConfirmPublish() {
+    setIsConfirmingPublish(false);
+    submit(true);
+  }
+
+  function handleCancelPublish() {
+    setIsConfirmingPublish(false);
+  }
+
+  function handleSchedule(scheduledValue) {
+    setBasicInfo((prev) => ({ ...prev, status: 'Scheduled', scheduledPublishAt: scheduledValue }));
+    submit(false, { stayOnPage: true });
+  }
+
+  function handleCancelSchedule() {
+    setBasicInfo((prev) => ({ ...prev, status: 'Draft', scheduledPublishAt: '' }));
+    submit(false, { stayOnPage: true });
+  }
+
+  function handleUnpublish() {
+    setBasicInfo((prev) => ({ ...prev, status: 'Draft' }));
+    submit(false, { stayOnPage: true });
+  }
+
+  async function handleCopyLink() {
+    await navigator.clipboard.writeText(buildGuideUrl(basicInfo.slug));
+  }
+
+  const checklistItems = [
+    { id: 'basicInfo', label: 'Basic Info completed', isComplete: Object.keys(validate()).length === 0, step: 1 },
+    { id: 'products', label: 'At least one product added', isComplete: recommendedProducts.length > 0, step: 2 },
+    { id: 'quickPicks', label: 'Quick Picks completed', isComplete: Object.keys(validateQuickPicks()).length === 0, step: 3 },
+    { id: 'comparison', label: 'Comparison completed', isComplete: Object.keys(validateComparison()).length === 0, step: 4 },
+    {
+      id: 'topPicksRunnerUps',
+      label: 'Top Pick and Runner-Ups completed',
+      isComplete: Object.keys(validateTopPicksAndRunnerUps()).length === 0,
+      step: 5,
+    },
+    {
+      id: 'buyingGuideContent',
+      label: 'Buying Guide content completed',
+      isComplete: Object.keys(validateBuyingGuideContent()).length === 0,
+      step: 6,
+    },
+    { id: 'faqs', label: 'FAQ requirements completed', isComplete: Object.keys(validateFaqs()).length === 0, step: 7 },
+    {
+      id: 'seo',
+      label: 'SEO title and description added',
+      isComplete: Boolean((seoTitle ?? basicInfo.title).trim()) && Boolean((seoDescription ?? basicInfo.excerpt).trim()),
+      step: 8,
+    },
+    { id: 'visibility', label: 'Visibility is selected', isComplete: Boolean(visibility), step: 8 },
+  ];
 
   async function submit(forcePublish, { stayOnPage = false } = {}) {
     setFormError('');
@@ -474,7 +557,10 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         status={basicInfo.status}
         onPreview={() => setIsPreviewOpen(true)}
         onSaveDraft={() => submit(false)}
-        onPublish={() => submit(true)}
+        onRequestPublish={handleRequestPublish}
+        onSchedule={() => setActiveStep(8)}
+        onCopyLink={handleCopyLink}
+        onUnpublish={handleUnpublish}
         onCancel={onCancel}
         onMenuClick={onMenuClick}
         isSubmitting={isSubmitting}
@@ -626,6 +712,50 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
               </div>
             </>
           )}
+          {activeStep === 8 && (
+            <>
+              <BuyingGuideSeoPublishStep
+                seoTitle={seoTitle}
+                onSeoTitleChange={setSeoTitle}
+                basicInfoTitle={basicInfo.title}
+                metaDescription={seoDescription}
+                onMetaDescriptionChange={setSeoDescription}
+                basicInfoExcerpt={basicInfo.excerpt}
+                focusKeyword={focusKeyword}
+                onFocusKeywordChange={setFocusKeyword}
+                supportingKeywords={supportingKeywords}
+                onSupportingKeywordsChange={setSupportingKeywords}
+                canonicalUrl={canonicalUrl}
+                onCanonicalUrlChange={setCanonicalUrl}
+                advancedSeo={advancedSeo}
+                onAdvancedSeoChange={setAdvancedSeo}
+                slug={basicInfo.slug}
+                introduction={introduction}
+                tocEntries={tocEntries}
+                faqs={faqs}
+                quickRecommendations={quickRecommendations}
+                recommendationSections={recommendationSections}
+                coverImageFilename={basicInfo.coverImageFilename}
+                visibility={visibility}
+                onVisibilityChange={setVisibility}
+                status={basicInfo.status}
+                scheduledPublishAt={basicInfo.scheduledPublishAt}
+                publishedAt={guide?.publishedAt}
+                updatedAt={guide?.updatedAt}
+                updatedBy={guide?.updatedBy}
+                checklistItems={checklistItems}
+                onNavigateStep={setActiveStep}
+                onRequestPublish={handleRequestPublish}
+                onSchedule={handleSchedule}
+                onCancelSchedule={handleCancelSchedule}
+              />
+              <div className="mt-6 flex justify-start">
+                <Button type="button" variant="secondary" onClick={() => setActiveStep(7)}>
+                  Previous
+                </Button>
+              </div>
+            </>
+          )}
         </div>
         <div className="hidden lg:block lg:w-[28%]">
           <div className="sticky top-32">
@@ -637,6 +767,16 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
       <Modal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} title="Preview">
         <LivePreview {...previewProps} />
       </Modal>
+
+      <ConfirmDialog
+        isOpen={isConfirmingPublish}
+        title="Publish this guide?"
+        message="This makes the guide live immediately, overriding its current status and any scheduled date."
+        confirmLabel="Publish"
+        isLoading={isSubmitting}
+        onConfirm={handleConfirmPublish}
+        onCancel={handleCancelPublish}
+      />
     </div>
   );
 }
