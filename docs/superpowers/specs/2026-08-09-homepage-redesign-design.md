@@ -225,6 +225,13 @@ scope for this redesign), `Badge.jsx`, `useProductSearch.js`,
 `productService.js`, `categoryService.js`, `settingsService.js`,
 `AffiliateDisclosure.jsx` (reused by the new `/affiliate-disclosure` page).
 
+`AffiliateDisclosure.jsx` gains an optional `className` prop (defaulting to
+its current `'text-sm leading-relaxed text-slate-500'`, so every existing
+call site — `LivePreview.jsx`, `PublishedBuyingGuidePage.jsx` — is
+unaffected) so `PublicFooter.jsx` can pass light text color for readability
+on the new dark background, instead of forking the component or fighting
+its hardcoded class with CSS overrides.
+
 `SocialLinks.jsx`'s platform metadata (label, settings key, icon — including
 its custom TikTok/Pinterest SVGs) is extracted into a new shared
 `frontend/src/utils/socialPlatforms.js` exporting a `SOCIAL_PLATFORMS` array,
@@ -426,6 +433,9 @@ reused unchanged.
   `PublicFooter`
 - `frontend/src/pages/PublishedBuyingGuidePage.jsx` (+ test) — `Footer` →
   `PublicFooter`
+- `frontend/src/components/AffiliateDisclosure.jsx` — adds an optional
+  `className` prop (default unchanged) so `PublicFooter.jsx` can render it
+  with light text on the dark background
 - `frontend/tailwind.config.js` — new `navy` color tokens
 - `frontend/src/components/SocialLinks.jsx` (+ test) — reads from the new
   shared `socialPlatforms.js` list instead of its own local array
