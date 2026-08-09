@@ -26,4 +26,16 @@ describe('TrendingRightNowSection', () => {
     expect(screen.getByText('Row Two')).toBeInTheDocument();
     expect(screen.getByText('Row Three')).toBeInTheDocument();
   });
+
+  it('places the compact rows column before the large featured image', () => {
+    const { container } = render(<TrendingRightNowSection products={products} />);
+    const [firstColumn, secondColumn] = container.firstChild.children;
+    expect(firstColumn).toHaveTextContent('Row One');
+    expect(secondColumn).toHaveAttribute('href', 'https://amazon.com/dp/1');
+  });
+
+  it('does not render a visible caption under the large featured image', () => {
+    render(<TrendingRightNowSection products={products} />);
+    expect(screen.queryByText('Featured Trend')).not.toBeInTheDocument();
+  });
 });

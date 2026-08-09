@@ -48,4 +48,12 @@ describe('ProductCarousel', () => {
 
     expect(Element.prototype.scrollBy).toHaveBeenCalled();
   });
+
+  it('overlays the nav buttons on the left/right edges, vertically centered', () => {
+    render(<ProductCarousel products={products} />);
+    const prevButton = screen.getByRole('button', { name: 'Scroll to previous products' });
+    const nextButton = screen.getByRole('button', { name: 'Scroll to next products' });
+    expect(prevButton).toHaveClass('absolute', 'left-0', 'top-1/2', '-translate-y-1/2');
+    expect(nextButton).toHaveClass('absolute', 'right-0', 'top-1/2', '-translate-y-1/2');
+  });
 });

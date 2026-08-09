@@ -41,4 +41,17 @@ describe('HomeSectionCard', () => {
     renderCard({ viewAllHref: undefined });
     expect(screen.queryByRole('link', { name: /view all/i })).not.toBeInTheDocument();
   });
+
+  it('defaults the icon badge to the soft primary tint', () => {
+    renderCard();
+    const badge = screen.getByRole('heading', { name: 'Trending Right Now' }).parentElement.previousSibling;
+    expect(badge).toHaveClass('bg-primary/10', 'text-primary');
+  });
+
+  it('accepts an iconClassName override for the icon badge', () => {
+    renderCard({ iconClassName: 'bg-amazon text-white' });
+    const badge = screen.getByRole('heading', { name: 'Trending Right Now' }).parentElement.previousSibling;
+    expect(badge).toHaveClass('bg-amazon', 'text-white');
+    expect(badge).not.toHaveClass('bg-primary/10');
+  });
 });

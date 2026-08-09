@@ -46,4 +46,11 @@ describe('HomepageProductCard', () => {
     render(<HomepageProductCard product={{ ...product, imageFileName: null }} />);
     expect(screen.getByText('No image available')).toBeInTheDocument();
   });
+
+  it('renders a borderless card with a left-aligned caption', () => {
+    render(<HomepageProductCard product={product} />);
+    const link = screen.getByRole('link');
+    expect(link).not.toHaveClass('border', 'shadow-card');
+    expect(screen.getByText(product.name)).toHaveClass('text-left');
+  });
 });

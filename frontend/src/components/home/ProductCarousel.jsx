@@ -37,26 +37,24 @@ function ProductCarousel({ products }) {
           </div>
         ))}
       </div>
-      <div className="mt-4 flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => scrollByCard(-1)}
-          disabled={!canScrollPrev}
-          aria-label="Scroll to previous products"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <ChevronLeft size={18} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          onClick={() => scrollByCard(1)}
-          disabled={!canScrollNext}
-          aria-label="Scroll to next products"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <ChevronRight size={18} aria-hidden="true" />
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => scrollByCard(-1)}
+        disabled={!canScrollPrev}
+        aria-label="Scroll to previous products"
+        className="absolute left-0 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-card transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <ChevronLeft size={18} aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        onClick={() => scrollByCard(1)}
+        disabled={!canScrollNext}
+        aria-label="Scroll to next products"
+        className="absolute right-0 top-1/2 flex h-9 w-9 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-card transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <ChevronRight size={18} aria-hidden="true" />
+      </button>
     </div>
   );
 }

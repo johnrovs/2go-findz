@@ -87,43 +87,46 @@ function HomePage() {
           </div>
         </section>
 
-        {featured.products.length > 0 && (
-          <section className="bg-surface-secondary py-24">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <HomeSectionCard
-                icon={Sparkles}
-                title="Featured Products"
-                description="Hand-picked finds worth a closer look."
-                viewAllHref="/products"
-              >
-                <ProductCarousel products={featured.products} />
-              </HomeSectionCard>
-            </div>
-          </section>
-        )}
-
-        {(trending.products.length > 0 || bestSellers.products.length > 0) && (
-          <section className="py-24">
-            <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-              {trending.products.length > 0 && (
+        {(featured.products.length > 0 || trending.products.length > 0 || bestSellers.products.length > 0) && (
+          <section className="bg-surface-secondary py-16">
+            <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+              {featured.products.length > 0 && (
                 <HomeSectionCard
-                  icon={Flame}
-                  title="Trending Right Now"
-                  description="What everyone's buying."
-                  viewAllHref="/trending"
+                  icon={Sparkles}
+                  iconClassName="bg-amazon text-white"
+                  title="Featured Products"
+                  description="Hand-picked finds worth a closer look."
+                  viewAllHref="/products"
                 >
-                  <TrendingRightNowSection products={trending.products} />
+                  <ProductCarousel products={featured.products} />
                 </HomeSectionCard>
               )}
-              {bestSellers.products.length > 0 && (
-                <HomeSectionCard
-                  icon={Award}
-                  title="Best Sellers"
-                  description="Our most popular picks."
-                  viewAllHref="/best-sellers"
-                >
-                  <BestSellersSection products={bestSellers.products} />
-                </HomeSectionCard>
+
+              {(trending.products.length > 0 || bestSellers.products.length > 0) && (
+                <div className="grid gap-6 lg:grid-cols-2">
+                  {trending.products.length > 0 && (
+                    <HomeSectionCard
+                      icon={Flame}
+                      iconClassName="bg-amazon text-white"
+                      title="Trending Right Now"
+                      description="What everyone's buying."
+                      viewAllHref="/trending"
+                    >
+                      <TrendingRightNowSection products={trending.products} />
+                    </HomeSectionCard>
+                  )}
+                  {bestSellers.products.length > 0 && (
+                    <HomeSectionCard
+                      icon={Award}
+                      iconClassName="bg-amazon text-white"
+                      title="Best Sellers"
+                      description="Our most popular picks."
+                      viewAllHref="/best-sellers"
+                    >
+                      <BestSellersSection products={bestSellers.products} />
+                    </HomeSectionCard>
+                  )}
+                </div>
               )}
             </div>
           </section>

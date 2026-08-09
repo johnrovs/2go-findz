@@ -22,4 +22,9 @@ describe('BestSellersSection', () => {
     expect(screen.getByText('Row Three')).toBeInTheDocument();
     expect(screen.queryByText('Row Four')).not.toBeInTheDocument();
   });
+
+  it('separates the rows with dividers', () => {
+    const { container } = render(<BestSellersSection products={products} />);
+    expect(container.firstChild).toHaveClass('divide-y', 'divide-border');
+  });
 });

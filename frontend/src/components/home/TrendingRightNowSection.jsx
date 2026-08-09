@@ -18,6 +18,12 @@ function TrendingRightNowSection({ products }) {
 
   return (
     <div className="grid gap-6 sm:grid-cols-2">
+      <div className="flex flex-col gap-2">
+        {rows.map((product) => (
+          <CompactProductRow key={product.id} product={product} />
+        ))}
+      </div>
+
       <a
         href={featured.productLink}
         onClick={handleFeaturedClick}
@@ -38,14 +44,7 @@ function TrendingRightNowSection({ products }) {
             No image available
           </div>
         )}
-        <p className="p-3 text-small font-semibold text-heading">{featured.name}</p>
       </a>
-
-      <div className="flex flex-col gap-2">
-        {rows.map((product) => (
-          <CompactProductRow key={product.id} product={product} />
-        ))}
-      </div>
     </div>
   );
 }
