@@ -5,7 +5,9 @@ import { useDocumentHead } from './useDocumentHead.js';
 function resetDocumentHead() {
   document.title = '';
   document
-    .querySelectorAll('meta[name="description"], link[rel="canonical"], script[type="application/ld+json"]')
+    .querySelectorAll(
+      'meta[name="description"], link[rel="canonical"], script[type="application/ld+json"], meta[name="robots"], meta[property^="og:"], meta[name^="twitter:"]'
+    )
     .forEach((el) => el.remove());
 }
 
@@ -68,5 +70,54 @@ describe('useDocumentHead', () => {
     expect(document.querySelector('meta[name="description"]')).toBeNull();
     expect(document.querySelector('link[rel="canonical"]')).toBeNull();
     expect(document.querySelector('script[type="application/ld+json"]')).toBeNull();
+  });
+
+  it('sets robots, Open Graph, and Twitter Card meta tags', () => {
+    renderHook(() =>
+      useDocumentHead({
+        title: 'Test',
+        robots: 'noindex,nofollow',
+        ogTitle: 'OG Title',
+        ogDescription: 'OG Description.',
+        ogImage: 'https://example.com/og.png',
+        ogType: 'article',
+        ogUrl: 'https://example.com/page',
+        twitterCard: 'summary_large_image',
+        twitterTitle: 'Twitter Title',
+        twitterDescription: 'Twitter Description.',
+        twitterImage: 'https://example.com/twitter.png',
+      })
+    );
+
+    expect(document.querySelector('meta[name="robots"]').getAttribute('content')).toBe('noindex,nofollow');
+    expect(document.querySelector('meta[property="og:title"]').getAttribute('content')).toBe('OG Title');
+    expect(document.querySelector('meta[property="og:description"]').getAttribute('content')).toBe('OG Description.');
+    expect(document.querySelector('meta[property="og:image"]').getAttribute('content')).toBe('https://example.com/og.png');
+    expect(document.querySelector('meta[property="og:type"]').getAttribute('content')).toBe('article');
+    expect(document.querySelector('meta[property="og:url"]').getAttribute('content')).toBe('https://example.com/page');
+    expect(document.querySelector('meta[name="twitter:card"]').getAttribute('content')).toBe('summary_large_image');
+    expect(document.querySelector('meta[name="twitter:title"]').getAttribute('content')).toBe('Twitter Title');
+    expect(document.querySelector('meta[name="twitter:description"]').getAttribute('content')).toBe('Twitter Description.');
+    expect(document.querySelector('meta[name="twitter:image"]').getAttribute('content')).toBe('https://example.com/twitter.png');
+  });
+
+  it('removes robots, Open Graph, and Twitter tags on unmount', () => {
+    const { unmount } = renderHook(() =>
+      useDocumentHead({ title: 'Test', robots: 'index,follow', ogTitle: 'OG Title', twitterCard: 'summary' })
+    );
+
+    unmount();
+
+    expect(document.querySelector('meta[name="robots"]')).toBeNull();
+    expect(document.querySelector('meta[property="og:title"]')).toBeNull();
+    expect(document.querySelector('meta[name="twitter:card"]')).toBeNull();
+  });
+
+  it('omits tags whose value is not provided', () => {
+    renderHook(() => useDocumentHead({ title: 'Test' }));
+
+    expect(document.querySelector('meta[name="robots"]')).toBeNull();
+    expect(document.querySelector('meta[property="og:title"]')).toBeNull();
+    expect(document.querySelector('meta[name="twitter:card"]')).toBeNull();
   });
 });
