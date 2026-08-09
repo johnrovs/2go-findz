@@ -9,7 +9,7 @@ import * as productService from '../services/productService.js';
 import * as trackingService from '../services/trackingService.js';
 
 const settings = {
-  heroHeadline: 'Smart Finds. Better Buys. All in One Place.',
+  heroHeadline: 'Smart Finds. Better Choices.',
   heroDescription: 'Discover trending Amazon products.',
   affiliateDisclosure: 'As an Amazon Associate, 2Go Findz may earn from qualifying purchases.',
   tiktokUrl: 'https://tiktok.com/@2gofindz',

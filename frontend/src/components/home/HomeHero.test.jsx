@@ -47,4 +47,21 @@ describe('HomeHero', () => {
     renderHero();
     expect(screen.queryByText(/smart shoppers/i)).not.toBeInTheDocument();
   });
+
+  it('splits the headline into a black first sentence and an orange remainder', () => {
+    renderHero({ headline: 'Smart Finds. Better Choices.' });
+    expect(screen.getByText('Smart Finds.')).not.toHaveClass('text-amazon');
+    expect(screen.getByText('Better Choices.')).toHaveClass('text-amazon');
+  });
+
+  it('renders the whole headline in one line when it has no sentence break', () => {
+    renderHero({ headline: 'Smart Finds' });
+    expect(screen.getByText('Smart Finds')).toBeInTheDocument();
+  });
+
+  it('renders the welcome badge as an outlined amazon-colored pill, not a filled one', () => {
+    renderHero();
+    const badge = screen.getByText('WELCOME TO 2GO FINDZ');
+    expect(badge.closest('span')).toHaveClass('border-amazon', 'text-amazon', 'bg-white');
+  });
 });

@@ -74,7 +74,7 @@ function HomePage() {
 
       <main>
         <HomeHero
-          headline={settings?.heroHeadline ?? 'Smart Finds. Better Buys. All in One Place.'}
+          headline={settings?.heroHeadline ?? 'Smart Finds. Better Choices.'}
           description={
             settings?.heroDescription ??
             'Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.'
