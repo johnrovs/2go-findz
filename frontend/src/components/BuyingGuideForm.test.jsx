@@ -171,11 +171,17 @@ vi.mock('./buying-guide-form/BuyingGuideFaqsStep.jsx', () => ({
 }));
 
 vi.mock('./buying-guide-form/BuyingGuideSeoPublishStep.jsx', () => ({
-  default: ({ onNavigateStep }) => (
+  default: ({ onNavigateStep, onSchedule, onCancelSchedule }) => (
     <div>
       <p>SEO & Publish step</p>
       <button type="button" onClick={() => onNavigateStep(7)}>
         Go to FAQs from checklist
+      </button>
+      <button type="button" onClick={() => onSchedule('2099-01-01T10:00')}>
+        Trigger schedule
+      </button>
+      <button type="button" onClick={() => onCancelSchedule()}>
+        Trigger cancel schedule
       </button>
     </div>
   ),
@@ -309,6 +315,65 @@ describe('BuyingGuideForm', () => {
     const payload = onSubmit.mock.calls[0][0];
     expect(payload.active).toBe(true);
     expect(payload.scheduledPublishAt).toBeNull();
+  });
+
+  function publishedGuideFixture() {
+    return {
+      id: 7,
+      title: 'Existing Guide',
+      slug: 'existing-guide',
+      excerpt: 'Existing excerpt.',
+      introduction: '<p>Intro</p>',
+      coverImageFilename: null,
+      categoryId: 1,
+      seoTitle: null,
+      seoDescription: null,
+      active: true,
+      scheduledPublishAt: null,
+      recommendedProducts: [],
+      quickRecommendations: [],
+      comparisonSpecs: [],
+      recommendationSections: [],
+      faqs: [],
+      tocEntries: [
+        { id: 1, sectionKey: 'QUICK_RECOMMENDATIONS', title: null, content: null, visible: true },
+        { id: 2, sectionKey: 'COMPARISON_TABLE', title: null, content: null, visible: true },
+        { id: 3, sectionKey: 'TOP_PICK', title: null, content: null, visible: true },
+        { id: 4, sectionKey: 'RUNNER_UPS', title: null, content: null, visible: true },
+        { id: 5, sectionKey: 'FAQS', title: null, content: null, visible: true },
+      ],
+    };
+  }
+
+  it('Unpublish requires confirmation before submitting active:false', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(<BuyingGuideForm guide={publishedGuideFixture()} categories={categories} onSubmit={onSubmit} onCancel={vi.fn()} />);
+
+    await user.click(screen.getByLabelText('More publish options'));
+    await user.click(screen.getByRole('menuitem', { name: 'Unpublish' }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Unpublish' }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    const payload = onSubmit.mock.calls[0][0];
+    expect(payload.active).toBe(false);
+  });
+
+  it('Cancel on the Unpublish confirm dialog leaves the guide published', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(<BuyingGuideForm guide={publishedGuideFixture()} categories={categories} onSubmit={onSubmit} onCancel={vi.fn()} />);
+
+    await user.click(screen.getByLabelText('More publish options'));
+    await user.click(screen.getByRole('menuitem', { name: 'Unpublish' }));
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
   it('calls onCancel from the header back link', async () => {
@@ -1038,5 +1103,55 @@ describe('BuyingGuideForm', () => {
     await user.click(screen.getByRole('button', { name: 'Previous' }));
 
     expect(await screen.findByText('FAQs step (1 FAQs)')).toBeInTheDocument();
+  });
+
+  async function navigateToSeoPublishStep(user) {
+    await fillRequiredFields(user);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock product' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock quick pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock spec' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock Top Pick' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock section' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(await screen.findByRole('button', { name: 'Add mock FAQ' }));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText('SEO & Publish step');
+  }
+
+  it('Schedule Publish submits the newly chosen Scheduled status and date, not the pre-update status', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    renderForm({ onSubmit });
+    await navigateToSeoPublishStep(user);
+    onSubmit.mockClear();
+
+    await user.click(screen.getByRole('button', { name: 'Trigger schedule' }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    const payload = onSubmit.mock.calls[0][0];
+    expect(payload.active).toBe(false);
+    expect(payload.scheduledPublishAt).toBe('2099-01-01T10:00:00');
+  });
+
+  it('Cancel Schedule submits Draft immediately, not the pre-update status', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    renderForm({ onSubmit });
+    await navigateToSeoPublishStep(user);
+    await user.click(screen.getByRole('button', { name: 'Trigger schedule' }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    onSubmit.mockClear();
+
+    await user.click(screen.getByRole('button', { name: 'Trigger cancel schedule' }));
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    const payload = onSubmit.mock.calls[0][0];
+    expect(payload.active).toBe(false);
+    expect(payload.scheduledPublishAt).toBeNull();
   });
 });

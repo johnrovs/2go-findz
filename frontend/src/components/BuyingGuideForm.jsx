@@ -109,6 +109,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     twitterCardType: guide?.twitterCardType ?? 'summary_large_image',
   });
   const [isConfirmingPublish, setIsConfirmingPublish] = useState(false);
+  const [isConfirmingUnpublish, setIsConfirmingUnpublish] = useState(false);
   const [settings, setSettings] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -186,13 +187,19 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     return errors;
   }
 
-  function buildPayload(forcePublish) {
+  function buildPayload(forcePublish, statusOverride) {
+    // setBasicInfo() is async; a caller that just called it (e.g. handleSchedule)
+    // and immediately calls submit() would otherwise read the pre-update status
+    // from this closure. statusOverride lets those callers pass the intended
+    // status/scheduledPublishAt directly instead of racing React's state update.
+    const effectiveStatus = statusOverride?.status ?? basicInfo.status;
+    const effectiveScheduledPublishAt = statusOverride?.scheduledPublishAt ?? basicInfo.scheduledPublishAt;
     const { active, scheduledPublishAt } = forcePublish
       ? { active: true, scheduledPublishAt: null }
-      : basicInfo.status === 'Published'
+      : effectiveStatus === 'Published'
         ? { active: true, scheduledPublishAt: null }
-        : basicInfo.status === 'Scheduled'
-          ? { active: false, scheduledPublishAt: `${basicInfo.scheduledPublishAt}:00` }
+        : effectiveStatus === 'Scheduled'
+          ? { active: false, scheduledPublishAt: `${effectiveScheduledPublishAt}:00` }
           : { active: false, scheduledPublishAt: null };
 
     return {
@@ -468,17 +475,26 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
 
   function handleSchedule(scheduledValue) {
     setBasicInfo((prev) => ({ ...prev, status: 'Scheduled', scheduledPublishAt: scheduledValue }));
-    submit(false, { stayOnPage: true });
+    submit(false, { stayOnPage: true, statusOverride: { status: 'Scheduled', scheduledPublishAt: scheduledValue } });
   }
 
   function handleCancelSchedule() {
     setBasicInfo((prev) => ({ ...prev, status: 'Draft', scheduledPublishAt: '' }));
-    submit(false, { stayOnPage: true });
+    submit(false, { stayOnPage: true, statusOverride: { status: 'Draft' } });
   }
 
-  function handleUnpublish() {
+  function handleRequestUnpublish() {
+    setIsConfirmingUnpublish(true);
+  }
+
+  function handleConfirmUnpublish() {
+    setIsConfirmingUnpublish(false);
     setBasicInfo((prev) => ({ ...prev, status: 'Draft' }));
-    submit(false, { stayOnPage: true });
+    submit(false, { stayOnPage: true, statusOverride: { status: 'Draft' } });
+  }
+
+  function handleCancelUnpublish() {
+    setIsConfirmingUnpublish(false);
   }
 
   async function handleCopyLink() {
@@ -512,7 +528,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
     { id: 'visibility', label: 'Visibility is selected', isComplete: Boolean(visibility), step: 8 },
   ];
 
-  async function submit(forcePublish, { stayOnPage = false } = {}) {
+  async function submit(forcePublish, { stayOnPage = false, statusOverride } = {}) {
     setFormError('');
     const errors = validate();
     setFieldErrors(errors);
@@ -520,7 +536,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
 
     setIsSubmitting(true);
     try {
-      await onSubmit(buildPayload(forcePublish), { stayOnPage });
+      await onSubmit(buildPayload(forcePublish, statusOverride), { stayOnPage });
     } catch (error) {
       setFieldErrors(error.fieldErrors ?? {});
       if (!error.fieldErrors) {
@@ -560,7 +576,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         onRequestPublish={handleRequestPublish}
         onSchedule={() => setActiveStep(8)}
         onCopyLink={handleCopyLink}
-        onUnpublish={handleUnpublish}
+        onUnpublish={handleRequestUnpublish}
         onCancel={onCancel}
         onMenuClick={onMenuClick}
         isSubmitting={isSubmitting}
@@ -776,6 +792,17 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         isLoading={isSubmitting}
         onConfirm={handleConfirmPublish}
         onCancel={handleCancelPublish}
+      />
+
+      <ConfirmDialog
+        isOpen={isConfirmingUnpublish}
+        title="Unpublish this guide?"
+        message="This moves the guide back to Draft and removes it from public view immediately."
+        confirmLabel="Unpublish"
+        isDestructive
+        isLoading={isSubmitting}
+        onConfirm={handleConfirmUnpublish}
+        onCancel={handleCancelUnpublish}
       />
     </div>
   );
