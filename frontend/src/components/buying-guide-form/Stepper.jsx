@@ -9,7 +9,7 @@ const STEPS = [
   'SEO & Publish',
 ];
 
-const MAX_BUILT_STEP = 7;
+const MAX_BUILT_STEP = 8;
 
 function Stepper({ activeStep, maxUnlockedStep, onStepClick }) {
   return (

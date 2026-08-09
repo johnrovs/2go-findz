@@ -52,6 +52,11 @@ describe('Stepper', () => {
     expect(screen.getByRole('button', { name: /SEO & Publish/ })).toBeDisabled();
   });
 
+  it('enables SEO & Publish once unlocked', () => {
+    render(<Stepper activeStep={8} maxUnlockedStep={8} onStepClick={vi.fn()} />);
+    expect(screen.getByRole('button', { name: /SEO & Publish/ })).toBeEnabled();
+  });
+
   it('keeps Products disabled while still locked', () => {
     render(<Stepper activeStep={1} maxUnlockedStep={1} onStepClick={vi.fn()} />);
     expect(screen.getByRole('button', { name: /Products/ })).toBeDisabled();
