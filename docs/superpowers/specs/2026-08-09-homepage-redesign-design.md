@@ -186,10 +186,10 @@ cards).
 
 ### Routing (`frontend/src/App.jsx`)
 
-- Add `<Route path="/products" element={<AllProductsPage />} />` — a new page
-  hosting exactly the `SearchInput` + `ProductFilters` + `ProductGrid` +
-  `Pagination` + `useProductSearch` block currently inline in `HomePage.jsx`
-  at `#catalog`, moved verbatim.
+- Add `<Route path="/products" element={<AllProductsPage />} />` — `AllProductsPage`
+  is a thin wrapper around the existing shared `CatalogPage.jsx` (see scope
+  decision 4), replacing the `#catalog` block currently inline in
+  `HomePage.jsx`.
 - Add minimal static routes: `/about`, `/contact`, `/privacy-policy`,
   `/terms-of-use`, `/affiliate-disclosure`.
 - No other existing routes change.
