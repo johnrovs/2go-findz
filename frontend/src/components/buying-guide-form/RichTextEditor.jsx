@@ -4,6 +4,7 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
+import { wordCount } from '../../utils/wordCount.js';
 import {
   Bold,
   Italic,
@@ -29,10 +30,7 @@ const BASE_EXTENSIONS = [
 ];
 const EXTENSIONS_WITH_IMAGE = [...BASE_EXTENSIONS, Image];
 
-export function wordCount(html) {
-  const text = html.replace(/<[^>]*>/g, ' ').trim();
-  return text ? text.split(/\s+/).length : 0;
-}
+export { wordCount };
 
 function ToolbarButton({ onClick, isActive, disabled, label, children }) {
   return (
