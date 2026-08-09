@@ -121,7 +121,18 @@ public class BuyingGuideMapper {
                 guide.getFaqs().stream()
                         .map(faq -> new PublicBuyingGuideFaqResponse(faq.getQuestion(), faq.getAnswer()))
                         .toList(),
-                resolveTocEntries(guide)
+                resolveTocEntries(guide),
+                guide.getFocusKeyword(),
+                guide.getCanonicalUrl(),
+                guide.getVisibility(),
+                guide.getRobotsIndex(),
+                guide.getRobotsFollow(),
+                guide.getOpenGraphTitle(),
+                guide.getOpenGraphDescription(),
+                guide.getOpenGraphImageFilename(),
+                guide.getTwitterCardType(),
+                guide.getPublishedAt(),
+                guide.getUpdatedAt()
         );
     }
 

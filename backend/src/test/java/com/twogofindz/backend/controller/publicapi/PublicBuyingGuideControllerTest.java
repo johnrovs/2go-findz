@@ -204,4 +204,45 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/public/buying-guides/private-guide"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void getBySlug_returnsSeoAndAuditFields() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Public SEO Fields Guide Category");
+
+        String requestJson = """
+                {
+                  "title": "Public SEO Fields Guide", "slug": "public-seo-fields-guide",
+                  "excerpt": "Excerpt", "introduction": "<p>Introduction</p>", "coverImageFilename": null,
+                  "categoryId": %d, "seoTitle": "Custom SEO Title", "seoDescription": "Custom SEO description.",
+                  "active": true, "scheduledPublishAt": null, "recommendedProductIds": [],
+                  "quickRecommendations": [], "comparisonSpecs": [], "recommendationSections": [],
+                  "faqs": [], "tocEntries": [],
+                  "focusKeyword": "wireless earbuds", "supportingKeywords": [],
+                  "canonicalUrl": "https://example.com/canonical-guide",
+                  "visibility": "UNLISTED", "robotsIndex": false, "robotsFollow": false,
+                  "openGraphTitle": "OG Title", "openGraphDescription": "OG Description.",
+                  "openGraphImageFilename": "og-image.png", "twitterCardType": "summary"
+                }
+                """.formatted(guideCategoryId);
+
+        mockMvc.perform(post("/api/admin/buying-guides")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(requestJson));
+
+        mockMvc.perform(get("/api/public/buying-guides/{slug}", "public-seo-fields-guide"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.focusKeyword").value("wireless earbuds"))
+                .andExpect(jsonPath("$.data.canonicalUrl").value("https://example.com/canonical-guide"))
+                .andExpect(jsonPath("$.data.visibility").value("UNLISTED"))
+                .andExpect(jsonPath("$.data.robotsIndex").value(false))
+                .andExpect(jsonPath("$.data.robotsFollow").value(false))
+                .andExpect(jsonPath("$.data.openGraphTitle").value("OG Title"))
+                .andExpect(jsonPath("$.data.openGraphDescription").value("OG Description."))
+                .andExpect(jsonPath("$.data.openGraphImageFilename").value("og-image.png"))
+                .andExpect(jsonPath("$.data.twitterCardType").value("summary"))
+                .andExpect(jsonPath("$.data.publishedAt").exists())
+                .andExpect(jsonPath("$.data.updatedAt").exists());
+    }
 }
