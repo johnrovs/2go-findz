@@ -32,6 +32,14 @@ anywhere in this codebase yet.
 - **No navy/dark color tokens exist** in `tailwind.config.js` — only the
   existing light palette (`primary`, `amazon`, `surface`, `border`, `heading`,
   `body`, etc.).
+- **The existing `ProductCard.jsx` is too heavy for the reference's homepage
+  cards.** It always renders a description, a "Check Price" Amazon button,
+  and a Compare-toggle button (`frontend/src/components/ProductCard.jsx`).
+  The reference's homepage cards show only an image and a name — no
+  description, no visible button, no compare affordance — matching the
+  spec's own explicit instruction ("do not display ratings or prices in this
+  homepage section") and its suggested component list, which names
+  `HomepageProductCard` as its own component distinct from the general one.
 - **Trending and Best Sellers are real backend boolean flags**
   (`Product.trending` / `Product.bestSeller`, `backend/.../entity/Product.java`
   lines 55-59), already wired end-to-end via `searchProducts({ trending: true })`
@@ -71,6 +79,13 @@ anywhere in this codebase yet.
    other page keep their current light-theme colors outside the header/footer.
 3. **"Deals" is dropped** from both nav and footer — no route or backend
    concept backs it, and a dead link would be worse than its absence.
+3a. **"Best Sellers" and "Comparisons" are dropped from the navbar** (the
+    reference's nav has exactly 5 items: Home, Trending, Categories, Compare,
+    Buying Guides). Best Sellers stays reachable via the footer's Shop column
+    (it's in the reference's footer) and its own homepage section. Comparisons
+    doesn't appear anywhere in the reference (nav or footer) — its route
+    (`/comparisons`) and page are untouched and still fully reachable by
+    direct link, just not advertised in the new nav or footer.
 4. **The full filterable catalog is extracted unchanged to a new `/products`
    route** (same `SearchInput` + `ProductFilters` + `ProductGrid` +
    `Pagination`, same behavior, same hooks/services — just relocated). The
@@ -157,8 +172,9 @@ out of the general `components/` folder.
 | `HeroTrustCard.jsx` | Small floating white card (icon, title, subtitle) — reused for "Top Rated" and "Handpicked" |
 | `SocialMediaStrip.jsx` | Horizontal strip: platform icon + name + handle, vertical separators, renders only configured platforms |
 | `HomeSectionCard.jsx` | White-card wrapper: icon + title + supporting text + "View all →" link on the right — used by Featured/Trending/Best Sellers/Shop by Category |
-| `ProductCarousel.jsx` | CSS scroll-snap horizontal container + prev/next `<button>`s, boundary-aware disabled state, wraps existing `ProductCard.jsx` items |
-| `CompactProductRow.jsx` | Thumbnail + name row, used inside Trending/Best Sellers |
+| `ProductCarousel.jsx` | CSS scroll-snap horizontal container + prev/next `<button>`s, boundary-aware disabled state, wraps `HomepageProductCard.jsx` items |
+| `HomepageProductCard.jsx` | Minimal card: image + name only, the whole card is a real `<a>` to `product.productLink` (real Amazon URL, `target="_blank"` + `rel="nofollow sponsored noopener noreferrer"`, calls the existing `recordClick` tracking service on click — same link/tracking behavior as `ProductCard.jsx`'s "Check Price," just without the visible button/description/compare-toggle chrome) |
+| `CompactProductRow.jsx` | Thumbnail + name row, same real-link-and-tracking behavior as `HomepageProductCard.jsx`, used inside Trending/Best Sellers |
 | `TrendingRightNowSection.jsx` | 3 `CompactProductRow`s + 1 larger image (first trending product), inside `HomeSectionCard` |
 | `BestSellersSection.jsx` | 3 `CompactProductRow`s only, inside `HomeSectionCard` — deliberately asymmetric with Trending, matching the reference |
 | `CategoryGridSection.jsx` | Responsive grid of existing `CategoryCard.jsx`, inside `HomeSectionCard` |
@@ -168,7 +184,8 @@ out of the general `components/` folder.
 
 ### Reused as-is
 
-`ProductCard.jsx`, `CategoryCard.jsx`, `Badge.jsx`, `useProductSearch.js`,
+`ProductCard.jsx` (still used by the new `/products` page, unchanged),
+`CategoryCard.jsx`, `Badge.jsx`, `useProductSearch.js`,
 `productService.js`, `categoryService.js`, `settingsService.js`,
 `AffiliateDisclosure.jsx` (reused by the new `/affiliate-disclosure` page).
 
@@ -324,6 +341,7 @@ reused unchanged.
 - `frontend/src/components/home/SocialMediaStrip.jsx` (+ test)
 - `frontend/src/components/home/HomeSectionCard.jsx` (+ test)
 - `frontend/src/components/home/ProductCarousel.jsx` (+ test)
+- `frontend/src/components/home/HomepageProductCard.jsx` (+ test)
 - `frontend/src/components/home/CompactProductRow.jsx` (+ test)
 - `frontend/src/components/home/TrendingRightNowSection.jsx` (+ test)
 - `frontend/src/components/home/BestSellersSection.jsx` (+ test)
