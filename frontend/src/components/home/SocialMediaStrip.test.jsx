@@ -28,4 +28,15 @@ describe('SocialMediaStrip', () => {
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
+
+  it('renders the follow prompt alongside the platform links', () => {
+    render(<SocialMediaStrip settings={{ instagramUrl: 'https://instagram.com/2gofindz' }} />);
+    expect(screen.getByText('Follow 2Go Findz for daily finds & deals')).toBeInTheDocument();
+  });
+
+  it('gives each platform icon a brand-colored circular badge', () => {
+    render(<SocialMediaStrip settings={{ tiktokUrl: 'https://tiktok.com/@2gofindz' }} />);
+    const badge = screen.getByRole('link', { name: /tiktok/i }).querySelector('span');
+    expect(badge).toHaveClass('rounded-full', 'bg-black');
+  });
 });

@@ -18,9 +18,14 @@ function PinterestIcon({ className }) {
 }
 
 export const SOCIAL_PLATFORMS = [
-  { key: 'tiktokUrl', label: 'TikTok', Icon: TikTokIcon },
-  { key: 'pinterestUrl', label: 'Pinterest', Icon: PinterestIcon },
-  { key: 'instagramUrl', label: 'Instagram', Icon: Instagram },
-  { key: 'youtubeUrl', label: 'YouTube', Icon: Youtube },
-  { key: 'facebookUrl', label: 'Facebook', Icon: Facebook },
+  { key: 'tiktokUrl', label: 'TikTok', Icon: TikTokIcon, iconBgClassName: 'bg-black' },
+  {
+    key: 'instagramUrl',
+    label: 'Instagram',
+    Icon: Instagram,
+    iconBgClassName: 'bg-gradient-to-tr from-[#FEDA75] via-[#D62976] to-[#4F5BD5]',
+  },
+  { key: 'pinterestUrl', label: 'Pinterest', Icon: PinterestIcon, iconBgClassName: 'bg-[#E60023]' },
+  { key: 'youtubeUrl', label: 'YouTube', Icon: Youtube, iconBgClassName: 'bg-[#FF0000]' },
+  { key: 'facebookUrl', label: 'Facebook', Icon: Facebook, iconBgClassName: 'bg-[#1877F2]' },
 ];

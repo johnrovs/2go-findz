@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { SOCIAL_PLATFORMS } from '../../utils/socialPlatforms.jsx';
 
 function extractHandle(url) {
@@ -15,22 +16,31 @@ function SocialMediaStrip({ settings }) {
   if (platforms.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center justify-center divide-x divide-border">
-      {platforms.map(({ key, label, Icon }) => {
+    <div className="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-x-5 gap-y-4 rounded-3xl bg-white px-6 py-4 text-center shadow-card sm:gap-x-6 sm:rounded-full sm:px-8 sm:py-3">
+      <p className="whitespace-nowrap text-small font-semibold text-heading">Follow 2Go Findz for daily finds & deals</p>
+      {platforms.map(({ key, label, Icon, iconBgClassName }) => {
         const url = settings[key];
         const handle = extractHandle(url);
         return (
-          <a
-            key={key}
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-6 py-2 text-body transition hover:text-primary"
-          >
-            <Icon className="h-5 w-5" />
-            <span className="text-small font-semibold">{label}</span>
-            {handle && <span className="text-small text-muted">{handle}</span>}
-          </a>
+          <Fragment key={key}>
+            <span className="hidden h-8 w-px bg-border sm:block" aria-hidden="true" />
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 transition hover:opacity-80"
+            >
+              <span
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white ${iconBgClassName}`}
+              >
+                <Icon className="h-4 w-4" />
+              </span>
+              <span className="flex flex-col text-left leading-tight">
+                <span className="text-small font-semibold text-heading">{label}</span>
+                {handle && <span className="text-small text-muted">{handle}</span>}
+              </span>
+            </a>
+          </Fragment>
         );
       })}
     </div>
