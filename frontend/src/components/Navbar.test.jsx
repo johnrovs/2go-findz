@@ -1,16 +1,24 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import Navbar from './Navbar.jsx';
 import { CompareProvider } from '../context/CompareContext.jsx';
 import * as categoryService from '../services/categoryService.js';
+
+function LocationDisplay() {
+  const location = useLocation();
+  return <div data-testid="location">{location.pathname + location.search}</div>;
+}
 
 function renderNavbar(initialEntries = ['/']) {
   return render(
     <MemoryRouter initialEntries={initialEntries}>
       <CompareProvider>
         <Navbar />
+        <Routes>
+          <Route path="*" element={<LocationDisplay />} />
+        </Routes>
       </CompareProvider>
     </MemoryRouter>
   );
@@ -27,15 +35,21 @@ describe('Navbar', () => {
     renderNavbar();
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Trending' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Best Sellers' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Compare' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Buying Guides' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Categories' })).toBeInTheDocument();
   });
 
-  it('highlights the active route', () => {
+  it('no longer renders Best Sellers or Comparisons in the nav', () => {
+    renderNavbar();
+    expect(screen.queryByRole('link', { name: 'Best Sellers' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Comparisons' })).not.toBeInTheDocument();
+  });
+
+  it('highlights the active route in white', () => {
     renderNavbar(['/trending']);
-    expect(screen.getByRole('link', { name: 'Trending' })).toHaveClass('text-primary');
-    expect(screen.getByRole('link', { name: 'Home' })).not.toHaveClass('text-primary');
+    expect(screen.getByRole('link', { name: 'Trending' })).toHaveClass('text-white');
+    expect(screen.getByRole('link', { name: 'Home' })).not.toHaveClass('text-white');
   });
 
   it('opens the categories dropdown and lists fetched categories', async () => {
@@ -69,25 +83,23 @@ describe('Navbar', () => {
     expect(screen.getAllByRole('link', { name: 'Trending' }).length).toBeGreaterThan(1);
   });
 
-  it('links the search button to browse all products', () => {
+  it('navigates to /products with the typed query when search is submitted', async () => {
+    const user = userEvent.setup();
     renderNavbar();
 
-    expect(screen.getByRole('link', { name: 'Browse all products' })).toHaveAttribute('href', '/#catalog');
+    await user.type(screen.getByLabelText('Search products'), 'wireless earbuds');
+    await user.click(screen.getByRole('button', { name: 'Search' }));
+
+    expect(screen.getByTestId('location')).toHaveTextContent('/products?search=wireless%20earbuds');
   });
 
-  it('renders the Buying Guides link after Compare', () => {
+  it('navigates to /products with no query when search is submitted empty', async () => {
+    const user = userEvent.setup();
     renderNavbar();
-    expect(screen.getByRole('link', { name: 'Buying Guides' })).toHaveAttribute('href', '/buying-guides');
-  });
 
-  it('renders the Comparisons link after Buying Guides', () => {
-    renderNavbar();
-    expect(screen.getByRole('link', { name: 'Comparisons' })).toHaveAttribute('href', '/comparisons');
-  });
+    await user.click(screen.getByRole('button', { name: 'Search' }));
 
-  it('renders the Best Sellers link between Trending and Categories', () => {
-    renderNavbar();
-    expect(screen.getByRole('link', { name: 'Best Sellers' })).toHaveAttribute('href', '/best-sellers');
+    expect(screen.getByTestId('location')).toHaveTextContent('/products');
   });
 
   it('hides the header when printing', () => {
@@ -103,8 +115,6 @@ describe('Navbar', () => {
   it('shows the compare count badge once products are selected', () => {
     localStorage.setItem('compareProductIds', JSON.stringify([1, 2]));
     renderNavbar();
-    // The badge digit is rendered inside the same link, so its accessible name becomes
-    // "Compare2" -- an exact "Compare" match would no longer find it once the badge shows.
     expect(screen.getByRole('link', { name: /compare/i })).toHaveTextContent('2');
   });
 });

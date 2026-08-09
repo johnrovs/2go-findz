@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { ChevronDown, Menu, Search } from 'lucide-react';
 import logo from '../assets/2gofindz.png';
 import MobileMenu from './MobileMenu.jsx';
@@ -8,13 +8,15 @@ import { getCategories } from '../services/categoryService.js';
 import { useCompare } from '../hooks/useCompare.js';
 
 const navLinkClassName = ({ isActive }) =>
-  `text-nav transition ${isActive ? 'text-primary' : 'text-body hover:text-primary'}`;
+  `text-nav transition ${isActive ? 'text-white' : 'text-white/70 hover:text-white'}`;
 
 function Navbar() {
   const { ids } = useCompare();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
   const categoriesRef = useRef(null);
 
   useEffect(() => {
@@ -43,10 +45,16 @@ function Navbar() {
     };
   }, [isCategoriesOpen]);
 
+  function handleSearchSubmit(event) {
+    event.preventDefault();
+    const trimmed = searchValue.trim();
+    navigate(trimmed ? `/products?search=${encodeURIComponent(trimmed)}` : '/products');
+  }
+
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 shadow-navbar backdrop-blur print:hidden">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-30 bg-navy-950 shadow-navbar print:hidden">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <Link to="/" aria-label="2Go Findz home">
             <img src={logo} alt="2Go Findz" className="h-10 w-10" />
           </Link>
@@ -58,16 +66,13 @@ function Navbar() {
             <NavLink to="/trending" className={navLinkClassName}>
               Trending
             </NavLink>
-            <NavLink to="/best-sellers" className={navLinkClassName}>
-              Best Sellers
-            </NavLink>
             <div ref={categoriesRef} className="relative">
               <button
                 type="button"
                 onClick={() => setIsCategoriesOpen((open) => !open)}
                 aria-expanded={isCategoriesOpen}
                 aria-haspopup="menu"
-                className="flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-indigo-600"
+                className="flex items-center gap-1 text-nav text-white/70 transition hover:text-white"
               >
                 Categories
                 <ChevronDown size={16} />
@@ -106,24 +111,31 @@ function Navbar() {
             <NavLink to="/buying-guides" className={navLinkClassName}>
               Buying Guides
             </NavLink>
-            <NavLink to="/comparisons" className={navLinkClassName}>
-              Comparisons
-            </NavLink>
           </nav>
 
           <div className="flex items-center gap-2">
-            <Link
-              to="/#catalog"
-              aria-label="Browse all products"
-              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600"
-            >
-              <Search size={20} />
-            </Link>
+            <form onSubmit={handleSearchSubmit} role="search" className="relative hidden sm:block">
+              <button
+                type="submit"
+                aria-label="Search"
+                className="absolute left-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center text-white/50 hover:text-white"
+              >
+                <Search size={16} aria-hidden="true" />
+              </button>
+              <input
+                type="search"
+                value={searchValue}
+                onChange={(event) => setSearchValue(event.target.value)}
+                placeholder="Search products..."
+                aria-label="Search products"
+                className="w-40 rounded-search border border-white/20 bg-white/10 py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-2 focus:ring-white lg:w-56"
+              />
+            </form>
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(true)}
               aria-label="Open menu"
-              className="rounded-md p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+              className="rounded-md p-2 text-white/70 hover:bg-white/10 hover:text-white lg:hidden"
             >
               <Menu size={20} />
             </button>
@@ -131,11 +143,7 @@ function Navbar() {
         </div>
       </header>
 
-      <MobileMenu
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-        compareCount={ids.length}
-      />
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} compareCount={ids.length} />
     </>
   );
 }
