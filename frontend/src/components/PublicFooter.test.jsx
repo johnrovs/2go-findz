@@ -68,9 +68,10 @@ describe('PublicFooter', () => {
     );
   });
 
-  it('renders the social strip when a platform is configured', () => {
+  it('does not render the social strip', () => {
     renderFooter();
-    expect(screen.getByRole('link', { name: /instagram/i })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /instagram/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('Follow 2Go Findz for daily finds & deals')).not.toBeInTheDocument();
   });
 
   it('does not render the newsletter form (hidden pending future development)', () => {

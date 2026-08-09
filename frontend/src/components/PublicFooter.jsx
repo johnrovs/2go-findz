@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import SocialMediaStrip from './home/SocialMediaStrip.jsx';
 import AffiliateDisclosure from './AffiliateDisclosure.jsx';
 
 const SHOP_LINKS = [
@@ -51,9 +50,6 @@ function PublicFooter({ settings }) {
               {settings?.shopBio ??
                 'Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.'}
             </p>
-            <div className="mt-6">
-              <SocialMediaStrip settings={settings} variant="compact" />
-            </div>
           </div>
           <FooterColumn title="Shop" links={SHOP_LINKS} />
           <FooterColumn title="Discover" links={DISCOVER_LINKS} />
