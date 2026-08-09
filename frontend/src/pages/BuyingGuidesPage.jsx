@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar.jsx';
-import Footer from '../components/Footer.jsx';
+import PublicFooter from '../components/PublicFooter.jsx';
 import SectionHeading from '../components/SectionHeading.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import EmptyState from '../components/EmptyState.jsx';
@@ -73,7 +73,7 @@ function BuyingGuidesPage() {
           )}
         </div>
       </section>
-      <Footer settings={settings} />
+      <PublicFooter settings={settings} />
     </div>
   );
 }

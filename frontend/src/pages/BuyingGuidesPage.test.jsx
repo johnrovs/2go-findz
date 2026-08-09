@@ -60,4 +60,12 @@ describe('BuyingGuidesPage (public)', () => {
 
     expect(await screen.findByText('Network error. Please try again.')).toBeInTheDocument();
   });
+
+  it('renders the shared public footer with real company links', async () => {
+    renderPage();
+    expect(await screen.findByRole('link', { name: 'Affiliate Disclosure' })).toHaveAttribute(
+      'href',
+      '/affiliate-disclosure'
+    );
+  });
 });

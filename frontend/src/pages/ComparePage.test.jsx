@@ -103,4 +103,12 @@ describe('ComparePage', () => {
 
     expect(await screen.findByText('Network error. Please try again.')).toBeInTheDocument();
   });
+
+  it('renders the shared public footer with real company links', async () => {
+    renderComparePage();
+    expect(await screen.findByRole('link', { name: 'Affiliate Disclosure' })).toHaveAttribute(
+      'href',
+      '/affiliate-disclosure'
+    );
+  });
 });

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar.jsx';
-import Footer from '../components/Footer.jsx';
+import PublicFooter from '../components/PublicFooter.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import ErrorState from '../components/ErrorState.jsx';
 import BuyingGuideBreadcrumbs from '../components/buying-guide/BuyingGuideBreadcrumbs.jsx';
@@ -210,7 +210,7 @@ function PublishedBuyingGuidePage() {
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <LoadingSpinner label="Loading buying guide..." />
         </div>
-        <Footer settings={settings} />
+        <PublicFooter settings={settings} />
       </div>
     );
   }
@@ -222,7 +222,7 @@ function PublishedBuyingGuidePage() {
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <ErrorState message={error ?? 'Buying guide not found.'} />
         </div>
-        <Footer settings={settings} />
+        <PublicFooter settings={settings} />
       </div>
     );
   }
@@ -307,7 +307,7 @@ function PublishedBuyingGuidePage() {
           </div>
         </div>
       </main>
-      <Footer settings={settings} />
+      <PublicFooter settings={settings} />
     </div>
   );
 }

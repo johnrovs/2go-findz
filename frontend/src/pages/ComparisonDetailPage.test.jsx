@@ -269,4 +269,13 @@ describe('ComparisonDetailPage', () => {
 
     expect(await screen.findByText('Comparison not found.')).toBeInTheDocument();
   });
+
+  it('renders the shared public footer with real company links', async () => {
+    vi.spyOn(comparisonService, 'getComparisonBySlug').mockResolvedValue(fullComparison);
+    renderPage();
+    expect(await screen.findByRole('link', { name: 'Affiliate Disclosure' })).toHaveAttribute(
+      'href',
+      '/affiliate-disclosure'
+    );
+  });
 });

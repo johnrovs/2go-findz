@@ -144,4 +144,14 @@ describe('PublishedBuyingGuidePage', () => {
     await screen.findByRole('heading', { level: 1 });
     expect(screen.queryByRole('heading', { name: /Runner-Ups/ })).not.toBeInTheDocument();
   });
+
+  it('renders the shared public footer with real company links', async () => {
+    vi.spyOn(buyingGuideService, 'getBuyingGuideBySlug').mockResolvedValue(fullGuide());
+    renderAtSlug('best-wireless-earbuds-under-100');
+
+    expect(await screen.findByRole('link', { name: 'Affiliate Disclosure' })).toHaveAttribute(
+      'href',
+      '/affiliate-disclosure'
+    );
+  });
 });

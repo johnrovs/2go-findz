@@ -10,7 +10,7 @@ import CategoryCard from '../components/CategoryCard.jsx';
 import ProductFilters from '../components/ProductFilters.jsx';
 import SearchInput from '../components/SearchInput.jsx';
 import Pagination from '../components/Pagination.jsx';
-import Footer from '../components/Footer.jsx';
+import PublicFooter from '../components/PublicFooter.jsx';
 import { useProductSearch } from '../hooks/useProductSearch.js';
 import { getSettings } from '../services/settingsService.js';
 import { getCategories } from '../services/categoryService.js';
@@ -221,7 +221,7 @@ function HomePage() {
         </div>
       </section>
 
-      <Footer settings={settings} />
+      <PublicFooter settings={settings} />
     </div>
   );
 }

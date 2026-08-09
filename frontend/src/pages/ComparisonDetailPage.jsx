@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar.jsx';
-import Footer from '../components/Footer.jsx';
+import PublicFooter from '../components/PublicFooter.jsx';
 import ProductGrid from '../components/ProductGrid.jsx';
 import Button from '../components/Button.jsx';
 import SectionHeading from '../components/SectionHeading.jsx';
@@ -386,7 +386,7 @@ function ComparisonDetailPage() {
           </div>
         )}
       </section>
-      <Footer settings={settings} />
+      <PublicFooter settings={settings} />
     </div>
   );
 }
