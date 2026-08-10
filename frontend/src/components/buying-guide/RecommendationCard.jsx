@@ -1,20 +1,17 @@
-import { Award, Check, Medal, X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import AmazonAffiliateButton from '../AmazonAffiliateButton.jsx';
+import QuickPickBadge from '../buying-guide-form/QuickPickBadge.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 
-function RecommendationCard({ recommendation, rank, onAffiliateClick }) {
-  const { product, recommendationType, sectionLabel, whyRecommended, pros, cons, bestFor } = recommendation;
-  const isTopPick = recommendationType === 'TOP_PICK';
+function RecommendationCard({ recommendation, rank, badgeIndex = 0, onAffiliateClick }) {
+  const { product, sectionLabel, whyRecommended, pros, cons, bestFor } = recommendation;
   const imageUrl = getImageUrl(product.imageFileName);
 
   return (
     <div className="rounded-card border border-border bg-white p-5">
       <div className="mb-3 flex items-center gap-2">
         {rank != null && <span className="text-xs font-semibold text-muted">#{rank}</span>}
-        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
-          {isTopPick ? <Award size={14} aria-hidden="true" /> : <Medal size={14} aria-hidden="true" />}
-          {sectionLabel || 'Untitled Badge'}
-        </span>
+        <QuickPickBadge label={sectionLabel || 'Untitled Badge'} index={badgeIndex} />
       </div>
 
       <div className="mb-3 flex items-center gap-4">
@@ -38,36 +35,46 @@ function RecommendationCard({ recommendation, rank, onAffiliateClick }) {
         <div className="prose prose-sm mb-3 max-w-none text-body" dangerouslySetInnerHTML={{ __html: whyRecommended }} />
       )}
 
-      {pros.length > 0 && (
-        <ul className="mb-2 space-y-1">
-          {pros.map((item, index) => (
-            <li key={index} className="flex items-start gap-1.5 text-sm text-body">
-              <Check size={14} className="mt-0.5 shrink-0 text-success" aria-hidden="true" />
-              {item}
-            </li>
-          ))}
-        </ul>
-      )}
+      {(pros.length > 0 || cons.length > 0 || bestFor.length > 0) && (
+        <div className="grid gap-4 sm:grid-cols-3">
+          {pros.length > 0 && (
+            <div>
+              <span className="text-sm font-semibold text-heading">Pros</span>
+              <ul className="mt-1 space-y-1">
+                {pros.map((item, index) => (
+                  <li key={index} className="flex items-start gap-1.5 text-sm text-body">
+                    <Check size={14} className="mt-0.5 shrink-0 text-success" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-      {cons.length > 0 && (
-        <ul className="mb-2 space-y-1">
-          {cons.map((item, index) => (
-            <li key={index} className="flex items-start gap-1.5 text-sm text-body">
-              <X size={14} className="mt-0.5 shrink-0 text-danger" aria-hidden="true" />
-              {item}
-            </li>
-          ))}
-        </ul>
-      )}
+          {cons.length > 0 && (
+            <div>
+              <span className="text-sm font-semibold text-heading">Cons</span>
+              <ul className="mt-1 space-y-1">
+                {cons.map((item, index) => (
+                  <li key={index} className="flex items-start gap-1.5 text-sm text-body">
+                    <X size={14} className="mt-0.5 shrink-0 text-danger" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-      {bestFor.length > 0 && (
-        <div>
-          <span className="text-sm font-semibold text-heading">Best For</span>
-          <ul className="list-disc pl-5 text-sm text-body">
-            {bestFor.map((item, index) => (
-              <li key={index}>{item}</li>
-            ))}
-          </ul>
+          {bestFor.length > 0 && (
+            <div>
+              <span className="text-sm font-semibold text-heading">Best For</span>
+              <ul className="mt-1 list-disc pl-5 text-sm text-body">
+                {bestFor.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -265,21 +265,23 @@ function PublishedBuyingGuidePage() {
               onProductClick={(payload) => trackEvent('comparison_product_click', payload)}
             />
           </div>
-          <div id="top-pick">
-            <TopPickSection
-              topPick={guide.topPick}
-              number={sectionNumbers.TOP_PICK}
-              guideId={guide.id}
-              onAffiliateClick={(payload) => trackEvent('top_pick_affiliate_click', payload)}
-            />
-          </div>
-          <div id="runner-ups">
-            <RunnerUpsSection
-              runnerUps={guide.runnerUps}
-              number={sectionNumbers.RUNNER_UPS}
-              guideId={guide.id}
-              onAffiliateClick={(payload) => trackEvent('runner_up_affiliate_click', payload)}
-            />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div id="top-pick">
+              <TopPickSection
+                topPick={guide.topPick}
+                number={sectionNumbers.TOP_PICK}
+                guideId={guide.id}
+                onAffiliateClick={(payload) => trackEvent('top_pick_affiliate_click', payload)}
+              />
+            </div>
+            <div id="runner-ups">
+              <RunnerUpsSection
+                runnerUps={guide.runnerUps}
+                number={sectionNumbers.RUNNER_UPS}
+                guideId={guide.id}
+                onAffiliateClick={(payload) => trackEvent('runner_up_affiliate_click', payload)}
+              />
+            </div>
           </div>
           <div id="buying-guide">
             <BuyingGuideContentSection

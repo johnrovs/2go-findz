@@ -154,4 +154,17 @@ describe('PublishedBuyingGuidePage', () => {
       '/affiliate-disclosure'
     );
   });
+
+  it('places Top Pick and Runner-Ups side by side in a shared two-column grid', async () => {
+    vi.spyOn(buyingGuideService, 'getBuyingGuideBySlug').mockResolvedValue(
+      fullGuide({ runnerUps: [{ product: { id: 2, name: 'Budget Pick', imageFileName: null, productPrice: 19.99, productLink: 'https://amazon.com/dp/B00B', rating: null, reviewCount: 0 }, recommendationType: 'RUNNER_UP', sectionLabel: 'Best Budget', whyRecommended: '', pros: [], cons: [], bestFor: [], badgeName: 'Best Budget' }] })
+    );
+    renderAtSlug('best-wireless-earbuds-under-100');
+
+    const topPickHeading = await screen.findByRole('heading', { name: /Our Top Pick/ });
+    const runnerUpsHeading = screen.getByRole('heading', { name: /Runner-Ups/ });
+    const sharedGrid = topPickHeading.closest('.lg\\:grid-cols-2');
+    expect(sharedGrid).toBeInTheDocument();
+    expect(sharedGrid).toContainElement(runnerUpsHeading);
+  });
 });

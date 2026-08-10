@@ -71,4 +71,23 @@ describe('RecommendationCard', () => {
     render(<RecommendationCard recommendation={{ ...topPick, product: { ...topPick.product, rating: null } }} rank={null} />);
     expect(screen.queryByText(/reviews\)/)).not.toBeInTheDocument();
   });
+
+  it('colors the badge according to badgeIndex, defaulting to index 0', () => {
+    render(<RecommendationCard recommendation={topPick} rank={null} />);
+    expect(screen.getByText('Best Overall')).toHaveClass('bg-success');
+  });
+
+  it('uses a later palette color for a later badgeIndex', () => {
+    render(<RecommendationCard recommendation={topPick} rank={1} badgeIndex={1} />);
+    expect(screen.getByText('Best Overall')).toHaveClass('bg-info');
+  });
+
+  it('lays out pros, cons, and best-for as three side-by-side columns', () => {
+    const { container } = render(<RecommendationCard recommendation={topPick} rank={null} />);
+    const columns = container.querySelector('.sm\\:grid-cols-3');
+    expect(columns).toBeInTheDocument();
+    expect(columns).toContainElement(screen.getByText('Excellent Noise Cancellation'));
+    expect(columns).toContainElement(screen.getByText('Slightly bulky case'));
+    expect(columns).toContainElement(screen.getByText('Daily commuters'));
+  });
 });

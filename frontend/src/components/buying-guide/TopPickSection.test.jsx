@@ -36,4 +36,9 @@ describe('TopPickSection', () => {
     const { container } = render(<TopPickSection topPick={null} number={3} guideId={3} onAffiliateClick={vi.fn()} />);
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('colors the badge as the first palette color', () => {
+    render(<TopPickSection topPick={topPick} number={3} guideId={3} onAffiliateClick={vi.fn()} />);
+    expect(screen.getByText('Best Overall')).toHaveClass('bg-success');
+  });
 });

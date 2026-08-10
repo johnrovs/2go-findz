@@ -51,4 +51,13 @@ describe('RunnerUpsSection', () => {
     const { container } = render(<RunnerUpsSection runnerUps={[]} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('continues the badge color palette after the Top Pick, one color per runner-up', () => {
+    const runnerUps = [makeRunnerUp(1, 'Collagen Gummy'), makeRunnerUp(2, 'Magnesium Complex')];
+    render(<RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
+
+    const badges = screen.getAllByText('Best Budget Pick');
+    expect(badges[0]).toHaveClass('bg-info');
+    expect(badges[1]).toHaveClass('bg-primary');
+  });
 });
