@@ -13,7 +13,7 @@ function HomeSectionCard({
   return (
     <div className="rounded-card border border-slate-200 bg-white p-6 shadow-card sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
+        <div className="flex items-center gap-3">
           {Icon && (
             <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${iconClassName}`}>
               <Icon size={20} aria-hidden="true" />

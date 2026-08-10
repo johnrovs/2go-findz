@@ -54,4 +54,10 @@ describe('HomeSectionCard', () => {
     expect(badge).toHaveClass('bg-amazon', 'text-white');
     expect(badge).not.toHaveClass('bg-primary/10');
   });
+
+  it('vertically centers the icon against the title/description block instead of top-aligning', () => {
+    renderCard();
+    const iconGroup = screen.getByRole('heading', { name: 'Trending Right Now' }).parentElement.parentElement;
+    expect(iconGroup).toHaveClass('items-center');
+  });
 });
