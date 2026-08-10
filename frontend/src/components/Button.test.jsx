@@ -45,7 +45,7 @@ describe('Button', () => {
 
   it('applies amazon variant classes', () => {
     render(<Button variant="amazon">Amazon</Button>);
-    expect(screen.getByRole('button', { name: 'Amazon' })).toHaveClass('bg-white', 'text-heading', 'border-heading');
+    expect(screen.getByRole('button', { name: 'Amazon' })).toHaveClass('bg-amazon', 'text-white');
   });
 
   it('applies danger variant classes', () => {

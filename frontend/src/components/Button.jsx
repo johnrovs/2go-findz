@@ -6,7 +6,7 @@ const BASE_CLASSES =
 const VARIANT_CLASSES = {
   primary: 'bg-amazon text-white shadow-card hover:bg-amazon-hover',
   secondary: 'bg-white text-heading border border-heading hover:bg-heading/5',
-  amazon: 'bg-white text-heading border border-heading shadow-card hover:bg-heading/5',
+  amazon: 'bg-amazon text-white shadow-card hover:bg-amazon-hover',
   danger: 'bg-danger text-white shadow-card hover:bg-red-700',
 };
 
