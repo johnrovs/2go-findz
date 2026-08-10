@@ -121,6 +121,6 @@ describe('Navbar', () => {
   it('renders the logo at a fixed height with its natural width, not forced into a square', () => {
     renderNavbar();
     const logo = screen.getByRole('img', { name: '2Go Findz' });
-    expect(logo).toHaveClass('h-10', 'w-auto');
+    expect(logo).toHaveClass('h-14', 'w-auto');
   });
 });
