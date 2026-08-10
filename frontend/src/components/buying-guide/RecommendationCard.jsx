@@ -3,7 +3,7 @@ import QuickPickBadge from '../buying-guide-form/QuickPickBadge.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { isSupportedAmazonUrl } from '../../utils/amazonLink.js';
 
-function RecommendationCard({ recommendation, rank, badgeIndex = 0, onAffiliateClick }) {
+function RecommendationCard({ recommendation, rank, badgeIndex = 0, wide = true, onAffiliateClick }) {
   const { product, sectionLabel, whyRecommended, pros, cons, bestFor } = recommendation;
   const imageUrl = getImageUrl(product.imageFileName);
 
@@ -50,7 +50,7 @@ function RecommendationCard({ recommendation, rank, badgeIndex = 0, onAffiliateC
       )}
 
       {(pros.length > 0 || cons.length > 0 || bestFor.length > 0) && (
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className={`grid gap-4 ${wide ? 'sm:grid-cols-3' : ''}`}>
           {pros.length > 0 && (
             <div>
               <span className="text-sm font-semibold text-heading">Pros</span>

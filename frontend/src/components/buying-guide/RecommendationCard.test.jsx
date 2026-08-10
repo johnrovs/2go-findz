@@ -106,12 +106,17 @@ describe('RecommendationCard', () => {
     expect(screen.getByText('Best Overall')).toHaveClass('bg-info');
   });
 
-  it('lays out pros, cons, and best-for as three side-by-side columns', () => {
+  it('lays out pros, cons, and best-for as three side-by-side columns by default (wide)', () => {
     const { container } = render(<RecommendationCard recommendation={topPick} rank={null} />);
     const columns = container.querySelector('.sm\\:grid-cols-3');
     expect(columns).toBeInTheDocument();
     expect(columns).toContainElement(screen.getByText('Excellent Noise Cancellation'));
     expect(columns).toContainElement(screen.getByText('Slightly bulky case'));
     expect(columns).toContainElement(screen.getByText('Daily commuters'));
+  });
+
+  it('stacks pros, cons, and best-for in a single column when wide is false', () => {
+    const { container } = render(<RecommendationCard recommendation={topPick} rank={null} wide={false} />);
+    expect(container.querySelector('.sm\\:grid-cols-3')).not.toBeInTheDocument();
   });
 });

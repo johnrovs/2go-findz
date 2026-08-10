@@ -9,19 +9,21 @@ function RunnerUpsSection({ runnerUps, number, guideId, onAffiliateClick }) {
   if (runnerUps.length === 0) return null;
 
   const visibleRunnerUps = showAll ? runnerUps : runnerUps.slice(0, INITIAL_VISIBLE_COUNT);
+  const isSingle = visibleRunnerUps.length === 1;
 
   return (
     <section aria-labelledby="runner-ups-heading" className="scroll-mt-24">
       <h2 id="runner-ups-heading" className="mb-4 text-xs font-semibold uppercase tracking-wide text-muted">
         {number}. Runner-Ups
       </h2>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className={`grid gap-4 ${isSingle ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
         {visibleRunnerUps.map((runnerUp, index) => (
           <RecommendationCard
             key={runnerUp.product.id}
             recommendation={runnerUp}
             rank={index + 1}
             badgeIndex={index + 1}
+            wide={isSingle}
             onAffiliateClick={() =>
               onAffiliateClick({
                 guideId,

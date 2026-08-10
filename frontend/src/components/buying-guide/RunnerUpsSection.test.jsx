@@ -60,4 +60,19 @@ describe('RunnerUpsSection', () => {
     expect(badges[0]).toHaveClass('bg-info');
     expect(badges[1]).toHaveClass('bg-primary');
   });
+
+  it('expands a lone runner-up to the full-width single-column layout used by Top Pick', () => {
+    const { container } = render(
+      <RunnerUpsSection runnerUps={[makeRunnerUp(1, 'Collagen Gummy')]} number={4} guideId={3} onAffiliateClick={vi.fn()} />
+    );
+    const grid = container.querySelector('.grid');
+    expect(grid).toHaveClass('grid-cols-1');
+    expect(grid).not.toHaveClass('lg:grid-cols-2');
+  });
+
+  it('keeps the two-column grid when there is more than one runner-up', () => {
+    const runnerUps = [makeRunnerUp(1, 'Collagen Gummy'), makeRunnerUp(2, 'Magnesium Complex')];
+    const { container } = render(<RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
+    expect(container.querySelector('.grid')).toHaveClass('lg:grid-cols-2');
+  });
 });
