@@ -21,4 +21,13 @@ describe('BrowseProductsBanner', () => {
     );
     expect(screen.getByRole('heading', { name: 'Browse All Products' })).toBeInTheDocument();
   });
+
+  it('does not render the decorative corner images', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <BrowseProductsBanner />
+      </MemoryRouter>
+    );
+    expect(container.querySelectorAll('img')).toHaveLength(0);
+  });
 });
