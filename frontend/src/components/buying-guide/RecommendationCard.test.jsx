@@ -23,14 +23,38 @@ const topPick = {
 };
 
 describe('RecommendationCard', () => {
-  it('renders the product name, badge, price, and rating', () => {
+  it('renders the product name, badge, and rating', () => {
     render(<RecommendationCard recommendation={topPick} rank={null} />);
 
     expect(screen.getByRole('heading', { name: 'Soundcore Liberty 4 NC' })).toBeInTheDocument();
     expect(screen.getByText('Best Overall')).toBeInTheDocument();
-    expect(screen.getByText('$69.99')).toBeInTheDocument();
     expect(screen.getByText(/4.5/)).toBeInTheDocument();
     expect(screen.getByText(/12,850/)).toBeInTheDocument();
+  });
+
+  it('does not render the price or a separate View on Amazon button', () => {
+    render(<RecommendationCard recommendation={topPick} rank={null} />);
+
+    expect(screen.queryByText('$69.99')).not.toBeInTheDocument();
+    expect(screen.queryByText('View on Amazon')).not.toBeInTheDocument();
+  });
+
+  it('makes the product name a link to the real Amazon product URL', () => {
+    render(<RecommendationCard recommendation={topPick} rank={null} />);
+
+    const link = screen.getByRole('link', { name: 'Soundcore Liberty 4 NC' });
+    expect(link).toHaveAttribute('href', topPick.product.productLink);
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'nofollow sponsored noopener noreferrer');
+  });
+
+  it('renders a "Why We Recommend It?" label above the description', () => {
+    render(<RecommendationCard recommendation={topPick} rank={null} />);
+
+    const label = screen.getByText('Why We Recommend It?');
+    expect(label.compareDocumentPosition(screen.getByText(/perfect combination/))).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
   });
 
   it('does not show a rank badge for the Top Pick', () => {
@@ -57,12 +81,12 @@ describe('RecommendationCard', () => {
     expect(screen.queryByText('Best For')).not.toBeInTheDocument();
   });
 
-  it('renders the Amazon CTA and forwards onAffiliateClick', async () => {
+  it('forwards onAffiliateClick when the product name link is clicked', async () => {
     const onAffiliateClick = vi.fn();
     const user = userEvent.setup();
     render(<RecommendationCard recommendation={topPick} rank={null} onAffiliateClick={onAffiliateClick} />);
 
-    await user.click(screen.getByRole('link', { name: /Soundcore Liberty 4 NC/ }));
+    await user.click(screen.getByRole('link', { name: 'Soundcore Liberty 4 NC' }));
 
     expect(onAffiliateClick).toHaveBeenCalled();
   });

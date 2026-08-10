@@ -1,7 +1,7 @@
 import { Check, X } from 'lucide-react';
-import AmazonAffiliateButton from '../AmazonAffiliateButton.jsx';
 import QuickPickBadge from '../buying-guide-form/QuickPickBadge.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
+import { isSupportedAmazonUrl } from '../../utils/amazonLink.js';
 
 function RecommendationCard({ recommendation, rank, badgeIndex = 0, onAffiliateClick }) {
   const { product, sectionLabel, whyRecommended, pros, cons, bestFor } = recommendation;
@@ -19,20 +19,34 @@ function RecommendationCard({ recommendation, rank, badgeIndex = 0, onAffiliateC
           {imageUrl && <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-cover" />}
         </div>
         <div className="min-w-0">
-          <h3 className="text-card-title text-heading">{product.name}</h3>
+          <h3 className="text-card-title text-heading">
+            {isSupportedAmazonUrl(product.productLink) ? (
+              <a
+                href={product.productLink}
+                target="_blank"
+                rel="nofollow sponsored noopener noreferrer"
+                onClick={onAffiliateClick}
+                className="hover:underline"
+              >
+                {product.name}
+              </a>
+            ) : (
+              product.name
+            )}
+          </h3>
           {product.rating != null && (
             <p className="text-xs text-muted">
               ★ {product.rating} ({(product.reviewCount ?? 0).toLocaleString()} reviews)
             </p>
           )}
-          <p className="text-sm font-semibold text-heading">${Number(product.productPrice).toFixed(2)}</p>
         </div>
       </div>
 
-      <AmazonAffiliateButton productName={product.name} url={product.productLink} onClick={onAffiliateClick} className="mb-3" />
-
       {whyRecommended && (
-        <div className="prose prose-sm mb-3 max-w-none text-body" dangerouslySetInnerHTML={{ __html: whyRecommended }} />
+        <div className="mb-3">
+          <span className="text-sm font-semibold text-heading">Why We Recommend It?</span>
+          <div className="prose prose-sm mt-1 max-w-none text-body" dangerouslySetInnerHTML={{ __html: whyRecommended }} />
+        </div>
       )}
 
       {(pros.length > 0 || cons.length > 0 || bestFor.length > 0) && (
