@@ -56,7 +56,7 @@ function Navbar() {
       <header className="sticky top-0 z-30 bg-navy-950 shadow-navbar print:hidden">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <Link to="/" aria-label="2Go Findz home">
-            <img src={logo} alt="2Go Findz" className="h-10 w-10" />
+            <img src={logo} alt="2Go Findz" className="h-14 w-auto" />
           </Link>
 
           <nav aria-label="Main navigation" className="hidden items-center gap-6 lg:flex">

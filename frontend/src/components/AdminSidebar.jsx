@@ -33,7 +33,7 @@ function AdminSidebar({ isOpen, onClose }) {
   const content = (
     <nav aria-label="Main navigation" className="flex h-full flex-col bg-[#0F172A] px-3 py-6">
       <div className="mb-8 px-3">
-        <img src={logo} alt="2Go Findz" className="h-10 w-10 rounded-full object-cover" />
+        <img src={logo} alt="2Go Findz" className="h-14 w-auto" />
       </div>
       <ul className="flex-1 space-y-1">
         {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
