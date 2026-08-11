@@ -167,6 +167,67 @@ class PublicProductControllerTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.data[0].id").value(productId));
     }
 
+    @Test
+    void search_filtersByBrand() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Public Brand Filter Category");
+        createProductWithBrand(token, categoryId, "Sony Product", "Sony");
+        createProductWithBrand(token, categoryId, "Bose Product", "Bose");
+
+        mockMvc.perform(get("/api/public/products").param("brands", "Sony"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content.length()").value(1))
+                .andExpect(jsonPath("$.data.content[0].name").value("Sony Product"));
+    }
+
+    @Test
+    void search_filtersByMultipleCategoryIds() throws Exception {
+        String token = adminToken();
+        Long categoryOne = createCategoryId(token, "Multi Category One");
+        Long categoryTwo = createCategoryId(token, "Multi Category Two");
+        Long categoryThree = createCategoryId(token, "Multi Category Three");
+        createProductId(token, categoryOne, "In Category One", true);
+        createProductId(token, categoryTwo, "In Category Two", true);
+        createProductId(token, categoryThree, "In Category Three", true);
+
+        mockMvc.perform(get("/api/public/products").param("categoryIds", categoryOne + "," + categoryTwo))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content.length()").value(2));
+    }
+
+    @Test
+    void getDistinctBrands_returnsOnlyBrandsFromActiveProducts() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Public Brands Category");
+        createProductWithBrand(token, categoryId, "Active Brand Product", "VisibleBrand");
+
+        ProductRequest inactiveProduct = new ProductRequest(
+                "Inactive Brand Product", "Should not appear.", categoryId, null,
+                new BigDecimal("15.00"), "https://amazon.com/dp/hiddenbrand", false, false, false,
+                "HiddenBrand", null, null, null, null);
+        mockMvc.perform(post("/api/admin/products")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(inactiveProduct)));
+
+        mockMvc.perform(get("/api/public/products/brands"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", org.hamcrest.Matchers.hasItem("VisibleBrand")))
+                .andExpect(jsonPath("$.data", org.hamcrest.Matchers.not(org.hamcrest.Matchers.hasItem("HiddenBrand"))));
+    }
+
+    private void createProductWithBrand(String token, Long categoryId, String name, String brand) throws Exception {
+        ProductRequest request = new ProductRequest(
+                name, "Brand test product.", categoryId, null,
+                new BigDecimal("25.00"), "https://amazon.com/dp/" + name.replace(" ", "-"),
+                false, false, true, brand, null, null, null, null);
+        mockMvc.perform(post("/api/admin/products")
+                .header("Authorization", "Bearer " + token)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
     private Long createProductId(String token, Long categoryId, String name, boolean active) throws Exception {
         var result = mockMvc.perform(post("/api/admin/products")
                         .header("Authorization", "Bearer " + token)

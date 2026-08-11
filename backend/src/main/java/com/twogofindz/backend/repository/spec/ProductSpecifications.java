@@ -4,6 +4,7 @@ import com.twogofindz.backend.entity.Product;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public final class ProductSpecifications {
 
@@ -30,11 +31,23 @@ public final class ProductSpecifications {
                 categoryId == null ? cb.conjunction() : cb.equal(root.get("category").get("id"), categoryId);
     }
 
+    public static Specification<Product> hasCategoryIdIn(List<Long> categoryIds) {
+        return (root, query, cb) ->
+                (categoryIds == null || categoryIds.isEmpty())
+                        ? cb.conjunction()
+                        : root.get("category").get("id").in(categoryIds);
+    }
+
     public static Specification<Product> hasBrand(String brand) {
         return (root, query, cb) ->
                 (brand == null || brand.isBlank())
                         ? cb.conjunction()
                         : cb.equal(cb.lower(root.get("brand")), brand.toLowerCase());
+    }
+
+    public static Specification<Product> hasBrandIn(List<String> brands) {
+        return (root, query, cb) ->
+                (brands == null || brands.isEmpty()) ? cb.conjunction() : root.get("brand").in(brands);
     }
 
     public static Specification<Product> isTrending(Boolean trending) {

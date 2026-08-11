@@ -43,7 +43,7 @@ public class AdminProductController {
             @RequestParam(required = false) BigDecimal maxPrice,
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         return ApiResponse.success("Products retrieved successfully.",
-                productService.search(search, categoryId, brand, trending, bestSeller, active, minPrice, maxPrice, pageable));
+                productService.search(search, categoryId, null, brand, null, trending, bestSeller, active, minPrice, maxPrice, pageable));
     }
 
     @GetMapping("/brands")

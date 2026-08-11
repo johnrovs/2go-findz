@@ -23,6 +23,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.brand IS NOT NULL AND p.brand <> '' ORDER BY p.brand")
     List<String> findDistinctBrands();
 
+    @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.active = true AND p.brand IS NOT NULL AND p.brand <> '' ORDER BY p.brand")
+    List<String> findDistinctBrandsByActiveTrue();
+
     /**
      * One row per calendar month with at least one product created in range, grouped and
      * counted at the DB level (native SQL — MySQL-only project) rather than fetching every

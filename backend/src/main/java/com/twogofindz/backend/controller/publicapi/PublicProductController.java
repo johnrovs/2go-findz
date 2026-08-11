@@ -37,16 +37,21 @@ public class PublicProductController {
     public ApiResponse<Page<ProductResponse>> search(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) List<Long> categoryIds,
+            @RequestParam(required = false) List<String> brands,
             @RequestParam(required = false) Boolean trending,
             @RequestParam(required = false) Boolean bestSeller,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @PageableDefault(size = 12, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable) {
         // Public visitors only ever see active products, regardless of any client-supplied filter.
-        // Brand filtering isn't exposed on the public endpoint (admin-only, for the Buying Guides
-        // product picker) -- passing null here preserves existing public search behavior unchanged.
         return ApiResponse.success("Products retrieved successfully.",
-                productService.search(search, categoryId, null, trending, bestSeller, true, minPrice, maxPrice, pageable));
+                productService.search(search, categoryId, categoryIds, null, brands, trending, bestSeller, true, minPrice, maxPrice, pageable));
+    }
+
+    @GetMapping("/brands")
+    public ApiResponse<List<String>> getBrands() {
+        return ApiResponse.success("Brands retrieved successfully.", productService.getDistinctActiveBrands());
     }
 
     @GetMapping("/{id}")

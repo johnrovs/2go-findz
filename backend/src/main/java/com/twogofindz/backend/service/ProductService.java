@@ -15,8 +15,9 @@ public interface ProductService {
     ProductResponse getActiveById(Long id);
     void softDelete(Long id);
     Page<ProductResponse> search(
-            String term, Long categoryId, String brand, Boolean trending, Boolean bestSeller, Boolean active,
-            BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+            String term, Long categoryId, List<Long> categoryIds, String brand, List<String> brands, Boolean trending,
+            Boolean bestSeller, Boolean active, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
     List<ProductResponse> getComparableByIds(List<Long> ids);
     List<String> getDistinctBrands();
+    List<String> getDistinctActiveBrands();
 }
