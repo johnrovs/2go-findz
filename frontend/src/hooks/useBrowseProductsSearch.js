@@ -29,6 +29,7 @@ export function useBrowseProductsSearch() {
   const [totalElements, setTotalElements] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retryToken, setRetryToken] = useState(0);
 
   const search = searchParams.get('search') ?? '';
   const categories = parseList(searchParams.get('category'));
@@ -79,7 +80,7 @@ export function useBrowseProductsSearch() {
     // categoriesKey/brandsKey are the flattened, comparable forms of the categories/brands
     // arrays (which are freshly recreated on every render by parseList) — depending on the
     // arrays directly would refetch on every render even when their contents haven't changed.
-  }, [search, categoriesKey, brandsKey, sort, page, size]);
+  }, [search, categoriesKey, brandsKey, sort, page, size, retryToken]);
 
   const updateParams = useCallback(
     (updates, { resetPage = true } = {}) => {
@@ -122,6 +123,7 @@ export function useBrowseProductsSearch() {
     setPage: (value) => updateParams({ page: value === 1 ? '' : value }, { resetPage: false }),
     setPageSize: (value) =>
       updateParams({ size: ALLOWED_PAGE_SIZES.includes(value) && value !== DEFAULT_PAGE_SIZE ? value : '' }),
+    refetch: () => setRetryToken((token) => token + 1),
     clearAll: () => updateParams({ search: '', category: '', brand: '' }),
     resetAll: () => updateParams({ search: '', category: '', brand: '', sort: '', view: '', size: '' }),
   };

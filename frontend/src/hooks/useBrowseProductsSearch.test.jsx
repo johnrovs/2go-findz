@@ -191,4 +191,20 @@ describe('useBrowseProductsSearch', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.error).toBe('Network error. Please try again.');
   });
+
+  it('refetch re-runs the same search and can recover from a prior error', async () => {
+    const searchSpy = vi
+      .spyOn(productService, 'searchProducts')
+      .mockRejectedValueOnce({ message: 'Network error. Please try again.' })
+      .mockResolvedValueOnce({ content: [{ id: 1, name: 'Recovered' }], totalPages: 1, totalElements: 1 });
+
+    const { result } = renderHook(() => useBrowseProductsSearch(), { wrapper });
+    await waitFor(() => expect(result.current.error).toBe('Network error. Please try again.'));
+
+    act(() => result.current.refetch());
+
+    await waitFor(() => expect(result.current.error).toBe(null));
+    expect(result.current.products).toEqual([{ id: 1, name: 'Recovered' }]);
+    expect(searchSpy).toHaveBeenCalledTimes(2);
+  });
 });

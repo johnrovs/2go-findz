@@ -12,10 +12,11 @@ describe('AllProductsPage', () => {
     vi.restoreAllMocks();
     vi.spyOn(settingsService, 'getSettings').mockResolvedValue({ affiliateDisclosure: 'Disclosure.' });
     vi.spyOn(categoryService, 'getCategories').mockResolvedValue([]);
+    vi.spyOn(productService, 'getBrands').mockResolvedValue([]);
     vi.spyOn(productService, 'searchProducts').mockResolvedValue({ content: [], totalPages: 0, totalElements: 0 });
   });
 
-  it('renders the All Products title and description via CatalogPage', async () => {
+  it('renders the Browse All Products page via BrowseProductsPage', async () => {
     render(
       <MemoryRouter>
         <CompareProvider>
@@ -24,7 +25,9 @@ describe('AllProductsPage', () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByRole('heading', { name: 'All Products' })).toBeInTheDocument();
-    expect(screen.getByText('Search, filter, and sort our full catalog.')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Browse All Products' })).toBeInTheDocument();
+    expect(
+      screen.getByText('Explore handpicked products from Amazon across all categories.')
+    ).toBeInTheDocument();
   });
 });
