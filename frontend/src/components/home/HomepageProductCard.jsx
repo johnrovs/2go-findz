@@ -17,7 +17,7 @@ function HomepageProductCard({ product }) {
       onClick={handleClick}
       target="_blank"
       rel="nofollow sponsored noopener noreferrer"
-      className="group flex w-full flex-col overflow-hidden rounded-card bg-white transition-opacity duration-200 hover:opacity-90"
+      className="group flex w-full flex-col bg-white transition-opacity duration-200 hover:opacity-90"
     >
       <div className="aspect-square overflow-hidden rounded-card bg-slate-100">
         {imageUrl ? (
@@ -33,7 +33,7 @@ function HomepageProductCard({ product }) {
           </div>
         )}
       </div>
-      <p className="pt-3 text-left text-small font-semibold text-heading">{product.name}</p>
+      <p className="pt-3 text-left text-small font-medium text-heading">{product.name}</p>
     </a>
   );
 }

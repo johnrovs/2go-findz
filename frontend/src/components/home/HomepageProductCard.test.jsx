@@ -53,4 +53,17 @@ describe('HomepageProductCard', () => {
     expect(link).not.toHaveClass('border', 'shadow-card');
     expect(screen.getByText(product.name)).toHaveClass('text-left');
   });
+
+  it('renders the caption at medium weight, not semibold, so Poppins reads less heavy', () => {
+    render(<HomepageProductCard product={product} />);
+    const caption = screen.getByText(product.name);
+    expect(caption).toHaveClass('font-medium');
+    expect(caption).not.toHaveClass('font-semibold');
+  });
+
+  it('does not clip the caption text with a rounded overflow-hidden corner on the outer link', () => {
+    render(<HomepageProductCard product={product} />);
+    const link = screen.getByRole('link');
+    expect(link).not.toHaveClass('overflow-hidden', 'rounded-card');
+  });
 });
