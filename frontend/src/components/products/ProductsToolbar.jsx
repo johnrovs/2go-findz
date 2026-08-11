@@ -5,6 +5,7 @@ const SORT_OPTIONS = [
   { value: 'oldest', label: 'Oldest' },
   { value: 'nameAZ', label: 'Name A-Z' },
   { value: 'nameZA', label: 'Name Z-A' },
+  { value: 'highestRated', label: 'Highest Rated' },
 ];
 
 function ProductsToolbar({

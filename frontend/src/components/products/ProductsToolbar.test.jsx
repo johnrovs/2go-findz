@@ -49,6 +49,11 @@ describe('ProductsToolbar', () => {
     expect(onSortChange).toHaveBeenCalledWith('nameAZ');
   });
 
+  it('offers a Highest Rated sort option since rating is a real stored field', () => {
+    renderToolbar();
+    expect(screen.getByRole('option', { name: 'Highest Rated' })).toBeInTheDocument();
+  });
+
   it('renders Grid and List toggle buttons with correct aria-pressed state', () => {
     renderToolbar({ view: 'grid' });
     expect(screen.getByRole('button', { name: 'Grid view' })).toHaveAttribute('aria-pressed', 'true');

@@ -7,6 +7,7 @@ const SORT_MAP = {
   oldest: 'createdAt,asc',
   nameAZ: 'name,asc',
   nameZA: 'name,desc',
+  highestRated: 'rating,desc',
 };
 
 const DEFAULT_SORT = 'newest';

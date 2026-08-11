@@ -99,6 +99,17 @@ describe('useBrowseProductsSearch', () => {
     expect(productService.searchProducts).toHaveBeenLastCalledWith(expect.objectContaining({ sort: 'name,asc' }));
   });
 
+  it('setSort maps highestRated to the rating column since rating is a real stored field', async () => {
+    vi.spyOn(productService, 'searchProducts').mockResolvedValue({ content: [], totalPages: 0, totalElements: 0 });
+    const { result } = renderHook(() => useBrowseProductsSearch(), { wrapper });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    act(() => result.current.setSort('highestRated'));
+
+    await waitFor(() => expect(result.current.sort).toBe('highestRated'));
+    expect(productService.searchProducts).toHaveBeenLastCalledWith(expect.objectContaining({ sort: 'rating,desc' }));
+  });
+
   it('setPage sends the zero-indexed page to the backend without resetting other filters', async () => {
     vi.spyOn(productService, 'searchProducts').mockResolvedValue({ content: [], totalPages: 5, totalElements: 100 });
     const { result } = renderHook(() => useBrowseProductsSearch(), { wrapper });
