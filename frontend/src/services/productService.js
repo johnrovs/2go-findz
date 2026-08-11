@@ -14,3 +14,8 @@ export async function compareProducts(ids) {
   const response = await api.get('/public/products/compare', { params: { ids: ids.join(',') } });
   return response.data.data;
 }
+
+export async function getBrands() {
+  const response = await api.get('/public/products/brands');
+  return response.data.data;
+}
