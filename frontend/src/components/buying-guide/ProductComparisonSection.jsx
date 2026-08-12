@@ -38,7 +38,7 @@ function ProductComparisonSection({ comparisonTable, number, guideId, onProductC
           )
         }
       />
-      {hasPrice && <p className="mt-2 text-xs text-muted">* Prices and availability may change after publication.</p>}
+      {hasPrice && <p className="mt-2 text-xs text-muted">{t('comparison.priceDisclaimer')}</p>}
     </section>
   );
 }
