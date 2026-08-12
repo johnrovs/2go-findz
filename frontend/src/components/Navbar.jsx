@@ -3,15 +3,15 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { ChevronDown, Menu, Search } from 'lucide-react';
 import logo from '../assets/2gofindz.png';
 import MobileMenu from './MobileMenu.jsx';
-import Badge from './Badge.jsx';
 import { getCategories } from '../services/categoryService.js';
-import { useCompare } from '../hooks/useCompare.js';
+// Compare nav entry point is hidden pending a future redesign — see the commented
+// NavLink below. The Compare feature itself (useCompare/CompareContext/ComparePage)
+// is untouched, just unreachable from navigation for now.
 
 const navLinkClassName = ({ isActive }) =>
   `text-nav transition ${isActive ? 'text-white' : 'text-white/70 hover:text-white'}`;
 
 function Navbar() {
-  const { ids } = useCompare();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -104,10 +104,9 @@ function Navbar() {
                 </div>
               )}
             </div>
-            <NavLink to="/compare" className={navLinkClassName}>
-              Compare
-              {ids.length > 0 && <Badge>{ids.length}</Badge>}
-            </NavLink>
+            {/* Compare — hidden for now pending a future redesign. Re-enable by restoring
+                this NavLink, the `const { ids } = useCompare();` line above, the Badge
+                import, and the compareCount prop on <MobileMenu> below. */}
             <NavLink to="/buying-guides" className={navLinkClassName}>
               Buying Guides
             </NavLink>
@@ -143,7 +142,7 @@ function Navbar() {
         </div>
       </header>
 
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} compareCount={ids.length} />
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
     </>
   );
 }

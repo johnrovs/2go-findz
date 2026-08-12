@@ -35,15 +35,15 @@ describe('Navbar', () => {
     renderNavbar();
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Trending' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Compare' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Buying Guides' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Categories' })).toBeInTheDocument();
   });
 
-  it('no longer renders Best Sellers or Comparisons in the nav', () => {
+  it('no longer renders Best Sellers, Comparisons, or Compare in the nav (Compare hidden pending future development)', () => {
     renderNavbar();
     expect(screen.queryByRole('link', { name: 'Best Sellers' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Comparisons' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Compare' })).not.toBeInTheDocument();
   });
 
   it('highlights the active route in white', () => {
@@ -105,17 +105,6 @@ describe('Navbar', () => {
   it('hides the header when printing', () => {
     renderNavbar();
     expect(screen.getByRole('banner')).toHaveClass('print:hidden');
-  });
-
-  it('shows no compare count badge when nothing is selected', () => {
-    renderNavbar();
-    expect(screen.getByRole('link', { name: 'Compare' })).not.toHaveTextContent(/\d/);
-  });
-
-  it('shows the compare count badge once products are selected', () => {
-    localStorage.setItem('compareProductIds', JSON.stringify([1, 2]));
-    renderNavbar();
-    expect(screen.getByRole('link', { name: /compare/i })).toHaveTextContent('2');
   });
 
   it('renders the logo at a fixed height with its natural width, not forced into a square', () => {

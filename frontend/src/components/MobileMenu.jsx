@@ -8,7 +8,8 @@ const NAV_ITEMS = [
   { to: '/', label: 'Home', end: true },
   { to: '/trending', label: 'Trending' },
   { to: '/categories', label: 'Categories' },
-  { to: '/compare', label: 'Compare' },
+  // Compare is hidden for now pending a future redesign — re-add
+  // { to: '/compare', label: 'Compare' } here to restore it.
   { to: '/buying-guides', label: 'Buying Guides' },
 ];
 

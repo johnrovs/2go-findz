@@ -18,10 +18,10 @@ describe('MobileMenu', () => {
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Trending' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Categories' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Compare' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Buying Guides' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Best Sellers' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Comparisons' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Compare' })).not.toBeInTheDocument();
   });
 
   it('links Search to the real /products catalog', () => {

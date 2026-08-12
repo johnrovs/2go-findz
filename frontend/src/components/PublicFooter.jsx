@@ -11,7 +11,8 @@ const SHOP_LINKS = [
 const DISCOVER_LINKS = [
   { to: '/categories', label: 'Categories' },
   { to: '/buying-guides', label: 'Buying Guides' },
-  { to: '/compare', label: 'Compare' },
+  // Compare is hidden for now pending a future redesign — re-add
+  // { to: '/compare', label: 'Compare' } here to restore it.
 ];
 
 const COMPANY_LINKS = [

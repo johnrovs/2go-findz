@@ -42,7 +42,6 @@ describe('PublicFooter', () => {
     expect(screen.getByRole('link', { name: 'All Products' })).toHaveAttribute('href', '/products');
     expect(screen.getByRole('link', { name: 'Categories' })).toHaveAttribute('href', '/categories');
     expect(screen.getByRole('link', { name: 'Buying Guides' })).toHaveAttribute('href', '/buying-guides');
-    expect(screen.getByRole('link', { name: 'Compare' })).toHaveAttribute('href', '/compare');
     expect(screen.getByRole('link', { name: 'About Us' })).toHaveAttribute('href', '/about');
     expect(screen.getByRole('link', { name: 'Contact Us' })).toHaveAttribute('href', '/contact');
     expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy-policy');
@@ -58,6 +57,11 @@ describe('PublicFooter', () => {
     expect(screen.queryByRole('link', { name: 'Deals' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Reviews' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Gift Ideas' })).not.toBeInTheDocument();
+  });
+
+  it('does not render the Compare link (hidden pending future development)', () => {
+    renderFooter();
+    expect(screen.queryByRole('link', { name: 'Compare' })).not.toBeInTheDocument();
   });
 
   it('renders a mailto link for the configured contact email', () => {
