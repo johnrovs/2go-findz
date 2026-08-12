@@ -17,7 +17,7 @@ function QuickRecommendationsSection({ quickRecommendations, number, guideId, on
           const imageUrl = getImageUrl(product.imageFileName);
           return (
             <div key={product.id} className="flex flex-col rounded-card border border-border bg-white p-4">
-              <QuickPickBadge label={badgeName || 'Untitled Badge'} index={index} className="self-start" />
+              <QuickPickBadge label={badgeName || 'Untitled Badge'} index={index} className="self-center" />
               <div className="my-4 flex h-32 items-center justify-center">
                 {imageUrl && (
                   <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-contain" />
