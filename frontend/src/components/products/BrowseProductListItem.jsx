@@ -13,7 +13,7 @@ function BrowseProductListItem({ product }) {
   }
 
   return (
-    <article className="flex items-center gap-4 rounded-card border border-border bg-white p-3">
+    <article className="flex items-start gap-4 rounded-card border border-border bg-white p-3">
       <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md bg-slate-50">
         {imageUrl ? (
           <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-contain" />
@@ -28,19 +28,19 @@ function BrowseProductListItem({ product }) {
         {product.description && (
           <p className="mt-1 line-clamp-2 text-xs text-body">{product.description}</p>
         )}
-      </div>
 
-      <a
-        href={product.productLink}
-        onClick={handleClick}
-        target="_blank"
-        rel="nofollow sponsored noopener noreferrer"
-        aria-label={`View ${product.name} on Amazon`}
-        className="flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-border bg-white px-4 text-sm font-medium text-navy-950 transition hover:bg-slate-50"
-      >
-        View on Amazon
-        <ExternalLink size={14} aria-hidden="true" />
-      </a>
+        <a
+          href={product.productLink}
+          onClick={handleClick}
+          target="_blank"
+          rel="nofollow sponsored noopener noreferrer"
+          aria-label={`View ${product.name} on Amazon`}
+          className="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-md border border-border bg-white text-sm font-medium text-navy-950 transition hover:bg-slate-50"
+        >
+          View on Amazon
+          <ExternalLink size={14} aria-hidden="true" />
+        </a>
+      </div>
     </article>
   );
 }

@@ -31,6 +31,14 @@ describe('BrowseProductListItem', () => {
     expect(link).toHaveAttribute('rel', 'nofollow sponsored noopener noreferrer');
   });
 
+  it('renders the button below the text content, full width of the right column', () => {
+    render(<BrowseProductListItem product={PRODUCT} />);
+    const link = screen.getByRole('link', { name: /View Portable Blender on Amazon/ });
+    const name = screen.getByText('Portable Blender');
+    expect(link.parentElement).toBe(name.parentElement);
+    expect(link).toHaveClass('w-full');
+  });
+
   it('never renders price or rating', () => {
     render(<BrowseProductListItem product={{ ...PRODUCT, productPrice: 49.99, rating: 4.8 }} />);
     expect(screen.queryByText(/49\.99/)).not.toBeInTheDocument();
