@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar.jsx';
 import PublicFooter from '../components/PublicFooter.jsx';
 import SectionHeading from '../components/SectionHeading.jsx';
@@ -11,6 +12,7 @@ import { getSettings } from '../services/settingsService.js';
 import { getImageUrl } from '../utils/imageUrl.js';
 
 function BuyingGuidesPage() {
+  const { t } = useTranslation(['guides', 'common']);
   const [settings, setSettings] = useState(null);
   const [guides, setGuides] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,21 +27,21 @@ function BuyingGuidesPage() {
   useEffect(() => {
     getBuyingGuides()
       .then(setGuides)
-      .catch((err) => setError(err.message ?? 'Failed to load buying guides.'))
+      .catch((err) => setError(err.message ?? t('listing.loadError')))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [t]);
 
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading title="Buying Guides" description="Curated advice to help you choose the right products." />
+          <SectionHeading title={t('common:nav.buyingGuides')} description={t('listing.description')} />
 
-          {isLoading && <LoadingSpinner label="Loading buying guides..." />}
+          {isLoading && <LoadingSpinner label={t('listing.loading')} />}
           {!isLoading && error && <ErrorState message={error} />}
           {!isLoading && !error && guides.length === 0 && (
-            <EmptyState title="No buying guides yet" description="Check back soon for curated buying advice." />
+            <EmptyState title={t('listing.emptyTitle')} description={t('listing.emptyDescription')} />
           )}
           {!isLoading && !error && guides.length > 0 && (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -59,7 +61,7 @@ function BuyingGuidesPage() {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-sm text-slate-400">
-                        No image available
+                        {t('listing.noImageAvailable')}
                       </div>
                     )}
                   </div>
