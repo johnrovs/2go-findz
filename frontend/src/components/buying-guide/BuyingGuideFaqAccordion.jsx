@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const FAQ_PREVIEW_LIMIT = 5;
 
 function BuyingGuideFaqAccordion({ faqs, onExpand }) {
+  const { t } = useTranslation('guides');
   const [expandedIndexes, setExpandedIndexes] = useState(() => new Set());
   const [showAll, setShowAll] = useState(false);
   const visibleFaqs = showAll ? faqs : faqs.slice(0, FAQ_PREVIEW_LIMIT);
@@ -52,7 +54,7 @@ function BuyingGuideFaqAccordion({ faqs, onExpand }) {
       })}
       {faqs.length > FAQ_PREVIEW_LIMIT && (
         <button type="button" onClick={() => setShowAll((prev) => !prev)} className="text-sm font-semibold text-primary hover:underline">
-          {showAll ? 'Show fewer questions' : `View all ${faqs.length} questions`}
+          {showAll ? t('faq.showFewer') : t('faq.viewAll', { total: faqs.length })}
         </button>
       )}
     </div>
