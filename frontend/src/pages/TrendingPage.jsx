@@ -1,7 +1,14 @@
-import CatalogPage from '../components/CatalogPage.jsx';
+import BrowseProductsPage from './BrowseProductsPage.jsx';
 
 function TrendingPage() {
-  return <CatalogPage title="Trending Finds" description="See what's trending right now." initialFilter="trending" />;
+  return (
+    <BrowseProductsPage
+      title="Trending Finds"
+      description="See what's trending right now."
+      breadcrumbLabel="Trending"
+      trending
+    />
+  );
 }
 
 export default TrendingPage;

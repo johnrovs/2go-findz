@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-function ProductsBreadcrumbs() {
+function ProductsBreadcrumbs({ label = 'Products' }) {
   return (
     <nav aria-label="Breadcrumb" className="mt-4 text-small text-muted">
       <ol className="flex items-center gap-1.5">
@@ -12,7 +12,7 @@ function ProductsBreadcrumbs() {
         <li aria-hidden="true">&gt;</li>
         <li>
           <span aria-current="page" className="text-heading">
-            Products
+            {label}
           </span>
         </li>
       </ol>

@@ -33,6 +33,38 @@ describe('useBrowseProductsSearch', () => {
     expect(result.current.brands).toEqual([]);
   });
 
+  it('sends a fixed trending flag on every request when passed, without exposing it as a togglable filter', async () => {
+    vi.spyOn(productService, 'searchProducts').mockResolvedValue({ content: [], totalPages: 0, totalElements: 0 });
+    const { result } = renderHook(() => useBrowseProductsSearch({ trending: true }), { wrapper });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(productService.searchProducts).toHaveBeenCalledWith(expect.objectContaining({ trending: true }));
+
+    act(() => result.current.toggleCategory('1'));
+    await waitFor(() => expect(result.current.categories).toEqual(['1']));
+    expect(productService.searchProducts).toHaveBeenLastCalledWith(
+      expect.objectContaining({ trending: true, categoryIds: '1' })
+    );
+  });
+
+  it('sends a fixed bestSeller flag on every request when passed', async () => {
+    vi.spyOn(productService, 'searchProducts').mockResolvedValue({ content: [], totalPages: 0, totalElements: 0 });
+    const { result } = renderHook(() => useBrowseProductsSearch({ bestSeller: true }), { wrapper });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(productService.searchProducts).toHaveBeenCalledWith(expect.objectContaining({ bestSeller: true }));
+  });
+
+  it('omits trending/bestSeller entirely when neither is passed', async () => {
+    vi.spyOn(productService, 'searchProducts').mockResolvedValue({ content: [], totalPages: 0, totalElements: 0 });
+    renderHook(() => useBrowseProductsSearch(), { wrapper });
+    await waitFor(() => expect(productService.searchProducts).toHaveBeenCalled());
+
+    const params = productService.searchProducts.mock.calls[0][0];
+    expect(params.trending).toBeUndefined();
+    expect(params.bestSeller).toBeUndefined();
+  });
+
   it('setSearch updates the search param, refetches, and resets to page 1', async () => {
     vi.spyOn(productService, 'searchProducts').mockResolvedValue({ content: [], totalPages: 0, totalElements: 0 });
     const { result } = renderHook(() => useBrowseProductsSearch(), { wrapper });

@@ -19,4 +19,11 @@ describe('ProductsPageHeader', () => {
     render(<ProductsPageHeader />);
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
   });
+
+  it('renders a custom title and description when provided, for pages like Trending or Best Sellers', () => {
+    render(<ProductsPageHeader title="Trending Finds" description="See what's trending right now." />);
+    expect(screen.getByRole('heading', { level: 1, name: 'Trending Finds' })).toBeInTheDocument();
+    expect(screen.getByText("See what's trending right now.")).toBeInTheDocument();
+    expect(screen.queryByText('Browse All Products')).not.toBeInTheDocument();
+  });
 });

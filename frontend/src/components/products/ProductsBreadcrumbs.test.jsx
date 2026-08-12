@@ -26,4 +26,14 @@ describe('ProductsBreadcrumbs', () => {
     renderBreadcrumbs();
     expect(screen.queryByRole('link', { name: 'Products' })).not.toBeInTheDocument();
   });
+
+  it('renders a custom label when provided, for pages like Trending or Best Sellers', () => {
+    render(
+      <MemoryRouter>
+        <ProductsBreadcrumbs label="Trending" />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Trending', { selector: '[aria-current="page"]' })).toBeInTheDocument();
+    expect(screen.queryByText('Products')).not.toBeInTheDocument();
+  });
 });

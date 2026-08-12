@@ -22,7 +22,7 @@ function toggleInList(list, value) {
   return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
 }
 
-export function useBrowseProductsSearch() {
+export function useBrowseProductsSearch({ trending, bestSeller } = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -57,6 +57,8 @@ export function useBrowseProductsSearch() {
     if (search) params.search = search;
     if (categoriesKey) params.categoryIds = categoriesKey;
     if (brandsKey) params.brands = brandsKey;
+    if (trending) params.trending = true;
+    if (bestSeller) params.bestSeller = true;
 
     searchProducts(params)
       .then((data) => {
@@ -80,7 +82,7 @@ export function useBrowseProductsSearch() {
     // categoriesKey/brandsKey are the flattened, comparable forms of the categories/brands
     // arrays (which are freshly recreated on every render by parseList) — depending on the
     // arrays directly would refetch on every render even when their contents haven't changed.
-  }, [search, categoriesKey, brandsKey, sort, page, size, retryToken]);
+  }, [search, categoriesKey, brandsKey, sort, page, size, retryToken, trending, bestSeller]);
 
   const updateParams = useCallback(
     (updates, { resetPage = true } = {}) => {

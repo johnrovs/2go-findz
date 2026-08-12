@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
@@ -23,11 +23,11 @@ const PRODUCTS = [
   },
 ];
 
-function renderPage() {
+function renderPage(props = {}, initialEntries = ['/products']) {
   return render(
-    <MemoryRouter initialEntries={['/products']}>
+    <MemoryRouter initialEntries={initialEntries}>
       <CompareProvider>
-        <BrowseProductsPage />
+        <BrowseProductsPage {...props} />
       </CompareProvider>
     </MemoryRouter>
   );
@@ -117,5 +117,33 @@ describe('BrowseProductsPage', () => {
     await user.click(screen.getByRole('button', { name: 'Filter' }));
 
     expect(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
+  });
+
+  it('renders a custom title, description, and breadcrumb label when provided (for Trending/Best Sellers)', async () => {
+    renderPage(
+      { title: 'Trending Finds', description: "See what's trending right now.", breadcrumbLabel: 'Trending' },
+      ['/trending']
+    );
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Trending Finds' })).toBeInTheDocument();
+    expect(screen.getByText("See what's trending right now.")).toBeInTheDocument();
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(breadcrumb).getByText('Trending')).toBeInTheDocument();
+  });
+
+  it('sends a fixed trending flag with every search request when the trending prop is set', async () => {
+    renderPage({ trending: true }, ['/trending']);
+
+    await waitFor(() =>
+      expect(productService.searchProducts).toHaveBeenCalledWith(expect.objectContaining({ trending: true }))
+    );
+  });
+
+  it('sends a fixed bestSeller flag with every search request when the bestSeller prop is set', async () => {
+    renderPage({ bestSeller: true }, ['/best-sellers']);
+
+    await waitFor(() =>
+      expect(productService.searchProducts).toHaveBeenCalledWith(expect.objectContaining({ bestSeller: true }))
+    );
   });
 });

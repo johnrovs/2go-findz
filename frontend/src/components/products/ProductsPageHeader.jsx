@@ -1,13 +1,14 @@
 import { ShoppingBag } from 'lucide-react';
 
-function ProductsPageHeader() {
+function ProductsPageHeader({
+  title = 'Browse All Products',
+  description = 'Explore handpicked products from Amazon across all categories.',
+}) {
   return (
     <div className="mt-4 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
       <div>
-        <h1 className="text-h2 font-semibold text-heading">Browse All Products</h1>
-        <p className="mt-2 max-w-xl text-body text-muted">
-          Explore handpicked products from Amazon across all categories.
-        </p>
+        <h1 className="text-h2 font-semibold text-heading">{title}</h1>
+        <p className="mt-2 max-w-xl text-body text-muted">{description}</p>
       </div>
 
       <div className="hidden items-center gap-4 lg:flex" aria-hidden="true">

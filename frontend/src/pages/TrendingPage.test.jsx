@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import TrendingPage from './TrendingPage.jsx';
@@ -12,10 +12,11 @@ describe('TrendingPage', () => {
     vi.restoreAllMocks();
     vi.spyOn(settingsService, 'getSettings').mockResolvedValue({});
     vi.spyOn(categoryService, 'getCategories').mockResolvedValue([]);
+    vi.spyOn(productService, 'getBrands').mockResolvedValue([]);
     vi.spyOn(productService, 'searchProducts').mockResolvedValue({ content: [], totalPages: 0, totalElements: 0 });
   });
 
-  it('renders the Trending Finds title and seeds the trending filter', async () => {
+  it('renders the Trending Finds title, description, and breadcrumb', async () => {
     render(
       <MemoryRouter initialEntries={['/trending']}>
         <CompareProvider>
@@ -24,7 +25,22 @@ describe('TrendingPage', () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByRole('heading', { name: 'Trending Finds' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Trending Finds' })).toBeInTheDocument();
+    expect(screen.getByText("See what's trending right now.")).toBeInTheDocument();
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(breadcrumb).getByText('Trending')).toBeInTheDocument();
+  });
+
+  it('seeds a fixed trending filter on every request', async () => {
+    render(
+      <MemoryRouter initialEntries={['/trending']}>
+        <CompareProvider>
+          <TrendingPage />
+        </CompareProvider>
+      </MemoryRouter>
+    );
+
+    await screen.findByRole('heading', { level: 1, name: 'Trending Finds' });
     expect(productService.searchProducts).toHaveBeenCalledWith(expect.objectContaining({ trending: true }));
   });
 });

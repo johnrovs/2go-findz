@@ -19,14 +19,14 @@ import { getSettings } from '../services/settingsService.js';
 import { getCategories } from '../services/categoryService.js';
 import { getBrands } from '../services/productService.js';
 
-function BrowseProductsPage() {
+function BrowseProductsPage({ title, description, breadcrumbLabel, trending, bestSeller }) {
   const [settings, setSettings] = useState(null);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [optionsError, setOptionsError] = useState(null);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const resultsHeadingRef = useRef(null);
-  const search = useBrowseProductsSearch();
+  const search = useBrowseProductsSearch({ trending, bestSeller });
 
   useEffect(() => {
     getSettings()
@@ -83,8 +83,8 @@ function BrowseProductsPage() {
       <Navbar />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <ProductsBreadcrumbs />
-        <ProductsPageHeader />
+        <ProductsBreadcrumbs label={breadcrumbLabel} />
+        <ProductsPageHeader title={title} description={description} />
 
         <div className="mt-8 flex flex-col gap-6 pb-16 lg:flex-row lg:items-start">
           <div className="hidden shrink-0 lg:block">
