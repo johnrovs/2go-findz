@@ -37,4 +37,22 @@ describe('BuyingGuideHero', () => {
     render(<BuyingGuideHero title="Guide" excerpt="Excerpt" coverImageFilename={null} updatedAt={null} />);
     expect(screen.getByText('BUYING GUIDE')).toBeInTheDocument();
   });
+
+  it('renders the affiliate disclosure inside the hero card', () => {
+    render(
+      <BuyingGuideHero
+        title="Guide"
+        excerpt="Excerpt"
+        coverImageFilename={null}
+        updatedAt={null}
+        affiliateDisclosure="Custom disclosure text."
+      />
+    );
+    expect(screen.getByText('Custom disclosure text.')).toBeInTheDocument();
+  });
+
+  it('falls back to the default disclosure text when none is provided', () => {
+    render(<BuyingGuideHero title="Guide" excerpt="Excerpt" coverImageFilename={null} updatedAt={null} />);
+    expect(screen.getByText(/as an amazon associate/i)).toBeInTheDocument();
+  });
 });

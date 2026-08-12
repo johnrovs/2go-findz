@@ -14,7 +14,6 @@ import RunnerUpsSection from '../components/buying-guide/RunnerUpsSection.jsx';
 import BuyingGuideContentSection from '../components/buying-guide/BuyingGuideContentSection.jsx';
 import BuyingGuideFaqSection from '../components/buying-guide/BuyingGuideFaqSection.jsx';
 import FinalRecommendationSection from '../components/buying-guide/FinalRecommendationSection.jsx';
-import AffiliateDisclosure from '../components/AffiliateDisclosure.jsx';
 import { getBuyingGuideBySlug } from '../services/buyingGuideService.js';
 import { getSettings } from '../services/settingsService.js';
 import { useDocumentHead } from '../hooks/useDocumentHead.js';
@@ -240,15 +239,17 @@ function PublishedBuyingGuidePage() {
         <BuyingGuideBreadcrumbs title={guide.title} />
 
         <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
-          <BuyingGuideHero title={guide.title} excerpt={guide.excerpt} coverImageFilename={guide.coverImageFilename} updatedAt={guide.updatedAt} />
+          <BuyingGuideHero
+            title={guide.title}
+            excerpt={guide.excerpt}
+            coverImageFilename={guide.coverImageFilename}
+            updatedAt={guide.updatedAt}
+            affiliateDisclosure={settings?.affiliateDisclosure}
+          />
           <GuideTableOfContents items={tocItems} activeId={activeSectionId} onNavigate={handleNavigate} />
         </div>
 
-        <div className="my-6">
-          <AffiliateDisclosure text={settings?.affiliateDisclosure} />
-        </div>
-
-        <div className="space-y-10">
+        <div className="mt-6 space-y-10">
           <div id="quick-recommendations">
             <QuickRecommendationsSection
               quickRecommendations={guide.quickRecommendations}
