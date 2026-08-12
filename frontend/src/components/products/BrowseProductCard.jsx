@@ -16,7 +16,7 @@ function BrowseProductCard({ product }) {
     <article className="flex flex-col overflow-hidden rounded-card border border-border bg-white">
       <div className="flex aspect-square items-center justify-center overflow-hidden bg-slate-50">
         {imageUrl ? (
-          <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-contain" />
+          <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-slate-400">
             No image available
