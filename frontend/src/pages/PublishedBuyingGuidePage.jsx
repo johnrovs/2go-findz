@@ -25,15 +25,15 @@ import { buildGuideUrl, getSiteUrl } from '../utils/siteUrl.js';
 import { getImageUrl } from '../utils/imageUrl.js';
 import { uniqueSlug } from '../utils/slugify.js';
 
-function buildJsonLd(guide) {
+function buildJsonLd(guide, { homeLabel, buyingGuidesLabel }) {
   const origin = getSiteUrl();
   const schemas = [
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
-        { '@type': 'ListItem', position: 2, name: 'Buying Guides', item: `${origin}/buying-guides` },
+        { '@type': 'ListItem', position: 1, name: homeLabel, item: `${origin}/` },
+        { '@type': 'ListItem', position: 2, name: buyingGuidesLabel, item: `${origin}/buying-guides` },
         { '@type': 'ListItem', position: 3, name: guide.title, item: buildGuideUrl(guide.slug) },
       ],
     },
@@ -77,9 +77,9 @@ function PublishedBuyingGuidePage() {
     hasTrackedView.current = false;
     getBuyingGuideBySlug(slug)
       .then(setGuide)
-      .catch((err) => setError(err.message ?? 'Buying guide not found.'))
+      .catch((err) => setError(err.message ?? t('detail.notFound')))
       .finally(() => setIsLoading(false));
-  }, [slug]);
+  }, [slug, t]);
 
   useEffect(() => {
     if (!guide || hasTrackedView.current) return;
@@ -185,7 +185,13 @@ function PublishedBuyingGuidePage() {
   // otherwise useDocumentHead's effect (keyed on jsonLd) tears down and
   // rebuilds the <script> tags on every render instead of only when the
   // guide itself changes.
-  const jsonLd = useMemo(() => (guide ? buildJsonLd(guide) : undefined), [guide]);
+  const jsonLd = useMemo(
+    () =>
+      guide
+        ? buildJsonLd(guide, { homeLabel: t('common:nav.home'), buyingGuidesLabel: t('common:nav.buyingGuides') })
+        : undefined,
+    [guide, t, i18n.language]
+  );
 
   useDocumentHead({
     title: seoTitle,
@@ -209,7 +215,7 @@ function PublishedBuyingGuidePage() {
       <div className="min-h-screen bg-white">
         <Navbar />
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <LoadingSpinner label="Loading buying guide..." />
+          <LoadingSpinner label={t('detail.loading')} />
         </div>
         <PublicFooter settings={settings} />
       </div>
@@ -221,7 +227,7 @@ function PublishedBuyingGuidePage() {
       <div className="min-h-screen bg-white">
         <Navbar />
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <ErrorState message={error ?? 'Buying guide not found.'} />
+          <ErrorState message={error ?? t('detail.notFound')} />
         </div>
         <PublicFooter settings={settings} />
       </div>
@@ -234,7 +240,7 @@ function PublishedBuyingGuidePage() {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-btn focus:bg-primary focus:px-4 focus:py-2 focus:text-white"
       >
-        Skip to content
+        {t('detail.skipToContent')}
       </a>
       <Navbar />
       <main id="main-content" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

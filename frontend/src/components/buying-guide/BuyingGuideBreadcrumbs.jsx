@@ -1,18 +1,21 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function BuyingGuideBreadcrumbs({ title }) {
+  const { t } = useTranslation(['guides', 'common']);
+
   return (
-    <nav aria-label="Breadcrumb" className="mb-4 text-sm text-muted">
+    <nav aria-label={t('detail.breadcrumbAriaLabel')} className="mb-4 text-sm text-muted">
       <ol className="flex flex-wrap items-center gap-1">
         <li>
           <Link to="/" className="hover:text-primary">
-            Home
+            {t('common:nav.home')}
           </Link>
         </li>
         <li aria-hidden="true">/</li>
         <li>
           <Link to="/buying-guides" className="hover:text-primary">
-            Buying Guides
+            {t('common:nav.buyingGuides')}
           </Link>
         </li>
         <li aria-hidden="true">/</li>
