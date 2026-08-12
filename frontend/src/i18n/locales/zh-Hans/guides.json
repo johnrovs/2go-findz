@@ -1,0 +1,60 @@
+{
+  "listing": {
+    "description": "精选购物建议,帮助您选择合适的产品。",
+    "loading": "购买指南加载中...",
+    "emptyTitle": "暂无购买指南",
+    "emptyDescription": "请稍后再来查看精选购物建议。",
+    "noImageAvailable": "暂无图片",
+    "loadError": "购买指南加载失败。"
+  },
+  "detail": {
+    "loading": "购买指南加载中...",
+    "notFound": "未找到该购买指南。",
+    "skipToContent": "跳至内容",
+    "tableOfContents": "目录",
+    "tableOfContentsAriaLabel": "目录",
+    "breadcrumbAriaLabel": "面包屑导航"
+  },
+  "sections": {
+    "quickRecommendations": "快速推荐",
+    "comparisonTable": "产品对比",
+    "topPick": "我们的首选",
+    "runnerUps": "其他推荐",
+    "buyingGuide": "购买指南",
+    "faqs": "常见问题",
+    "finalRecommendation": "最终推荐"
+  },
+  "hero": {
+    "badge": "购买指南",
+    "byline": "2Go Findz 团队撰写",
+    "updatedOn": "更新于 {{date}}"
+  },
+  "content": {
+    "showLess": "收起",
+    "readMore": "阅读更多"
+  },
+  "faq": {
+    "showFewer": "收起问题",
+    "viewAll": "查看全部 {{total}} 个问题"
+  },
+  "comparison": {
+    "productColumn": "产品",
+    "yes": "是",
+    "no": "否",
+    "caption": "{{names}} 的对比",
+    "priceDisclaimer": "* 价格和库存情况可能在发布后发生变化。"
+  },
+  "recommendation": {
+    "untitledBadge": "未命名徽章",
+    "whyWeRecommendIt": "推荐理由",
+    "pros": "优点",
+    "cons": "缺点",
+    "bestFor": "适合人群",
+    "viewOnAmazon": "在亚马逊查看",
+    "viewProductOnAmazon": "在亚马逊查看 {{productName}}"
+  },
+  "runnerUps": {
+    "showFewer": "收起其他推荐",
+    "seeAll": "查看全部测评产品"
+  }
+}

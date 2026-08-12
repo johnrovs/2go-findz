@@ -1,0 +1,60 @@
+{
+  "listing": {
+    "description": "Lời khuyên chọn lọc giúp bạn chọn đúng sản phẩm.",
+    "loading": "Đang tải hướng dẫn mua hàng...",
+    "emptyTitle": "Chưa có hướng dẫn mua hàng nào",
+    "emptyDescription": "Hãy quay lại sau để xem các lời khuyên mua sắm được chọn lọc.",
+    "noImageAvailable": "Không có hình ảnh",
+    "loadError": "Không thể tải hướng dẫn mua hàng."
+  },
+  "detail": {
+    "loading": "Đang tải hướng dẫn mua hàng...",
+    "notFound": "Không tìm thấy hướng dẫn mua hàng.",
+    "skipToContent": "Bỏ qua đến nội dung",
+    "tableOfContents": "Mục lục",
+    "tableOfContentsAriaLabel": "Mục lục",
+    "breadcrumbAriaLabel": "Đường dẫn điều hướng"
+  },
+  "sections": {
+    "quickRecommendations": "Gợi ý nhanh",
+    "comparisonTable": "So sánh sản phẩm",
+    "topPick": "Lựa chọn hàng đầu của chúng tôi",
+    "runnerUps": "Các lựa chọn khác",
+    "buyingGuide": "Hướng dẫn mua hàng",
+    "faqs": "Câu hỏi thường gặp",
+    "finalRecommendation": "Đề xuất cuối cùng"
+  },
+  "hero": {
+    "badge": "HƯỚNG DẪN MUA HÀNG",
+    "byline": "Bởi đội ngũ 2Go Findz",
+    "updatedOn": "Cập nhật {{date}}"
+  },
+  "content": {
+    "showLess": "Thu gọn",
+    "readMore": "Đọc thêm"
+  },
+  "faq": {
+    "showFewer": "Thu gọn câu hỏi",
+    "viewAll": "Xem tất cả {{total}} câu hỏi"
+  },
+  "comparison": {
+    "productColumn": "Sản phẩm",
+    "yes": "Có",
+    "no": "Không",
+    "caption": "So sánh {{names}}",
+    "priceDisclaimer": "* Giá và tình trạng còn hàng có thể thay đổi sau khi đăng."
+  },
+  "recommendation": {
+    "untitledBadge": "Huy hiệu chưa đặt tên",
+    "whyWeRecommendIt": "Vì sao chúng tôi đề xuất",
+    "pros": "Ưu điểm",
+    "cons": "Nhược điểm",
+    "bestFor": "Phù hợp cho",
+    "viewOnAmazon": "Xem trên Amazon",
+    "viewProductOnAmazon": "Xem {{productName}} trên Amazon"
+  },
+  "runnerUps": {
+    "showFewer": "Thu gọn các lựa chọn khác",
+    "seeAll": "Xem tất cả sản phẩm đã đánh giá"
+  }
+}

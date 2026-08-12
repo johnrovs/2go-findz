@@ -1,0 +1,60 @@
+{
+  "listing": {
+    "description": "Consejos seleccionados para ayudarte a elegir los productos correctos.",
+    "loading": "Cargando guías de compra...",
+    "emptyTitle": "Aún no hay guías de compra",
+    "emptyDescription": "Vuelve pronto para ver consejos de compra seleccionados.",
+    "noImageAvailable": "Imagen no disponible",
+    "loadError": "No se pudieron cargar las guías de compra."
+  },
+  "detail": {
+    "loading": "Cargando guía de compra...",
+    "notFound": "Guía de compra no encontrada.",
+    "skipToContent": "Saltar al contenido",
+    "tableOfContents": "Tabla de contenido",
+    "tableOfContentsAriaLabel": "Tabla de contenido",
+    "breadcrumbAriaLabel": "Ruta de navegación"
+  },
+  "sections": {
+    "quickRecommendations": "Recomendaciones rápidas",
+    "comparisonTable": "Comparación de productos",
+    "topPick": "Nuestra mejor opción",
+    "runnerUps": "Otras opciones",
+    "buyingGuide": "Guía de compra",
+    "faqs": "Preguntas frecuentes",
+    "finalRecommendation": "Recomendación final"
+  },
+  "hero": {
+    "badge": "GUÍA DE COMPRA",
+    "byline": "Por el equipo de 2Go Findz",
+    "updatedOn": "Actualizado el {{date}}"
+  },
+  "content": {
+    "showLess": "Ver menos",
+    "readMore": "Leer más"
+  },
+  "faq": {
+    "showFewer": "Mostrar menos preguntas",
+    "viewAll": "Ver las {{total}} preguntas"
+  },
+  "comparison": {
+    "productColumn": "Producto",
+    "yes": "Sí",
+    "no": "No",
+    "caption": "Comparación de {{names}}",
+    "priceDisclaimer": "* Los precios y la disponibilidad pueden cambiar después de la publicación."
+  },
+  "recommendation": {
+    "untitledBadge": "Insignia sin título",
+    "whyWeRecommendIt": "Por qué lo recomendamos",
+    "pros": "Ventajas",
+    "cons": "Desventajas",
+    "bestFor": "Ideal para",
+    "viewOnAmazon": "Ver en Amazon",
+    "viewProductOnAmazon": "Ver {{productName}} en Amazon"
+  },
+  "runnerUps": {
+    "showFewer": "Mostrar menos opciones",
+    "seeAll": "Ver todos los productos analizados"
+  }
+}

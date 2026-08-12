@@ -1,0 +1,60 @@
+{
+  "listing": {
+    "description": "Piniling payo para matulungan kang pumili ng tamang produkto.",
+    "loading": "Naglo-load ng mga gabay sa pamimili...",
+    "emptyTitle": "Wala pang mga gabay sa pamimili",
+    "emptyDescription": "Bumalik ulit sa lalong madaling panahon para sa piniling payo sa pamimili.",
+    "noImageAvailable": "Walang available na larawan",
+    "loadError": "Hindi na-load ang mga gabay sa pamimili."
+  },
+  "detail": {
+    "loading": "Naglo-load ng gabay sa pamimili...",
+    "notFound": "Hindi nahanap ang gabay sa pamimili.",
+    "skipToContent": "Lumaktaw sa content",
+    "tableOfContents": "Talaan ng Nilalaman",
+    "tableOfContentsAriaLabel": "Talaan ng nilalaman",
+    "breadcrumbAriaLabel": "Breadcrumb"
+  },
+  "sections": {
+    "quickRecommendations": "Mabilisang Rekomendasyon",
+    "comparisonTable": "Paghahambing ng Produkto",
+    "topPick": "Aming Top Pick",
+    "runnerUps": "Iba Pang Pagpipilian",
+    "buyingGuide": "Gabay sa Pamimili",
+    "faqs": "Mga Madalas Itanong",
+    "finalRecommendation": "Panghuling Rekomendasyon"
+  },
+  "hero": {
+    "badge": "GABAY SA PAMIMILI",
+    "byline": "Mula sa 2Go Findz Team",
+    "updatedOn": "Na-update noong {{date}}"
+  },
+  "content": {
+    "showLess": "Ipakita ang mas kaunti",
+    "readMore": "Magbasa pa"
+  },
+  "faq": {
+    "showFewer": "Ipakita ang mas kaunting tanong",
+    "viewAll": "Tingnan lahat ng {{total}} tanong"
+  },
+  "comparison": {
+    "productColumn": "Produkto",
+    "yes": "Oo",
+    "no": "Hindi",
+    "caption": "Paghahambing ng {{names}}",
+    "priceDisclaimer": "* Maaaring magbago ang presyo at availability pagkatapos mailathala."
+  },
+  "recommendation": {
+    "untitledBadge": "Walang Pamagat na Badge",
+    "whyWeRecommendIt": "Bakit Namin Ito Rekomendado",
+    "pros": "Mga Bentahe",
+    "cons": "Mga Disbentahe",
+    "bestFor": "Pinakamainam Para Sa",
+    "viewOnAmazon": "Tingnan sa Amazon",
+    "viewProductOnAmazon": "Tingnan ang {{productName}} sa Amazon"
+  },
+  "runnerUps": {
+    "showFewer": "Ipakita ang mas kaunting pagpipilian",
+    "seeAll": "Tingnan lahat ng nasuring produkto"
+  }
+}
