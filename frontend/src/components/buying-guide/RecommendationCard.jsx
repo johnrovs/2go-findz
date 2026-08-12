@@ -1,9 +1,11 @@
 import { Check, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import QuickPickBadge from '../buying-guide-form/QuickPickBadge.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { isSupportedAmazonUrl } from '../../utils/amazonLink.js';
 
 function RecommendationCard({ recommendation, badgeIndex = 0, compact = false, onAffiliateClick }) {
+  const { t } = useTranslation('guides');
   const { product, sectionLabel, whyRecommended, pros, cons, bestFor } = recommendation;
   const imageUrl = getImageUrl(product.imageFileName);
   const isLink = isSupportedAmazonUrl(product.productLink);
@@ -11,7 +13,7 @@ function RecommendationCard({ recommendation, badgeIndex = 0, compact = false, o
   return (
     <div className="rounded-card border border-border bg-white p-5">
       <div className="mb-3 flex justify-end">
-        <QuickPickBadge label={sectionLabel || 'Untitled Badge'} index={badgeIndex} />
+        <QuickPickBadge label={sectionLabel || t('recommendation.untitledBadge')} index={badgeIndex} />
       </div>
 
       <div className="mb-3 flex items-center gap-4">
@@ -43,7 +45,7 @@ function RecommendationCard({ recommendation, badgeIndex = 0, compact = false, o
 
       {whyRecommended && (
         <div className="mb-3">
-          <span className="text-sm font-semibold text-heading">Why We Recommend It</span>
+          <span className="text-sm font-semibold text-heading">{t('recommendation.whyWeRecommendIt')}</span>
           <div
             className="prose prose-sm mt-1 max-w-none text-body"
             dangerouslySetInnerHTML={{ __html: whyRecommended }}
@@ -55,7 +57,7 @@ function RecommendationCard({ recommendation, badgeIndex = 0, compact = false, o
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {pros.length > 0 && (
             <div>
-              <span className="text-sm font-semibold text-success">Pros</span>
+              <span className="text-sm font-semibold text-success">{t('recommendation.pros')}</span>
               <ul className="mt-1 space-y-1">
                 {pros.map((item, index) => (
                   <li key={index} className="flex items-start gap-1.5 text-sm text-body">
@@ -69,7 +71,7 @@ function RecommendationCard({ recommendation, badgeIndex = 0, compact = false, o
 
           {cons.length > 0 && (
             <div>
-              <span className="text-sm font-semibold text-danger">Cons</span>
+              <span className="text-sm font-semibold text-danger">{t('recommendation.cons')}</span>
               <ul className="mt-1 space-y-1">
                 {cons.map((item, index) => (
                   <li key={index} className="flex items-start gap-1.5 text-sm text-body">
@@ -83,7 +85,7 @@ function RecommendationCard({ recommendation, badgeIndex = 0, compact = false, o
 
           {bestFor.length > 0 && (
             <div>
-              <span className="text-sm font-semibold text-primary">Best For</span>
+              <span className="text-sm font-semibold text-primary">{t('recommendation.bestFor')}</span>
               <ul className="mt-1 list-disc pl-5 text-sm text-body">
                 {bestFor.map((item, index) => (
                   <li key={index}>{item}</li>
