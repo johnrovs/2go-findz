@@ -140,7 +140,12 @@ function PublishedBuyingGuidePage() {
       items.push({ id: 'FINAL_RECOMMENDATION', number: sectionNumbers.FINAL_RECOMMENDATION, label: t('sections.finalRecommendation'), anchorId: 'final-recommendation' });
     }
     return items;
-  }, [guide, sectionNumbers, t, i18n.language]);
+    // i18n.language is a real dependency despite the lint rule's "unnecessary"
+    // warning: structuralLabels' translated content changes when the language
+    // changes even though neither its nor t's own reference does, and the
+    // linter can't see that through the t(...) calls that built it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [guide, sectionNumbers, structuralLabels, t, i18n.language]);
 
   useEffect(() => {
     if (tocItems.length === 0) return undefined;
@@ -190,6 +195,11 @@ function PublishedBuyingGuidePage() {
       guide
         ? buildJsonLd(guide, { homeLabel: t('common:nav.home'), buyingGuidesLabel: t('common:nav.buyingGuides') })
         : undefined,
+    // i18n.language is a real dependency despite the lint rule's "unnecessary"
+    // warning: t's translated output changes when the language changes even
+    // though t's own reference doesn't, and the linter can't see that through
+    // the t('common:nav.home') calls above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [guide, t, i18n.language]
   );
 
