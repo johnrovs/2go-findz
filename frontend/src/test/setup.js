@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import enCommon from '../i18n/locales/en-US/common.json';
+import enGuides from '../i18n/locales/en-US/guides.json';
 
 // Component tests call useTranslation() directly without wrapping in a
 // provider, which means they use react-i18next's default i18next instance.
@@ -11,14 +12,15 @@ import enCommon from '../i18n/locales/en-US/common.json';
 // exercise language detection or the network-like backend, they just need
 // real English strings available synchronously on first render. This init
 // is intentionally separate from src/i18n/index.js and only ever loads the
-// en-US common namespace inline; per-locale translation-switching behavior
-// is covered by LanguageSelector.test.jsx and localeAliases.test.js instead.
+// en-US namespaces inline (adding a new namespace here whenever production
+// code adds one); per-locale translation-switching behavior is covered by
+// LanguageSelector.test.jsx and localeAliases.test.js instead.
 i18n.use(initReactI18next).init({
   lng: 'en-US',
   fallbackLng: 'en-US',
-  ns: ['common'],
+  ns: ['common', 'guides'],
   defaultNS: 'common',
-  resources: { 'en-US': { common: enCommon } },
+  resources: { 'en-US': { common: enCommon, guides: enGuides } },
   interpolation: { escapeValue: false },
   react: { useSuspense: false },
 });

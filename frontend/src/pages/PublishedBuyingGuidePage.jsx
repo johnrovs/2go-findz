@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/Navbar.jsx';
 import PublicFooter from '../components/PublicFooter.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
@@ -23,14 +24,6 @@ import { buildFaqJsonLd } from '../utils/faqJsonLd.js';
 import { buildGuideUrl, getSiteUrl } from '../utils/siteUrl.js';
 import { getImageUrl } from '../utils/imageUrl.js';
 import { uniqueSlug } from '../utils/slugify.js';
-
-const STRUCTURAL_LABELS = {
-  QUICK_RECOMMENDATIONS: 'Quick Recommendations',
-  COMPARISON_TABLE: 'Product Comparison',
-  TOP_PICK: 'Our Top Pick',
-  RUNNER_UPS: 'Runner-Ups',
-  FAQS: 'Frequently Asked Questions',
-};
 
 function buildJsonLd(guide) {
   const origin = getSiteUrl();
@@ -62,6 +55,7 @@ function buildJsonLd(guide) {
 
 function PublishedBuyingGuidePage() {
   const { slug } = useParams();
+  const { t, i18n } = useTranslation(['guides', 'common']);
   const [settings, setSettings] = useState(null);
   const [guide, setGuide] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,6 +108,14 @@ function PublishedBuyingGuidePage() {
     });
   }, [guide, customSectionsWithAnchors]);
 
+  const structuralLabels = {
+    QUICK_RECOMMENDATIONS: t('sections.quickRecommendations'),
+    COMPARISON_TABLE: t('sections.comparisonTable'),
+    TOP_PICK: t('sections.topPick'),
+    RUNNER_UPS: t('sections.runnerUps'),
+    FAQS: t('sections.faqs'),
+  };
+
   const tocItems = useMemo(() => {
     if (!guide) return [];
     const items = [];
@@ -126,19 +128,19 @@ function PublishedBuyingGuidePage() {
             : entry.sectionKey === 'TOP_PICK' ? 'top-pick'
             : entry.sectionKey === 'RUNNER_UPS' ? 'runner-ups'
             : 'faq';
-          items.push({ id: entry.sectionKey, number, label: STRUCTURAL_LABELS[entry.sectionKey], anchorId });
+          items.push({ id: entry.sectionKey, number, label: structuralLabels[entry.sectionKey], anchorId });
         }
         return;
       }
       if (sectionNumbers.BUYING_GUIDE && !items.some((item) => item.id === 'BUYING_GUIDE')) {
-        items.push({ id: 'BUYING_GUIDE', number: sectionNumbers.BUYING_GUIDE, label: 'Buying Guide', anchorId: 'buying-guide' });
+        items.push({ id: 'BUYING_GUIDE', number: sectionNumbers.BUYING_GUIDE, label: t('sections.buyingGuide'), anchorId: 'buying-guide' });
       }
     });
     if (sectionNumbers.FINAL_RECOMMENDATION) {
-      items.push({ id: 'FINAL_RECOMMENDATION', number: sectionNumbers.FINAL_RECOMMENDATION, label: 'Final Recommendation', anchorId: 'final-recommendation' });
+      items.push({ id: 'FINAL_RECOMMENDATION', number: sectionNumbers.FINAL_RECOMMENDATION, label: t('sections.finalRecommendation'), anchorId: 'final-recommendation' });
     }
     return items;
-  }, [guide, sectionNumbers]);
+  }, [guide, sectionNumbers, t, i18n.language]);
 
   useEffect(() => {
     if (tocItems.length === 0) return undefined;

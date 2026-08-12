@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import ComparisonTable from './ComparisonTable.jsx';
 import { isSupportedAmazonUrl, getAmazonMarketplace } from '../../utils/amazonLink.js';
 
 function ProductComparisonSection({ comparisonTable, number, guideId, onProductClick }) {
+  const { t } = useTranslation('guides');
   if (!comparisonTable || comparisonTable.rows.length === 0) return null;
 
   const hasPrice = comparisonTable.specificationNames.some((name) => /price/i.test(name));
@@ -9,7 +11,7 @@ function ProductComparisonSection({ comparisonTable, number, guideId, onProductC
   return (
     <section aria-labelledby="product-comparison-heading" className="scroll-mt-24">
       <h2 id="product-comparison-heading" className="mb-4 text-xs font-semibold uppercase tracking-wide text-muted">
-        {number}. Product Comparison
+        {number}. {t('sections.comparisonTable')}
       </h2>
       <ComparisonTable
         comparisonTable={comparisonTable}

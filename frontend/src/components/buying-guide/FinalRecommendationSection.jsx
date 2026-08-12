@@ -1,4 +1,5 @@
 import { Trophy } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AmazonAffiliateButton from '../AmazonAffiliateButton.jsx';
 import { getAmazonMarketplace } from '../../utils/amazonLink.js';
 
@@ -13,6 +14,7 @@ function summarize(html) {
 }
 
 function FinalRecommendationSection({ topPick, number, guideId, onAffiliateClick }) {
+  const { t } = useTranslation('guides');
   if (!topPick) return null;
   const summary = summarize(topPick.whyRecommended ?? '');
 
@@ -25,7 +27,7 @@ function FinalRecommendationSection({ topPick, number, guideId, onAffiliateClick
         <Trophy size={40} className="shrink-0 text-amber-500" aria-hidden="true" />
         <div className="flex-1">
           <h2 id="final-recommendation-heading" className="mb-1 text-card-title text-heading">
-            {number}. Final Recommendation
+            {number}. {t('sections.finalRecommendation')}
           </h2>
           {summary && <p className="text-body">{summary}</p>}
         </div>

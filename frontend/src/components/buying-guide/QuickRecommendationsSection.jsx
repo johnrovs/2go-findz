@@ -1,16 +1,18 @@
 import { ShoppingCart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AmazonAffiliateButton from '../AmazonAffiliateButton.jsx';
 import QuickPickBadge from '../buying-guide-form/QuickPickBadge.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { getAmazonMarketplace } from '../../utils/amazonLink.js';
 
 function QuickRecommendationsSection({ quickRecommendations, number, guideId, onAffiliateClick }) {
+  const { t } = useTranslation('guides');
   if (quickRecommendations.length === 0) return null;
 
   return (
     <section aria-labelledby="quick-recommendations-heading" className="scroll-mt-24">
       <h2 id="quick-recommendations-heading" className="mb-4 text-xs font-semibold uppercase tracking-wide text-muted">
-        {number}. Quick Recommendations
+        {number}. {t('sections.quickRecommendations')}
       </h2>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
         {quickRecommendations.map(({ product, badgeName }, index) => {
