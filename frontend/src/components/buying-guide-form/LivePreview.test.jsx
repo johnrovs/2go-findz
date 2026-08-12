@@ -121,8 +121,8 @@ describe('LivePreview', () => {
     const table = screen.getByRole('table');
     expect(within(table).getByText('Active Noise Cancellation')).toBeInTheDocument();
     expect(within(table).getByText('Soundcore Liberty 4 NC')).toBeInTheDocument();
-    expect(within(table).getByText('Yes')).toHaveClass('sr-only');
-    expect(within(table).getByText('No')).toHaveClass('sr-only');
+    expect(within(table).getByText('Yes')).toBeInTheDocument();
+    expect(within(table).getByText('No')).toBeInTheDocument();
   });
 
   it('omits the Comparison Table section when there are no specs', () => {

@@ -4,8 +4,6 @@ import { isSupportedAmazonUrl, getAmazonMarketplace } from '../../utils/amazonLi
 function ProductComparisonSection({ comparisonTable, number, guideId, onProductClick }) {
   if (!comparisonTable || comparisonTable.rows.length === 0) return null;
 
-  const hasPrice = comparisonTable.specificationNames.some((name) => /price/i.test(name));
-
   return (
     <section aria-labelledby="product-comparison-heading" className="scroll-mt-24">
       <h2 id="product-comparison-heading" className="mb-4 text-xs font-semibold uppercase tracking-wide text-muted">
@@ -13,7 +11,7 @@ function ProductComparisonSection({ comparisonTable, number, guideId, onProductC
       </h2>
       <ComparisonTable
         comparisonTable={comparisonTable}
-        renderProductHeader={(product) =>
+        renderProductName={(product) =>
           isSupportedAmazonUrl(product.productLink) ? (
             <a
               href={product.productLink}
@@ -27,7 +25,7 @@ function ProductComparisonSection({ comparisonTable, number, guideId, onProductC
                   marketplace: getAmazonMarketplace(product.productLink),
                 })
               }
-              className="hover:underline"
+              className="font-semibold text-primary hover:underline"
             >
               {product.name}
             </a>
@@ -36,7 +34,7 @@ function ProductComparisonSection({ comparisonTable, number, guideId, onProductC
           )
         }
       />
-      {hasPrice && <p className="mt-2 text-xs text-muted">Prices and availability may change after publication.</p>}
+      <p className="mt-2 text-xs text-muted">* Prices and availability may change after publication.</p>
     </section>
   );
 }
