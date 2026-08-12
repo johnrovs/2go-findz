@@ -1,27 +1,6 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AffiliateDisclosure from './AffiliateDisclosure.jsx';
-
-const SHOP_LINKS = [
-  { to: '/trending', label: 'Trending' },
-  { to: '/best-sellers', label: 'Best Sellers' },
-  { to: '/products?sort=createdAt,desc', label: 'New Arrivals' },
-  { to: '/products', label: 'All Products' },
-];
-
-const DISCOVER_LINKS = [
-  { to: '/categories', label: 'Categories' },
-  { to: '/buying-guides', label: 'Buying Guides' },
-  // Compare is hidden for now pending a future redesign — re-add
-  // { to: '/compare', label: 'Compare' } here to restore it.
-];
-
-const COMPANY_LINKS = [
-  { to: '/about', label: 'About Us' },
-  { to: '/contact', label: 'Contact Us' },
-  { to: '/privacy-policy', label: 'Privacy Policy' },
-  { to: '/terms-of-use', label: 'Terms of Use' },
-  { to: '/affiliate-disclosure', label: 'Affiliate Disclosure' },
-];
 
 function FooterColumn({ title, links }) {
   return (
@@ -29,7 +8,7 @@ function FooterColumn({ title, links }) {
       <h3 className="text-small font-semibold uppercase tracking-wide text-white">{title}</h3>
       <ul className="mt-4 space-y-2">
         {links.map(({ to, label }) => (
-          <li key={label}>
+          <li key={to}>
             <Link to={to} className="text-small text-white/70 transition hover:text-white">
               {label}
             </Link>
@@ -41,6 +20,28 @@ function FooterColumn({ title, links }) {
 }
 
 function PublicFooter({ settings }) {
+  const { t } = useTranslation('common');
+
+  const shopLinks = [
+    { to: '/trending', label: t('nav.trending') },
+    { to: '/best-sellers', label: t('nav.bestSellers') },
+    { to: '/products?sort=createdAt,desc', label: t('nav.newArrivals') },
+    { to: '/products', label: t('nav.allProducts') },
+  ];
+
+  const discoverLinks = [
+    { to: '/categories', label: t('nav.categories') },
+    { to: '/buying-guides', label: t('nav.buyingGuides') },
+  ];
+
+  const companyLinks = [
+    { to: '/about', label: t('nav.aboutUs') },
+    { to: '/contact', label: t('nav.contactUs') },
+    { to: '/privacy-policy', label: t('nav.privacyPolicy') },
+    { to: '/terms-of-use', label: t('nav.termsOfUse') },
+    { to: '/affiliate-disclosure', label: t('nav.affiliateDisclosure') },
+  ];
+
   return (
     <footer className="bg-navy-950 py-16 text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -48,17 +49,16 @@ function PublicFooter({ settings }) {
           <div className="col-span-2 sm:col-span-3 lg:col-span-2">
             <span className="text-card-title text-white">2Go Findz</span>
             <p className="mt-4 max-w-sm text-small text-white/70">
-              {settings?.shopBio ??
-                'Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.'}
+              {settings?.shopBio ?? t('footer.defaultBio')}
             </p>
           </div>
-          <FooterColumn title="Shop" links={SHOP_LINKS} />
-          <FooterColumn title="Discover" links={DISCOVER_LINKS} />
-          <FooterColumn title="Company" links={COMPANY_LINKS} />
+          <FooterColumn title={t('footer.shopHeading')} links={shopLinks} />
+          <FooterColumn title={t('footer.discoverHeading')} links={discoverLinks} />
+          <FooterColumn title={t('footer.companyHeading')} links={companyLinks} />
         </div>
 
         <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-8 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-          <p className="text-small text-white/50">&copy; {new Date().getFullYear()} 2Go Findz. All rights reserved.</p>
+          <p className="text-small text-white/50">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
           {settings?.contactEmail && (
             <a href={`mailto:${settings.contactEmail}`} className="text-small text-white/70 hover:text-white">
               {settings.contactEmail}
