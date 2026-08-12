@@ -13,8 +13,8 @@ function BuyingGuideHero({ title, excerpt, coverImageFilename, updatedAt, affili
 
   return (
     <div className="rounded-card border border-border bg-white p-6 sm:p-8">
-      <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
-        <div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="flex flex-col justify-center">
           <span className="mb-3 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary">
             BUYING GUIDE
           </span>
@@ -34,7 +34,7 @@ function BuyingGuideHero({ title, excerpt, coverImageFilename, updatedAt, affili
           </div>
         </div>
         {imageUrl && (
-          <div className="aspect-[4/3] overflow-hidden rounded-image bg-surface-secondary">
+          <div className="aspect-[3/4] h-full overflow-hidden rounded-image bg-surface-secondary">
             <img src={imageUrl} alt={title} loading="eager" className="h-full w-full object-cover" />
           </div>
         )}
