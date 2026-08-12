@@ -18,9 +18,15 @@ describe('ProductComparisonSection', () => {
     expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
-  it('always shows the price notice, since Price is now a real always-present column', () => {
+  it('shows the price notice when a Price specification is present', () => {
     render(<ProductComparisonSection comparisonTable={comparisonTable} number={2} guideId={3} onProductClick={vi.fn()} />);
     expect(screen.getByText(/\* Prices and availability may change/)).toBeInTheDocument();
+  });
+
+  it('omits the price notice when no price specification is shown', () => {
+    const withoutPrice = { specificationNames: ['Battery Life'], rows: comparisonTable.rows };
+    render(<ProductComparisonSection comparisonTable={withoutPrice} number={2} guideId={3} onProductClick={vi.fn()} />);
+    expect(screen.queryByText(/Prices and availability may change/)).not.toBeInTheDocument();
   });
 
   it('links product names to their Amazon URL and fires onProductClick', async () => {

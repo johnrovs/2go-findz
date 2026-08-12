@@ -4,6 +4,8 @@ import { isSupportedAmazonUrl, getAmazonMarketplace } from '../../utils/amazonLi
 function ProductComparisonSection({ comparisonTable, number, guideId, onProductClick }) {
   if (!comparisonTable || comparisonTable.rows.length === 0) return null;
 
+  const hasPrice = comparisonTable.specificationNames.some((name) => /price/i.test(name));
+
   return (
     <section aria-labelledby="product-comparison-heading" className="scroll-mt-24">
       <h2 id="product-comparison-heading" className="mb-4 text-xs font-semibold uppercase tracking-wide text-muted">
@@ -34,7 +36,7 @@ function ProductComparisonSection({ comparisonTable, number, guideId, onProductC
           )
         }
       />
-      <p className="mt-2 text-xs text-muted">* Prices and availability may change after publication.</p>
+      {hasPrice && <p className="mt-2 text-xs text-muted">* Prices and availability may change after publication.</p>}
     </section>
   );
 }
