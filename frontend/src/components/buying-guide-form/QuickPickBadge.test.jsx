@@ -19,4 +19,9 @@ describe('QuickPickBadge', () => {
     const { container: c5 } = render(<QuickPickBadge label="F" index={5} />);
     expect(c0.firstChild.className).toEqual(c5.firstChild.className);
   });
+
+  it('accepts an optional className override for opting out of flex stretch', () => {
+    render(<QuickPickBadge label="Best Overall" index={0} className="self-start" />);
+    expect(screen.getByText('Best Overall')).toHaveClass('self-start');
+  });
 });

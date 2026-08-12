@@ -58,7 +58,7 @@ describe('RunnerUpsSection', () => {
 
     const badges = screen.getAllByText('Best Budget Pick');
     expect(badges[0]).toHaveClass('bg-info');
-    expect(badges[1]).toHaveClass('bg-primary');
+    expect(badges[1]).toHaveClass('bg-purple-600');
   });
 
   it('expands a lone runner-up to the full-width single-column layout used by Top Pick', () => {

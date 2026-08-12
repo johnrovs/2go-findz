@@ -24,9 +24,11 @@ describe('QuickRecommendationsSection', () => {
     expect(screen.getByText('Best Overall')).toBeInTheDocument();
   });
 
-  it('hides rating text for products without a rating', () => {
+  it('never renders price or rating', () => {
     render(<QuickRecommendationsSection quickRecommendations={quickRecommendations} number={1} guideId={3} onAffiliateClick={vi.fn()} />);
-    expect(screen.getAllByText(/★/)).toHaveLength(1);
+    expect(screen.queryByText(/★/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/69\.99/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/24\.99/)).not.toBeInTheDocument();
   });
 
   it('fires onAffiliateClick with product and placement context', async () => {

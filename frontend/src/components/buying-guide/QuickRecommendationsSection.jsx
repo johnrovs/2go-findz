@@ -1,3 +1,4 @@
+import { ShoppingCart } from 'lucide-react';
 import AmazonAffiliateButton from '../AmazonAffiliateButton.jsx';
 import QuickPickBadge from '../buying-guide-form/QuickPickBadge.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
@@ -15,21 +16,18 @@ function QuickRecommendationsSection({ quickRecommendations, number, guideId, on
         {quickRecommendations.map(({ product, badgeName }, index) => {
           const imageUrl = getImageUrl(product.imageFileName);
           return (
-            <div key={product.id} className="rounded-card border border-border bg-white p-4">
-              <QuickPickBadge label={badgeName || 'Untitled Badge'} index={index} />
-              <div className="my-3 aspect-square overflow-hidden rounded-md bg-surface-secondary">
-                {imageUrl && <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-cover" />}
+            <div key={product.id} className="flex flex-col rounded-card border border-border bg-white p-4">
+              <QuickPickBadge label={badgeName || 'Untitled Badge'} index={index} className="self-start" />
+              <div className="my-4 flex h-32 items-center justify-center">
+                {imageUrl && (
+                  <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-contain" />
+                )}
               </div>
-              <p className="mb-1 text-sm font-semibold text-heading">{product.name}</p>
-              {product.rating != null && (
-                <p className="mb-1 text-xs text-muted">
-                  ★ {product.rating} ({(product.reviewCount ?? 0).toLocaleString()})
-                </p>
-              )}
-              <p className="mb-3 text-sm font-semibold text-heading">${Number(product.productPrice).toFixed(2)}</p>
+              <p className="mb-3 text-center text-sm font-semibold text-heading">{product.name}</p>
               <AmazonAffiliateButton
                 productName={product.name}
                 url={product.productLink}
+                className="mt-auto"
                 onClick={() =>
                   onAffiliateClick({
                     guideId,
@@ -39,7 +37,10 @@ function QuickRecommendationsSection({ quickRecommendations, number, guideId, on
                     marketplace: getAmazonMarketplace(product.productLink),
                   })
                 }
-              />
+              >
+                <ShoppingCart size={16} aria-hidden="true" />
+                View on Amazon
+              </AmazonAffiliateButton>
             </div>
           );
         })}
