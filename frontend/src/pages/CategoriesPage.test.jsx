@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import CategoriesPage from './CategoriesPage.jsx';
@@ -25,33 +24,25 @@ describe('CategoriesPage', () => {
     vi.restoreAllMocks();
     vi.spyOn(settingsService, 'getSettings').mockResolvedValue({});
     vi.spyOn(categoryService, 'getCategories').mockResolvedValue(categories);
+    vi.spyOn(productService, 'getBrands').mockResolvedValue([]);
     vi.spyOn(productService, 'searchProducts').mockResolvedValue({ content: [], totalPages: 0, totalElements: 0 });
   });
 
-  it('renders the category card grid and the catalog title', async () => {
+  it('renders the Categories title, description, and breadcrumb on the Browse Products shell', async () => {
     renderPage();
 
-    expect(await screen.findByText('Shop by Category')).toBeInTheDocument();
-    expect(screen.getAllByText('Electronics').length).toBeGreaterThan(0);
-    expect(screen.getByRole('heading', { name: 'Categories' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Categories' })).toBeInTheDocument();
+    expect(screen.getByText('Browse curated recommendations by category.')).toBeInTheDocument();
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(breadcrumb).getByText('Categories')).toBeInTheDocument();
   });
 
-  it('filters the catalog to the clicked category', async () => {
-    const user = userEvent.setup();
-    renderPage();
-    await screen.findByText('Shop by Category');
-
-    await user.click(screen.getByRole('link', { name: 'Electronics' }));
+  it('pre-selects the category filter from a ?category= link (e.g. from the navbar dropdown)', async () => {
+    renderPage(['/categories?category=1']);
 
     await waitFor(() =>
-      expect(productService.searchProducts).toHaveBeenLastCalledWith(expect.objectContaining({ categoryId: '1' }))
+      expect(productService.searchProducts).toHaveBeenCalledWith(expect.objectContaining({ categoryIds: '1' }))
     );
-  });
-
-  it('does not render a redundant "View all" link on the Categories page itself', async () => {
-    renderPage();
-    await screen.findByText('Shop by Category');
-
-    expect(screen.queryByRole('link', { name: /view all/i })).not.toBeInTheDocument();
+    expect(await screen.findByRole('checkbox', { name: 'Electronics' })).toBeChecked();
   });
 });
