@@ -1,6 +1,8 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import i18n from 'i18next';
 import MobileMenu from './MobileMenu.jsx';
 
 function Harness({ isOpen, onClose }) {
@@ -12,7 +14,21 @@ function Harness({ isOpen, onClose }) {
   );
 }
 
+afterEach(async () => {
+  await i18n.changeLanguage('en-US');
+});
+
 describe('MobileMenu', () => {
+  it('lists all 5 languages inline and switches the active language on tap', async () => {
+    const user = userEvent.setup();
+    render(<Harness isOpen onClose={vi.fn()} />);
+
+    const spanishOption = screen.getByRole('button', { name: /Español/ });
+    await user.click(spanishOption);
+
+    await waitFor(() => expect(i18n.language).toBe('es-US'));
+  });
+
   it('renders the updated nav item list', () => {
     render(<Harness isOpen onClose={vi.fn()} />);
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
@@ -43,7 +59,8 @@ describe('MobileMenu', () => {
 
   it('traps Tab focus within the drawer', () => {
     render(<Harness isOpen onClose={vi.fn()} />);
-    const focusable = screen.getAllByRole('link');
+    const dialog = screen.getByRole('dialog');
+    const focusable = Array.from(dialog.querySelectorAll('a[href], button:not([disabled])'));
     focusable[focusable.length - 1].focus();
 
     fireEvent.keyDown(document, { key: 'Tab' });
@@ -53,7 +70,8 @@ describe('MobileMenu', () => {
 
   it('traps Shift+Tab focus within the drawer', () => {
     render(<Harness isOpen onClose={vi.fn()} />);
-    const focusable = screen.getAllByRole('link');
+    const dialog = screen.getByRole('dialog');
+    const focusable = Array.from(dialog.querySelectorAll('a[href], button:not([disabled])'));
     focusable[0].focus();
 
     fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
