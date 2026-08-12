@@ -19,28 +19,32 @@ function FinalRecommendationSection({ topPick, number, guideId, onAffiliateClick
   return (
     <section
       aria-labelledby="final-recommendation-heading"
-      className="scroll-mt-24 rounded-card border border-amber-200 bg-amber-50 p-6 text-center sm:p-8"
+      className="scroll-mt-24 rounded-card border border-amber-200 bg-amber-50 p-6 sm:p-8"
     >
-      <Trophy size={32} className="mx-auto mb-3 text-amber-500" aria-hidden="true" />
-      <h2 id="final-recommendation-heading" className="mb-2 text-card-title text-heading">
-        {number}. Final Recommendation
-      </h2>
-      {summary && <p className="mx-auto mb-5 max-w-xl text-body">{summary}</p>}
-      <div className="mx-auto max-w-xs">
-        <AmazonAffiliateButton
-          productName={topPick.product.name}
-          url={topPick.product.productLink}
-          onClick={() =>
-            onAffiliateClick({
-              guideId,
-              productId: topPick.product.id,
-              section: 'final_recommendation',
-              marketplace: getAmazonMarketplace(topPick.product.productLink),
-            })
-          }
-        >
-          {`View ${topPick.product.name} on Amazon`}
-        </AmazonAffiliateButton>
+      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
+        <Trophy size={40} className="shrink-0 text-amber-500" aria-hidden="true" />
+        <div className="flex-1">
+          <h2 id="final-recommendation-heading" className="mb-1 text-card-title text-heading">
+            {number}. Final Recommendation
+          </h2>
+          {summary && <p className="text-body">{summary}</p>}
+        </div>
+        <div className="w-full shrink-0 sm:w-auto">
+          <AmazonAffiliateButton
+            productName={topPick.product.name}
+            url={topPick.product.productLink}
+            onClick={() =>
+              onAffiliateClick({
+                guideId,
+                productId: topPick.product.id,
+                section: 'final_recommendation',
+                marketplace: getAmazonMarketplace(topPick.product.productLink),
+              })
+            }
+          >
+            {`View ${topPick.product.name} on Amazon`}
+          </AmazonAffiliateButton>
+        </div>
       </div>
     </section>
   );
