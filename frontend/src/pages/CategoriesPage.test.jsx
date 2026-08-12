@@ -41,10 +41,17 @@ describe('CategoriesPage', () => {
     renderPage();
     await screen.findByText('Shop by Category');
 
-    await user.click(screen.getByRole('button', { name: 'Electronics' }));
+    await user.click(screen.getByRole('link', { name: 'Electronics' }));
 
     await waitFor(() =>
       expect(productService.searchProducts).toHaveBeenLastCalledWith(expect.objectContaining({ categoryId: '1' }))
     );
+  });
+
+  it('does not render a redundant "View all" link on the Categories page itself', async () => {
+    renderPage();
+    await screen.findByText('Shop by Category');
+
+    expect(screen.queryByRole('link', { name: /view all/i })).not.toBeInTheDocument();
   });
 });
