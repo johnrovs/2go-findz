@@ -14,7 +14,7 @@ function BrowseProductCard({ product }) {
 
   return (
     <article className="flex flex-col overflow-hidden rounded-card border border-border bg-white">
-      <div className="flex aspect-square items-center justify-center overflow-hidden bg-slate-50 p-4">
+      <div className="flex aspect-square items-center justify-center overflow-hidden bg-slate-50">
         {imageUrl ? (
           <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-contain" />
         ) : (
