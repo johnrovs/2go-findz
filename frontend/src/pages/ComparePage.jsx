@@ -72,9 +72,9 @@ function ComparePage() {
             <div className="text-center">
               <EmptyState
                 title="Add at least 2 products to compare"
-                description="Use the compare icon on any product card to add it here."
+                description="Compare is being reworked, so there's currently no way to add products from a product card."
               />
-              <Link to="/#catalog" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
+              <Link to="/products" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
                 Browse products
               </Link>
             </div>

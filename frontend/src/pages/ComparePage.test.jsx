@@ -59,6 +59,14 @@ describe('ComparePage', () => {
     expect(await screen.findByText('Add at least 2 products to compare')).toBeInTheDocument();
   });
 
+  it('does not reference the removed compare-icon card toggle, and links Browse products to /products', async () => {
+    renderComparePage([]);
+
+    await screen.findByText('Add at least 2 products to compare');
+    expect(screen.queryByText(/compare icon/i)).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Browse products' })).toHaveAttribute('href', '/products');
+  });
+
   it('shows an empty state when only 1 product is selected', async () => {
     vi.spyOn(productService, 'compareProducts').mockResolvedValue([productA]);
     renderComparePage([1]);
