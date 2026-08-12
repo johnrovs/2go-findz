@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { wordCount } from '../../utils/wordCount.js';
 
 const CONTENT_PREVIEW_WORD_LIMIT = 40;
 
 function BuyingGuideContentCard({ title, content, anchorId, number, onExpand }) {
+  const { t } = useTranslation('guides');
   const [isExpanded, setIsExpanded] = useState(false);
   const isLong = wordCount(content) > CONTENT_PREVIEW_WORD_LIMIT;
 
@@ -27,7 +29,7 @@ function BuyingGuideContentCard({ title, content, anchorId, number, onExpand }) 
       />
       {isLong && (
         <button type="button" onClick={toggle} className="mt-2 text-sm font-semibold text-primary hover:underline">
-          {isExpanded ? 'Show less' : 'Read more'}
+          {isExpanded ? t('content.showLess') : t('content.readMore')}
         </button>
       )}
     </div>
