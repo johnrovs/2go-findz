@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import ProductGrid from './ProductGrid.jsx';
-import { CompareProvider } from '../context/CompareContext.jsx';
 
 const product = {
   id: 1,
@@ -35,20 +34,20 @@ describe('ProductGrid', () => {
   });
 
   it('renders a product card for each product', () => {
-    render(
-      <CompareProvider>
-        <ProductGrid products={[product]} isLoading={false} error={null} />
-      </CompareProvider>
-    );
+    render(<ProductGrid products={[product]} isLoading={false} error={null} />);
     expect(screen.getByText('Wireless Earbuds')).toBeInTheDocument();
   });
 
   it('uses a 2-column grid on mobile', () => {
-    const { container } = render(
-      <CompareProvider>
-        <ProductGrid products={[product]} isLoading={false} error={null} />
-      </CompareProvider>
-    );
+    const { container } = render(<ProductGrid products={[product]} isLoading={false} error={null} />);
     expect(container.firstChild).toHaveClass('grid-cols-2');
+  });
+
+  it('renders the restyled card: category label and a View on Amazon button, no description or Compare toggle', () => {
+    render(<ProductGrid products={[product]} isLoading={false} error={null} />);
+    expect(screen.getByText('Electronics')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /View Wireless Earbuds on Amazon/ })).toBeInTheDocument();
+    expect(screen.queryByText(product.description)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Compare/ })).not.toBeInTheDocument();
   });
 });

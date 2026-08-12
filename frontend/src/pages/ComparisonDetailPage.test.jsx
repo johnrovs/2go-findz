@@ -120,7 +120,7 @@ describe('ComparisonDetailPage', () => {
     expect(screen.getByText('Which is better?')).toBeInTheDocument();
     expect(screen.getByText('Best Countertop Blenders')).toBeInTheDocument();
     expect(screen.getByText('Nutribullet Pro')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Check Price' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View Nutribullet Pro on Amazon' })).toBeInTheDocument();
   });
 
   it('sets the document title and injects JSON-LD for breadcrumb and FAQ', async () => {

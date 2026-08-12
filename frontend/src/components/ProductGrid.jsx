@@ -1,4 +1,4 @@
-import ProductCard from './ProductCard.jsx';
+import BrowseProductCard from './products/BrowseProductCard.jsx';
 import LoadingSpinner from './LoadingSpinner.jsx';
 import EmptyState from './EmptyState.jsx';
 import ErrorState from './ErrorState.jsx';
@@ -19,7 +19,7 @@ function ProductGrid({ products, isLoading, error, onRetry }) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <BrowseProductCard key={product.id} product={product} />
       ))}
     </div>
   );
