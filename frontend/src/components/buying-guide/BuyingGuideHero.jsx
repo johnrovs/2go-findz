@@ -1,22 +1,24 @@
 import { Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import AffiliateDisclosure from '../AffiliateDisclosure.jsx';
 
-function formatUpdatedDate(updatedAt) {
+function formatUpdatedDate(updatedAt, locale) {
   if (!updatedAt) return null;
-  return new Date(updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  return new Date(updatedAt).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function BuyingGuideHero({ title, excerpt, coverImageFilename, updatedAt, affiliateDisclosure }) {
+  const { t, i18n } = useTranslation('guides');
   const imageUrl = getImageUrl(coverImageFilename);
-  const formattedDate = formatUpdatedDate(updatedAt);
+  const formattedDate = formatUpdatedDate(updatedAt, i18n.language);
 
   return (
     <div className="rounded-card border border-border bg-white p-6 sm:p-8">
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="flex flex-col justify-center">
           <span className="mb-3 inline-block self-start rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary">
-            BUYING GUIDE
+            {t('hero.badge')}
           </span>
           <h1 className="mb-3 text-page-heading text-heading">{title}</h1>
           {excerpt && <p className="mb-4 text-body">{excerpt}</p>}
@@ -25,7 +27,7 @@ function BuyingGuideHero({ title, excerpt, coverImageFilename, updatedAt, affili
               2G
             </span>
             <span>
-              By 2Go Findz Team{formattedDate ? ` · Updated ${formattedDate}` : ''}
+              {t('hero.byline')}{formattedDate ? ` · ${t('hero.updatedOn', { date: formattedDate })}` : ''}
             </span>
           </div>
           <div className="mt-4 inline-flex items-start gap-2 rounded-lg bg-surface-secondary px-3 py-2">
