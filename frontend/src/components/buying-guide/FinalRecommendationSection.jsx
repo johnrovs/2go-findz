@@ -44,7 +44,7 @@ function FinalRecommendationSection({ topPick, number, guideId, onAffiliateClick
               })
             }
           >
-            {`View ${topPick.product.name} on Amazon`}
+            {t('recommendation.viewProductOnAmazon', { productName: topPick.product.name })}
           </AmazonAffiliateButton>
         </div>
       </div>

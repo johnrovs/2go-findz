@@ -44,7 +44,7 @@ function RunnerUpsSection({ runnerUps, number, guideId, onAffiliateClick }) {
           aria-expanded={showAll}
           className="mt-4 text-sm font-semibold text-primary hover:underline"
         >
-          {showAll ? 'Show fewer runner-ups' : 'See all reviewed products'}
+          {showAll ? t('runnerUps.showFewer') : t('runnerUps.seeAll')}
         </button>
       )}
     </section>
