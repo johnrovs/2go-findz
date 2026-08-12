@@ -1,0 +1,40 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "trending": "Xu hướng",
+    "categories": "Danh mục",
+    "allCategories": "Tất cả danh mục",
+    "bestSellers": "Bán chạy nhất",
+    "newArrivals": "Hàng mới về",
+    "allProducts": "Tất cả sản phẩm",
+    "buyingGuides": "Hướng dẫn mua hàng",
+    "aboutUs": "Về chúng tôi",
+    "contactUs": "Liên hệ",
+    "privacyPolicy": "Chính sách bảo mật",
+    "termsOfUse": "Điều khoản sử dụng",
+    "affiliateDisclosure": "Công bố tiếp thị liên kết",
+    "searchPlaceholder": "Tìm kiếm sản phẩm...",
+    "searchInputAriaLabel": "Tìm kiếm sản phẩm",
+    "searchButtonAriaLabel": "Tìm kiếm",
+    "openMenuAriaLabel": "Mở menu",
+    "siteNavigationAriaLabel": "Điều hướng trang web",
+    "homeLogoAriaLabel": "Trang chủ 2Go Findz",
+    "changeLanguageAriaLabel": "Đổi ngôn ngữ"
+  },
+  "footer": {
+    "shopHeading": "Mua sắm",
+    "discoverHeading": "Khám phá",
+    "companyHeading": "Công ty",
+    "defaultBio": "Khám phá các sản phẩm Amazon thịnh hành, vật dụng thiết yếu hằng ngày, món hời giá tốt và các sản phẩm không thể thiếu, được tuyển chọn kỹ lưỡng để giúp bạn mua sắm thông minh hơn.",
+    "copyright": "© {{year}} 2Go Findz. Đã đăng ký bản quyền."
+  },
+  "errors": {
+    "somethingWentWrong": "Đã xảy ra lỗi.",
+    "tryAgain": "Thử lại"
+  },
+  "pagination": {
+    "navigationAriaLabel": "Phân trang",
+    "previousPageAriaLabel": "Trang trước",
+    "nextPageAriaLabel": "Trang sau"
+  }
+}

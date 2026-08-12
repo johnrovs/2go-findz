@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const SIBLING_COUNT = 1;
@@ -22,17 +23,18 @@ function getPageItems(page, totalPages) {
 }
 
 function Pagination({ page, totalPages, onPageChange, activeClassName = 'bg-primary text-white' }) {
+  const { t } = useTranslation('common');
   if (totalPages <= 1) return null;
 
   const items = getPageItems(page, totalPages);
 
   return (
-    <nav aria-label="Pagination" className="flex items-center justify-center gap-1 pt-8">
+    <nav aria-label={t('pagination.navigationAriaLabel')} className="flex items-center justify-center gap-1 pt-8">
       <button
         type="button"
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        aria-label="Previous page"
+        aria-label={t('pagination.previousPageAriaLabel')}
         className="rounded-btn p-2 text-muted hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-40"
       >
         <ChevronLeft size={18} />
@@ -62,7 +64,7 @@ function Pagination({ page, totalPages, onPageChange, activeClassName = 'bg-prim
         type="button"
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        aria-label="Next page"
+        aria-label={t('pagination.nextPageAriaLabel')}
         className="rounded-btn p-2 text-muted hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-40"
       >
         <ChevronRight size={18} />

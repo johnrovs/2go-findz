@@ -1,12 +1,16 @@
+import { useTranslation } from 'react-i18next';
 import Button from './Button.jsx';
 
-function ErrorState({ message = 'Something went wrong.', onRetry }) {
+function ErrorState({ message, onRetry }) {
+  const { t } = useTranslation('common');
+  const resolvedMessage = message ?? t('errors.somethingWentWrong');
+
   return (
     <div role="alert" className="flex flex-col items-center justify-center gap-3 rounded-lg bg-danger/10 py-12 text-center">
-      <p className="text-small font-medium text-danger">{message}</p>
+      <p className="text-small font-medium text-danger">{resolvedMessage}</p>
       {onRetry && (
         <Button variant="secondary" size="sm" onClick={onRetry}>
-          Try again
+          {t('errors.tryAgain')}
         </Button>
       )}
     </div>

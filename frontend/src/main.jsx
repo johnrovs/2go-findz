@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
+import './i18n/index.js';
 import './index.css';
 import '@fontsource/poppins/400.css';
 import '@fontsource/poppins/500.css';
@@ -10,6 +11,8 @@ import '@fontsource/poppins/800.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <React.Suspense fallback={null}>
+      <App />
+    </React.Suspense>
   </React.StrictMode>
 );

@@ -1,0 +1,40 @@
+{
+  "nav": {
+    "home": "首页",
+    "trending": "热门",
+    "categories": "分类",
+    "allCategories": "所有分类",
+    "bestSellers": "畅销产品",
+    "newArrivals": "新品上市",
+    "allProducts": "所有产品",
+    "buyingGuides": "购买指南",
+    "aboutUs": "关于我们",
+    "contactUs": "联系我们",
+    "privacyPolicy": "隐私政策",
+    "termsOfUse": "使用条款",
+    "affiliateDisclosure": "联盟营销披露",
+    "searchPlaceholder": "搜索商品...",
+    "searchInputAriaLabel": "搜索商品",
+    "searchButtonAriaLabel": "搜索",
+    "openMenuAriaLabel": "打开菜单",
+    "siteNavigationAriaLabel": "网站导航",
+    "homeLogoAriaLabel": "2Go Findz 首页",
+    "changeLanguageAriaLabel": "更改语言"
+  },
+  "footer": {
+    "shopHeading": "购物",
+    "discoverHeading": "发现",
+    "companyHeading": "公司",
+    "defaultBio": "发现亚马逊热门商品、日常必需品、超值好物,精心挑选,助您更聪明地购物。",
+    "copyright": "© {{year}} 2Go Findz。保留所有权利。"
+  },
+  "errors": {
+    "somethingWentWrong": "出现问题,请稍后再试。",
+    "tryAgain": "重试"
+  },
+  "pagination": {
+    "navigationAriaLabel": "分页",
+    "previousPageAriaLabel": "上一页",
+    "nextPageAriaLabel": "下一页"
+  }
+}

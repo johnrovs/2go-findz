@@ -1,0 +1,40 @@
+{
+  "nav": {
+    "home": "Home",
+    "trending": "Uso Ngayon",
+    "categories": "Mga Kategorya",
+    "allCategories": "Lahat ng Kategorya",
+    "bestSellers": "Pinakabenta",
+    "newArrivals": "Bagong Dating",
+    "allProducts": "Lahat ng Produkto",
+    "buyingGuides": "Mga Gabay sa Pamimili",
+    "aboutUs": "Tungkol sa Amin",
+    "contactUs": "Makipag-ugnayan",
+    "privacyPolicy": "Patakaran sa Privacy",
+    "termsOfUse": "Mga Tuntunin ng Paggamit",
+    "affiliateDisclosure": "Paglalahad ng Affiliate",
+    "searchPlaceholder": "Maghanap ng produkto...",
+    "searchInputAriaLabel": "Maghanap ng produkto",
+    "searchButtonAriaLabel": "Maghanap",
+    "openMenuAriaLabel": "Buksan ang menu",
+    "siteNavigationAriaLabel": "Nabigasyon ng site",
+    "homeLogoAriaLabel": "Home ng 2Go Findz",
+    "changeLanguageAriaLabel": "Baguhin ang wika"
+  },
+  "footer": {
+    "shopHeading": "Mamili",
+    "discoverHeading": "Tuklasin",
+    "companyHeading": "Kumpanya",
+    "defaultBio": "Tuklasin ang mga uso sa Amazon, pang-araw-araw na pangangailangan, murang produkto, at mga must-have item na maingat na pinili para tulungan kang mamili nang mas matalino.",
+    "copyright": "© {{year}} 2Go Findz. Lahat ng karapatan ay nakalaan."
+  },
+  "errors": {
+    "somethingWentWrong": "May naganap na error.",
+    "tryAgain": "Subukan muli"
+  },
+  "pagination": {
+    "navigationAriaLabel": "Nabigasyon ng pahina",
+    "previousPageAriaLabel": "Nakaraang pahina",
+    "nextPageAriaLabel": "Susunod na pahina"
+  }
+}
