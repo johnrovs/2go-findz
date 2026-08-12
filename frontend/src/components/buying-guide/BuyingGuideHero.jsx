@@ -15,7 +15,7 @@ function BuyingGuideHero({ title, excerpt, coverImageFilename, updatedAt, affili
     <div className="rounded-card border border-border bg-white p-6 sm:p-8">
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="flex flex-col justify-center">
-          <span className="mb-3 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary">
+          <span className="mb-3 inline-block self-start rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary">
             BUYING GUIDE
           </span>
           <h1 className="mb-3 text-page-heading text-heading">{title}</h1>
