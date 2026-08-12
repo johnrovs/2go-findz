@@ -17,13 +17,14 @@ function makeRunnerUp(id, name) {
 }
 
 describe('RunnerUpsSection', () => {
-  it('renders the numbered heading and one card per runner-up, ranked in order', () => {
+  it('renders the numbered heading and one card per runner-up, in order', () => {
     const runnerUps = [makeRunnerUp(1, 'Collagen Gummy'), makeRunnerUp(2, 'Magnesium Complex')];
     render(<RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
 
     expect(screen.getByRole('heading', { name: /4\. Runner-Ups/ })).toBeInTheDocument();
-    expect(screen.getByText('#1')).toBeInTheDocument();
-    expect(screen.getByText('#2')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Collagen Gummy' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Magnesium Complex' })).toBeInTheDocument();
+    expect(screen.queryByText('#1')).not.toBeInTheDocument();
   });
 
   it('does not show "See all" when there are 4 or fewer runner-ups', () => {
@@ -74,5 +75,19 @@ describe('RunnerUpsSection', () => {
     const runnerUps = [makeRunnerUp(1, 'Collagen Gummy'), makeRunnerUp(2, 'Magnesium Complex')];
     const { container } = render(<RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
     expect(container.querySelector('.grid')).toHaveClass('lg:grid-cols-2');
+  });
+
+  it('uses a compact product image for multiple runner-ups, and a full-size one for a lone runner-up', () => {
+    const runnerUps = [makeRunnerUp(1, 'Collagen Gummy'), makeRunnerUp(2, 'Magnesium Complex')];
+    const { container: multiple } = render(
+      <RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />
+    );
+    expect(multiple.querySelector('.h-16.w-16')).toBeInTheDocument();
+    expect(multiple.querySelector('.h-24.w-24')).not.toBeInTheDocument();
+
+    const { container: single } = render(
+      <RunnerUpsSection runnerUps={[makeRunnerUp(1, 'Collagen Gummy')]} number={4} guideId={3} onAffiliateClick={vi.fn()} />
+    );
+    expect(single.querySelector('.h-24.w-24')).toBeInTheDocument();
   });
 });

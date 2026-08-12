@@ -21,9 +21,8 @@ function RunnerUpsSection({ runnerUps, number, guideId, onAffiliateClick }) {
           <RecommendationCard
             key={runnerUp.product.id}
             recommendation={runnerUp}
-            rank={index + 1}
             badgeIndex={index + 1}
-            wide={isSingle}
+            compact={!isSingle}
             onAffiliateClick={() =>
               onAffiliateClick({
                 guideId,

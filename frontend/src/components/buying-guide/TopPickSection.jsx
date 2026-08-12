@@ -11,7 +11,6 @@ function TopPickSection({ topPick, number, guideId, onAffiliateClick }) {
       </h2>
       <RecommendationCard
         recommendation={topPick}
-        rank={null}
         onAffiliateClick={() =>
           onAffiliateClick({
             guideId,

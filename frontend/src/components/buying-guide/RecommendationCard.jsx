@@ -3,57 +3,59 @@ import QuickPickBadge from '../buying-guide-form/QuickPickBadge.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { isSupportedAmazonUrl } from '../../utils/amazonLink.js';
 
-function RecommendationCard({ recommendation, rank, badgeIndex = 0, wide = true, onAffiliateClick }) {
+function RecommendationCard({ recommendation, badgeIndex = 0, compact = false, onAffiliateClick }) {
   const { product, sectionLabel, whyRecommended, pros, cons, bestFor } = recommendation;
   const imageUrl = getImageUrl(product.imageFileName);
+  const isLink = isSupportedAmazonUrl(product.productLink);
 
   return (
     <div className="rounded-card border border-border bg-white p-5">
-      <div className="mb-3 flex items-center gap-2">
-        {rank != null && <span className="text-xs font-semibold text-muted">#{rank}</span>}
+      <div className="mb-3 flex justify-end">
         <QuickPickBadge label={sectionLabel || 'Untitled Badge'} index={badgeIndex} />
       </div>
 
       <div className="mb-3 flex items-center gap-4">
-        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-surface-secondary">
-          {imageUrl && <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-cover" />}
+        <div
+          className={`shrink-0 overflow-hidden rounded-md bg-surface-secondary ${compact ? 'h-16 w-16' : 'h-24 w-24'}`}
+        >
+          {imageUrl && (
+            <img src={imageUrl} alt={product.name} loading="lazy" className="h-full w-full object-cover" />
+          )}
         </div>
         <div className="min-w-0">
-          <h3 className="text-card-title text-heading">
-            {isSupportedAmazonUrl(product.productLink) ? (
+          <h3 className="text-card-title">
+            {isLink ? (
               <a
                 href={product.productLink}
                 target="_blank"
                 rel="nofollow sponsored noopener noreferrer"
                 onClick={onAffiliateClick}
-                className="hover:underline"
+                className="font-semibold text-primary hover:underline"
               >
                 {product.name}
               </a>
             ) : (
-              product.name
+              <span className="font-semibold text-heading">{product.name}</span>
             )}
           </h3>
-          {product.rating != null && (
-            <p className="text-xs text-muted">
-              ★ {product.rating} ({(product.reviewCount ?? 0).toLocaleString()} reviews)
-            </p>
-          )}
         </div>
       </div>
 
       {whyRecommended && (
         <div className="mb-3">
-          <span className="text-sm font-semibold text-heading">Why We Recommend It?</span>
-          <div className="prose prose-sm mt-1 max-w-none text-body" dangerouslySetInnerHTML={{ __html: whyRecommended }} />
+          <span className="text-sm font-semibold text-heading">Why We Recommend It</span>
+          <div
+            className="prose prose-sm mt-1 max-w-none text-body"
+            dangerouslySetInnerHTML={{ __html: whyRecommended }}
+          />
         </div>
       )}
 
       {(pros.length > 0 || cons.length > 0 || bestFor.length > 0) && (
-        <div className={`grid gap-4 ${wide ? 'sm:grid-cols-3' : ''}`}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {pros.length > 0 && (
             <div>
-              <span className="text-sm font-semibold text-heading">Pros</span>
+              <span className="text-sm font-semibold text-success">Pros</span>
               <ul className="mt-1 space-y-1">
                 {pros.map((item, index) => (
                   <li key={index} className="flex items-start gap-1.5 text-sm text-body">
@@ -67,7 +69,7 @@ function RecommendationCard({ recommendation, rank, badgeIndex = 0, wide = true,
 
           {cons.length > 0 && (
             <div>
-              <span className="text-sm font-semibold text-heading">Cons</span>
+              <span className="text-sm font-semibold text-danger">Cons</span>
               <ul className="mt-1 space-y-1">
                 {cons.map((item, index) => (
                   <li key={index} className="flex items-start gap-1.5 text-sm text-body">
@@ -81,7 +83,7 @@ function RecommendationCard({ recommendation, rank, badgeIndex = 0, wide = true,
 
           {bestFor.length > 0 && (
             <div>
-              <span className="text-sm font-semibold text-heading">Best For</span>
+              <span className="text-sm font-semibold text-primary">Best For</span>
               <ul className="mt-1 list-disc pl-5 text-sm text-body">
                 {bestFor.map((item, index) => (
                   <li key={index}>{item}</li>

@@ -203,7 +203,7 @@ function LivePreview({
           <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted">
             {sectionNumbers.TOP_PICK}. Our Top Pick
           </span>
-          <RecommendationCard recommendation={toRecommendationCardShape(topPick)} rank={null} />
+          <RecommendationCard recommendation={toRecommendationCardShape(topPick)} />
         </div>
       )}
 
@@ -214,7 +214,7 @@ function LivePreview({
           </span>
           {runnerUps.map((section, index) => (
             <div key={section.clientId} className="mt-3 first:mt-0">
-              <RecommendationCard recommendation={toRecommendationCardShape(section)} rank={index + 1} />
+              <RecommendationCard recommendation={toRecommendationCardShape(section)} badgeIndex={index + 1} />
             </div>
           ))}
         </div>
