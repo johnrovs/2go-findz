@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -225,6 +226,93 @@ class AdminDashboardControllerTest extends AbstractIntegrationTest {
 
         assertEquals(before + 1, after,
                 "publishedGuideCount must count only guides that are both active and PUBLIC");
+    }
+
+    @Test
+    void analytics_topCategories_ranksByClickCount_omittingZeroClickCategories() throws Exception {
+        String token = adminToken();
+        Long busyCategoryId = createCategoryId(token, "Top Categories Busy Category");
+        Long quietCategoryId = createCategoryId(token, "Top Categories Quiet Category");
+        Long silentCategoryId = createCategoryId(token, "Top Categories Silent Category");
+
+        Long busyProductId = createProductId(token, "Top Categories Busy Product", busyCategoryId, new BigDecimal("10.00"), false, false, true);
+        Long quietProductId = createProductId(token, "Top Categories Quiet Product", quietCategoryId, new BigDecimal("10.00"), false, false, true);
+        createProductId(token, "Top Categories Silent Product", silentCategoryId, new BigDecimal("10.00"), false, false, true);
+
+        // The dashboard's topCategories endpoint queries all-time, shared-DB data (no from/to
+        // in this test) and caps results to the top 5 categories overall. Other tests in this
+        // suite create categories with a handful of clicks each (this file's highest is 6), so
+        // these counts need clear headroom above that to reliably land in the shared top 5,
+        // matching the same tolerance the existing analytics_mostClickedProducts_* test below
+        // already relies on for the identical shared-DB ranking problem.
+        for (int i = 0; i < 20; i++) {
+            mockMvc.perform(post("/api/public/products/{id}/click", busyProductId));
+        }
+        for (int i = 0; i < 15; i++) {
+            mockMvc.perform(post("/api/public/products/{id}/click", quietProductId));
+        }
+
+        var result = mockMvc.perform(get("/api/admin/dashboard/analytics")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode topCategories = objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("data").path("topCategories");
+
+        int busyIndex = -1;
+        int quietIndex = -1;
+        boolean silentPresent = false;
+        for (int i = 0; i < topCategories.size(); i++) {
+            JsonNode row = topCategories.get(i);
+            String name = row.path("categoryName").asText();
+            if (name.equals("Top Categories Busy Category")) {
+                busyIndex = i;
+                assertEquals(20, row.path("clickCount").asLong());
+            }
+            if (name.equals("Top Categories Quiet Category")) {
+                quietIndex = i;
+                assertEquals(15, row.path("clickCount").asLong());
+            }
+            if (name.equals("Top Categories Silent Category")) {
+                silentPresent = true;
+            }
+        }
+
+        assertTrue(busyIndex >= 0, "the busy category should appear in topCategories");
+        assertTrue(quietIndex >= 0, "the quiet category should appear in topCategories");
+        assertTrue(busyIndex < quietIndex, "the category with more clicks must be ordered before the one with fewer");
+        assertFalse(silentPresent, "a category with zero clicks in range must not appear in topCategories");
+    }
+
+    @Test
+    void analytics_recentProducts_returnsFiveMostRecent_regardlessOfActiveFlag_withRangeScopedClicks() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Recent Products Category");
+
+        Long inactiveProductId = createProductId(token, "Recent Products Draft Product", categoryId, new BigDecimal("10.00"), false, false, false);
+        mockMvc.perform(post("/api/public/products/{id}/click", inactiveProductId));
+        mockMvc.perform(post("/api/public/products/{id}/click", inactiveProductId));
+
+        var result = mockMvc.perform(get("/api/admin/dashboard/analytics")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode recentProducts = objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("data").path("recentProducts");
+
+        boolean found = false;
+        for (int i = 0; i < recentProducts.size(); i++) {
+            JsonNode row = recentProducts.get(i);
+            if (row.path("id").asLong() == inactiveProductId) {
+                found = true;
+                assertEquals(false, row.path("active").asBoolean());
+                assertEquals(2, row.path("clicks").asLong());
+            }
+        }
+        assertTrue(found, "an inactive (draft) product must still appear in recentProducts if it's among the 5 most recently created");
+        assertTrue(recentProducts.size() <= 5, "recentProducts must never return more than 5 rows");
     }
 
     private Long createBuyingGuideId(String token, String title, Long categoryId, boolean active,

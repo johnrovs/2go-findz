@@ -7,6 +7,8 @@ public record DashboardAnalyticsResponse(
         List<DailyCountResponse> clicksByDay,
         List<ProductClickCountResponse> mostClickedProducts,
         List<CategoryCommissionResponse> commissionByCategory,
-        List<MonthlyCountResponse> productsAddedByMonth
+        List<MonthlyCountResponse> productsAddedByMonth,
+        List<CategoryClickCountResponse> topCategories,
+        List<RecentProductResponse> recentProducts
 ) {
 }

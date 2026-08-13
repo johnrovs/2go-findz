@@ -1,11 +1,14 @@
 package com.twogofindz.backend.service.impl;
 
+import com.twogofindz.backend.dto.response.CategoryClickCountResponse;
 import com.twogofindz.backend.dto.response.CategoryCommissionResponse;
 import com.twogofindz.backend.dto.response.DailyCountResponse;
 import com.twogofindz.backend.dto.response.DashboardAnalyticsResponse;
 import com.twogofindz.backend.dto.response.DashboardSummaryResponse;
 import com.twogofindz.backend.dto.response.MonthlyCountResponse;
 import com.twogofindz.backend.dto.response.ProductClickCountResponse;
+import com.twogofindz.backend.dto.response.RecentProductResponse;
+import com.twogofindz.backend.entity.Product;
 import com.twogofindz.backend.entity.Visibility;
 import com.twogofindz.backend.repository.BuyingGuideRepository;
 import com.twogofindz.backend.repository.ProductCategoryRepository;
@@ -22,6 +25,8 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DashboardServiceImpl implements DashboardService {
@@ -35,6 +40,7 @@ public class DashboardServiceImpl implements DashboardService {
     private static final LocalDateTime MAX_DATETIME = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
 
     private static final int MOST_CLICKED_LIMIT = 10;
+    private static final int TOP_CATEGORIES_LIMIT = 5;
 
     private final WebsiteViewRepository websiteViewRepository;
     private final ProductClickRepository productClickRepository;
@@ -109,8 +115,28 @@ public class DashboardServiceImpl implements DashboardService {
                 .map(p -> new MonthlyCountResponse(p.getYm(), p.getCnt()))
                 .toList();
 
+        List<CategoryClickCountResponse> topCategories = productClickRepository
+                .countClicksByCategory(start, end, PageRequest.of(0, TOP_CATEGORIES_LIMIT)).stream()
+                .map(p -> new CategoryClickCountResponse(p.getCategoryId(), p.getCategoryName(), p.getClickCount()))
+                .toList();
+
+        List<Product> recentProductEntities = productRepository.findTop5ByOrderByCreatedAtDesc();
+        List<Long> recentProductIds = recentProductEntities.stream().map(Product::getId).toList();
+        Map<Long, Long> clicksByProductId = recentProductIds.isEmpty()
+                ? Map.of()
+                : productClickRepository.countClicksByProductIdsBetween(recentProductIds, start, end).stream()
+                        .collect(Collectors.toMap(
+                                ProductClickRepository.ProductIdClickCountProjection::getProductId,
+                                ProductClickRepository.ProductIdClickCountProjection::getClickCount));
+        List<RecentProductResponse> recentProducts = recentProductEntities.stream()
+                .map(p -> new RecentProductResponse(
+                        p.getId(), p.getName(), p.getImageFileName(), p.getCategory().getProductCategoryName(),
+                        p.isActive(), p.getCreatedAt(), clicksByProductId.getOrDefault(p.getId(), 0L)))
+                .toList();
+
         return new DashboardAnalyticsResponse(
-                viewsByDay, clicksByDay, mostClickedProducts, commissionByCategory, productsAddedByMonth);
+                viewsByDay, clicksByDay, mostClickedProducts, commissionByCategory, productsAddedByMonth,
+                topCategories, recentProducts);
     }
 
     private LocalDateTime effectiveFrom(LocalDate from) {

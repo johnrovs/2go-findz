@@ -75,6 +75,40 @@ public interface ProductClickRepository extends JpaRepository<ProductClick, Long
                                                                 @Param("to") LocalDateTime to,
                                                                 Pageable pageable);
 
+    /**
+     * Per-category click count, grouped and ranked in the DB, limited via the supplied
+     * {@link Pageable} (top 5). Mirrors sumCommissionByCategory's join/grouping shape and its
+     * "categories with zero clicks in range produce no row" convention — nothing to group means
+     * no row, never a zero-padded entry.
+     */
+    @Query("""
+            select pc.product.category.id as categoryId,
+                   pc.product.category.productCategoryName as categoryName,
+                   count(pc) as clickCount
+            from ProductClick pc
+            where pc.clickedAt between :from and :to
+            group by pc.product.category.id, pc.product.category.productCategoryName
+            order by count(pc) desc, pc.product.category.id asc
+            """)
+    List<CategoryClickCountProjection> countClicksByCategory(@Param("from") LocalDateTime from,
+                                                               @Param("to") LocalDateTime to,
+                                                               Pageable pageable);
+
+    /**
+     * Click counts for a specific, small set of product ids (the dashboard's 5 recent products),
+     * grouped in one query rather than one query per product — avoids N+1. Products with zero
+     * clicks in range are simply absent from the result; the caller defaults them to 0.
+     */
+    @Query("""
+            select pc.product.id as productId, count(pc) as clickCount
+            from ProductClick pc
+            where pc.product.id in :productIds and pc.clickedAt between :from and :to
+            group by pc.product.id
+            """)
+    List<ProductIdClickCountProjection> countClicksByProductIdsBetween(@Param("productIds") List<Long> productIds,
+                                                                         @Param("from") LocalDateTime from,
+                                                                         @Param("to") LocalDateTime to);
+
     interface DailyCountProjection {
         LocalDate getDay();
 
@@ -93,6 +127,20 @@ public interface ProductClickRepository extends JpaRepository<ProductClick, Long
         Long getProductId();
 
         String getProductName();
+
+        Long getClickCount();
+    }
+
+    interface CategoryClickCountProjection {
+        Long getCategoryId();
+
+        String getCategoryName();
+
+        Long getClickCount();
+    }
+
+    interface ProductIdClickCountProjection {
+        Long getProductId();
 
         Long getClickCount();
     }

@@ -20,6 +20,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     List<Product> findByActiveFalseAndScheduledPublishAtLessThanEqual(LocalDateTime now);
 
+    List<Product> findTop5ByOrderByCreatedAtDesc();
+
     @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.brand IS NOT NULL AND p.brand <> '' ORDER BY p.brand")
     List<String> findDistinctBrands();
 
