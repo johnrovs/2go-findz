@@ -6,6 +6,8 @@ import com.twogofindz.backend.dto.response.DashboardAnalyticsResponse;
 import com.twogofindz.backend.dto.response.DashboardSummaryResponse;
 import com.twogofindz.backend.dto.response.MonthlyCountResponse;
 import com.twogofindz.backend.dto.response.ProductClickCountResponse;
+import com.twogofindz.backend.entity.Visibility;
+import com.twogofindz.backend.repository.BuyingGuideRepository;
 import com.twogofindz.backend.repository.ProductCategoryRepository;
 import com.twogofindz.backend.repository.ProductClickRepository;
 import com.twogofindz.backend.repository.ProductRepository;
@@ -38,15 +40,18 @@ public class DashboardServiceImpl implements DashboardService {
     private final ProductClickRepository productClickRepository;
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final BuyingGuideRepository buyingGuideRepository;
 
     public DashboardServiceImpl(WebsiteViewRepository websiteViewRepository,
                                  ProductClickRepository productClickRepository,
                                  ProductRepository productRepository,
-                                 ProductCategoryRepository productCategoryRepository) {
+                                 ProductCategoryRepository productCategoryRepository,
+                                 BuyingGuideRepository buyingGuideRepository) {
         this.websiteViewRepository = websiteViewRepository;
         this.productClickRepository = productClickRepository;
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
+        this.buyingGuideRepository = buyingGuideRepository;
     }
 
     @Override
@@ -67,9 +72,12 @@ public class DashboardServiceImpl implements DashboardService {
         long trendingCount = productRepository.countByActiveTrueAndTrendingTrue();
         long bestSellerCount = productRepository.countByActiveTrueAndBestSellerTrue();
 
+        // Same all-time, non-range-filtered convention as totalProducts/totalCategories (Rule 3/4).
+        long publishedGuideCount = buyingGuideRepository.countByActiveTrueAndVisibility(Visibility.PUBLIC);
+
         return new DashboardSummaryResponse(
                 totalViews, totalClicks, estimatedTotalCommission,
-                totalProducts, totalCategories, trendingCount, bestSellerCount);
+                totalProducts, totalCategories, trendingCount, bestSellerCount, publishedGuideCount);
     }
 
     @Override

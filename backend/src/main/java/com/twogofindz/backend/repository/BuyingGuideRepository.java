@@ -1,6 +1,7 @@
 package com.twogofindz.backend.repository;
 
 import com.twogofindz.backend.entity.BuyingGuide;
+import com.twogofindz.backend.entity.Visibility;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
@@ -14,4 +15,5 @@ public interface BuyingGuideRepository extends JpaRepository<BuyingGuide, Long> 
     boolean existsBySlug(String slug);
     boolean existsBySlugAndIdNot(String slug, Long id);
     List<BuyingGuide> findByActiveFalseAndScheduledPublishAtLessThanEqual(LocalDateTime now);
+    long countByActiveTrueAndVisibility(Visibility visibility);
 }

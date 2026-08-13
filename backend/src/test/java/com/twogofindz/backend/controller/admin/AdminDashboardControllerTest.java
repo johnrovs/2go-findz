@@ -2,12 +2,15 @@ package com.twogofindz.backend.controller.admin;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.twogofindz.backend.AbstractIntegrationTest;
+import com.twogofindz.backend.dto.request.BuyingGuideRequest;
 import com.twogofindz.backend.dto.request.CategoryRequest;
 import com.twogofindz.backend.dto.request.ProductRequest;
+import com.twogofindz.backend.entity.Visibility;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -202,6 +205,43 @@ class AdminDashboardControllerTest extends AbstractIntegrationTest {
         assertTrue(highIndex < lowIndex, "the product with more clicks must be ordered before the product with fewer clicks");
         assertEquals(6, mostClicked.get(highIndex).path("clickCount").asLong());
         assertEquals(1, mostClicked.get(lowIndex).path("clickCount").asLong());
+    }
+
+    @Test
+    void summary_publishedGuideCount_countsOnlyActivePublicGuides() throws Exception {
+        String token = adminToken();
+        Long guideCategoryId = createCategoryId(token, "Published Count Guide Category");
+
+        long before = fetchSummaryData(token, null, null).path("publishedGuideCount").asLong();
+
+        // Active + PUBLIC: counts.
+        createBuyingGuideId(token, "Published Count Guide A", guideCategoryId, true, Visibility.PUBLIC);
+        // Active + PRIVATE: must not count.
+        createBuyingGuideId(token, "Published Count Guide B", guideCategoryId, true, Visibility.PRIVATE);
+        // Inactive + PUBLIC: must not count.
+        createBuyingGuideId(token, "Published Count Guide C", guideCategoryId, false, Visibility.PUBLIC);
+
+        long after = fetchSummaryData(token, null, null).path("publishedGuideCount").asLong();
+
+        assertEquals(before + 1, after,
+                "publishedGuideCount must count only guides that are both active and PUBLIC");
+    }
+
+    private Long createBuyingGuideId(String token, String title, Long categoryId, boolean active,
+                                      Visibility visibility) throws Exception {
+        BuyingGuideRequest request = new BuyingGuideRequest(
+                title, "", "Excerpt for " + title, "Introduction", null,
+                categoryId, null, null, active, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null,
+                visibility, true, true, null, null, null, "summary_large_image");
+
+        var result = mockMvc.perform(post("/api/admin/buying-guides")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("data").path("id").asLong();
     }
 
     private Long createProductId(String token, String name, Long categoryId, BigDecimal price,
