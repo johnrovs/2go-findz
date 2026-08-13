@@ -168,4 +168,21 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Soundcore Liberty 4 NC')).toBeInTheDocument();
     expect(screen.getByText('342')).toBeInTheDocument();
   });
+
+  it('renders the Quick Actions card with all four shortcuts', async () => {
+    renderPage();
+    await screen.findByText('Performance Overview');
+
+    expect(screen.getByText('Quick Actions')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Add Product/ })).toHaveAttribute('href', '/admin/products/new');
+    expect(screen.getByRole('link', { name: /Add Buying Guide/ })).toHaveAttribute(
+      'href',
+      '/admin/buying-guides/new'
+    );
+    expect(screen.getByRole('link', { name: /Add Comparison/ })).toHaveAttribute(
+      'href',
+      '/admin/comparisons/new'
+    );
+    expect(screen.getByRole('link', { name: /Manage Categories/ })).toHaveAttribute('href', '/admin/categories');
+  });
 });
