@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getSummary, getAnalytics } from '../services/dashboardService.js';
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -40,10 +40,7 @@ export function useDashboardData() {
   const previousFrom = formatDate(previousStart);
   const previousTo = formatDate(previousEnd);
 
-  const comparisonLabel = useMemo(
-    () => `vs ${formatComparisonDate(previousStart)} – ${formatComparisonDate(previousEnd)}`,
-    [previousFrom, previousTo]
-  );
+  const comparisonLabel = `vs ${formatComparisonDate(previousStart)} – ${formatComparisonDate(previousEnd)}`;
 
   useEffect(() => {
     let isCancelled = false;
