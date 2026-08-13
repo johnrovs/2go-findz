@@ -17,7 +17,7 @@ function DashboardDateRangePicker({ id = 'dashboard-date-range', startDate, endD
           onChange(nextStart, nextEnd);
         }}
         dateFormat="MMM d, yyyy"
-        className="rounded-btn border border-border px-3 py-2 text-small text-heading focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-[230px] rounded-btn border border-border px-3 py-2 text-small text-heading focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
       />
     </div>
   );
