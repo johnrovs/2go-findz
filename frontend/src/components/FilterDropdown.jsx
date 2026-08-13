@@ -1,7 +1,7 @@
-function FilterDropdown({ label, value, options, onChange }) {
+function FilterDropdown({ label, value, options, onChange, hideLabel = false }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-small font-medium text-body">{label}</span>
+      <span className={`text-small font-medium text-body ${hideLabel ? 'sr-only' : ''}`}>{label}</span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}

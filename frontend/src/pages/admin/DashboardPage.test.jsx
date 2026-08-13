@@ -1,10 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import DashboardPage from './DashboardPage.jsx';
 import * as dashboardService from '../../services/dashboardService.js';
+import * as useAuthModule from '../../hooks/useAuth.js';
 
-const summary = {
+const currentSummary = {
   totalViews: 1204,
   totalClicks: 356,
   estimatedTotalCommission: 128.5,
@@ -12,105 +14,124 @@ const summary = {
   totalCategories: 6,
   trendingCount: 8,
   bestSellerCount: 5,
+  publishedGuideCount: 14,
+};
+
+const previousSummary = {
+  ...currentSummary,
+  totalViews: 1000,
+  totalClicks: 300,
 };
 
 const analytics = {
   viewsByDay: [{ date: '2026-07-01', count: 5 }],
   clicksByDay: [{ date: '2026-07-01', count: 2 }],
-  mostClickedProducts: [{ productId: 1, productName: 'Wireless Earbuds', clickCount: 12 }],
-  commissionByCategory: [{ categoryId: 1, categoryName: 'Electronics', estimatedCommission: 40 }],
-  productsAddedByMonth: [{ yearMonth: '2026-07', count: 3 }],
+  mostClickedProducts: [],
+  commissionByCategory: [],
+  productsAddedByMonth: [],
 };
 
 function renderPage() {
-  return render(<DashboardPage />);
+  vi.spyOn(useAuthModule, 'useAuth').mockReturnValue({
+    user: { fullName: 'John Rommel Rovero', role: 'Administrator' },
+    logout: vi.fn(),
+  });
+  return render(
+    <MemoryRouter initialEntries={['/admin']}>
+      <DashboardPage />
+    </MemoryRouter>
+  );
 }
 
 describe('DashboardPage', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    vi.spyOn(dashboardService, 'getSummary').mockResolvedValue(summary);
+    vi.spyOn(dashboardService, 'getSummary')
+      .mockResolvedValueOnce(currentSummary)
+      .mockResolvedValueOnce(previousSummary);
     vi.spyOn(dashboardService, 'getAnalytics').mockResolvedValue(analytics);
   });
 
-  it('renders the five plain-value summary cards with the correct values', async () => {
+  it('renders exactly five KPI cards with real values, and no Estimated Commissions card', async () => {
     renderPage();
-    await screen.findByText('Views & Clicks by Day');
+    await screen.findByText('Performance Overview');
 
-    expect(screen.getByText('Total Views').closest('.rounded-card')).toHaveTextContent('1204');
+    expect(screen.getByText('Total Views').closest('.rounded-card')).toHaveTextContent('1,204');
     expect(screen.getByText('Total Clicks').closest('.rounded-card')).toHaveTextContent('356');
-    expect(screen.getByText('Estimated Commission').closest('.rounded-card')).toHaveTextContent('$128.50');
     expect(screen.getByText('Total Products').closest('.rounded-card')).toHaveTextContent('42');
-    expect(screen.getByText('Total Categories').closest('.rounded-card')).toHaveTextContent('6');
+    expect(screen.getByText('Published Guides').closest('.rounded-card')).toHaveTextContent('14');
+    expect(screen.getByText('Avg. Click Through Rate').closest('.rounded-card')).toHaveTextContent('29.6%');
+    expect(screen.queryByText('Estimated Commission')).not.toBeInTheDocument();
   });
 
-  it('renders the three percentage-gauge cards with correctly computed values', async () => {
+  it('shows a positive change indicator for Total Views computed against the previous period', async () => {
     renderPage();
-    await screen.findByText('Views & Clicks by Day');
+    await screen.findByText('Performance Overview');
 
-    // 356 / 1204 * 100 = 29.56... -> rounds to 30
-    expect(screen.getByText('Click-Through Rate').closest('.rounded-card')).toHaveTextContent('30%');
-    // 8 / 42 * 100 = 19.04... -> rounds to 19
-    expect(screen.getByText('Trending Share of Catalog').closest('.rounded-card')).toHaveTextContent('19%');
-    // 5 / 42 * 100 = 11.90... -> rounds to 12
-    expect(screen.getByText('Best-Seller Share of Catalog').closest('.rounded-card')).toHaveTextContent('12%');
+    // (1204 - 1000) / 1000 * 100 = 20.4%
+    expect(screen.getByText('Total Views').closest('.rounded-card')).toHaveTextContent('20.4%');
   });
 
-  it('renders 0% gauges when the denominator is zero', async () => {
-    vi.spyOn(dashboardService, 'getSummary').mockResolvedValue({ ...summary, totalViews: 0, totalProducts: 0 });
+  it('shows no change indicator for the two all-time KPI cards', async () => {
     renderPage();
-    await screen.findByText('Views & Clicks by Day');
+    await screen.findByText('Performance Overview');
 
-    expect(screen.getByText('Click-Through Rate').closest('.rounded-card')).toHaveTextContent('0%');
-    expect(screen.getByText('Trending Share of Catalog').closest('.rounded-card')).toHaveTextContent('0%');
-    expect(screen.getByText('Best-Seller Share of Catalog').closest('.rounded-card')).toHaveTextContent('0%');
+    expect(screen.getByText('Total Products').closest('.rounded-card')).toHaveTextContent('All-time total');
+    expect(screen.getByText('Published Guides').closest('.rounded-card')).toHaveTextContent('All-time total');
   });
 
-  it('renders the combined views/clicks chart and the three remaining analytics chart labels', async () => {
+  it('renders the Performance Overview chart with only Views and Clicks in the legend', async () => {
     renderPage();
+    await screen.findByText('Performance Overview');
 
-    expect(await screen.findByText('Views & Clicks by Day')).toBeInTheDocument();
-    expect(screen.getByText('Most-Clicked Products')).toBeInTheDocument();
-    expect(screen.getByText('Estimated Commission by Category')).toBeInTheDocument();
-    expect(screen.getByText('Products Added by Month')).toBeInTheDocument();
+    expect(screen.getByText('Views')).toBeInTheDocument();
+    expect(screen.getByText('Clicks')).toBeInTheDocument();
+    expect(screen.queryByText('Orders')).not.toBeInTheDocument();
+    expect(screen.queryByText('Commissions')).not.toBeInTheDocument();
   });
 
-  it('shows custom date inputs only when the Custom Range preset is selected', async () => {
+  it('does not render the old gauges or extra bar charts', async () => {
+    renderPage();
+    await screen.findByText('Performance Overview');
+
+    expect(screen.queryByText('Click-Through Rate')).not.toBeInTheDocument();
+    expect(screen.queryByText('Trending Share of Catalog')).not.toBeInTheDocument();
+    expect(screen.queryByText('Best-Seller Share of Catalog')).not.toBeInTheDocument();
+    expect(screen.queryByText('Most-Clicked Products')).not.toBeInTheDocument();
+    expect(screen.queryByText('Estimated Commission by Category')).not.toBeInTheDocument();
+    expect(screen.queryByText('Products Added by Month')).not.toBeInTheDocument();
+  });
+
+  it("shows the personalized greeting using the authenticated admin's name", async () => {
+    renderPage();
+    await screen.findByText('Performance Overview');
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Welcome back, John Rommel Rovero!');
+  });
+
+  it('changes the chart bucketing when the granularity dropdown changes', async () => {
     const user = userEvent.setup();
     renderPage();
-    await screen.findByText('Views & Clicks by Day');
+    await screen.findByText('Performance Overview');
 
-    expect(screen.queryByLabelText('From')).not.toBeInTheDocument();
+    const dropdown = screen.getByLabelText('Granularity');
+    expect(dropdown).toHaveValue('daily');
 
-    await user.selectOptions(screen.getByLabelText('Date Range'), 'custom');
-
-    expect(screen.getByLabelText('From')).toBeInTheDocument();
-    expect(screen.getByLabelText('To')).toBeInTheDocument();
-  });
-
-  it('re-fetches with new params when the date filter changes', async () => {
-    const user = userEvent.setup();
-    renderPage();
-    await screen.findByText('Views & Clicks by Day');
-
-    await user.selectOptions(screen.getByLabelText('Date Range'), 'today');
-
-    await waitFor(() => {
-      const lastCall = dashboardService.getSummary.mock.calls.at(-1)[0];
-      expect(lastCall.from).toBe(lastCall.to);
-    });
+    await user.selectOptions(dropdown, 'weekly');
+    expect(dropdown).toHaveValue('weekly');
   });
 
   it('shows an error state with retry when loading fails', async () => {
+    vi.spyOn(dashboardService, 'getSummary').mockReset();
     dashboardService.getSummary.mockRejectedValueOnce({ message: 'Network error. Please try again.' });
     const user = userEvent.setup();
     renderPage();
 
     expect(await screen.findByText('Network error. Please try again.')).toBeInTheDocument();
 
-    dashboardService.getSummary.mockResolvedValueOnce(summary);
+    dashboardService.getSummary.mockResolvedValueOnce(currentSummary).mockResolvedValueOnce(previousSummary);
     await user.click(screen.getByRole('button', { name: 'Try again' }));
 
-    expect(await screen.findByText('Views & Clicks by Day')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Performance Overview')).toBeInTheDocument());
   });
 });
