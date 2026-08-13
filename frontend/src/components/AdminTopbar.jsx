@@ -26,7 +26,7 @@ function AdminTopbar({ onMenuClick }) {
   const { user } = useAuth();
   const location = useLocation();
 
-  if (isBuyingGuideEditorPath(location.pathname)) return null;
+  if (location.pathname === '/admin' || isBuyingGuideEditorPath(location.pathname)) return null;
 
   const breadcrumbs = buildBreadcrumbs(location.pathname);
 

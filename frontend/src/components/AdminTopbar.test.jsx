@@ -36,4 +36,9 @@ describe('AdminTopbar', () => {
     const { container } = renderTopbar('/admin/buying-guides/7');
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('renders nothing on the dashboard page, which has its own header', () => {
+    const { container } = renderTopbar('/admin');
+    expect(container).toBeEmptyDOMElement();
+  });
 });
