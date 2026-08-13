@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
@@ -29,6 +29,21 @@ const analytics = {
   mostClickedProducts: [],
   commissionByCategory: [],
   productsAddedByMonth: [],
+  topCategories: [
+    { categoryId: 1, categoryName: 'Electronics', clickCount: 28540 },
+    { categoryId: 2, categoryName: 'Home & Kitchen', clickCount: 22180 },
+  ],
+  recentProducts: [
+    {
+      id: 1,
+      name: 'Soundcore Liberty 4 NC',
+      imageFileName: null,
+      categoryName: 'Audio',
+      active: true,
+      createdAt: '2026-05-25T00:00:00',
+      clicks: 342,
+    },
+  ],
 };
 
 function renderPage() {
@@ -84,10 +99,11 @@ describe('DashboardPage', () => {
     renderPage();
     await screen.findByText('Performance Overview');
 
-    expect(screen.getByText('Views')).toBeInTheDocument();
-    expect(screen.getByText('Clicks')).toBeInTheDocument();
-    expect(screen.queryByText('Orders')).not.toBeInTheDocument();
-    expect(screen.queryByText('Commissions')).not.toBeInTheDocument();
+    const chartCard = screen.getByText('Performance Overview').closest('.rounded-card');
+    expect(within(chartCard).getByText('Views')).toBeInTheDocument();
+    expect(within(chartCard).getByText('Clicks')).toBeInTheDocument();
+    expect(within(chartCard).queryByText('Orders')).not.toBeInTheDocument();
+    expect(within(chartCard).queryByText('Commissions')).not.toBeInTheDocument();
   });
 
   it('does not render the old gauges or extra bar charts', async () => {
@@ -133,5 +149,23 @@ describe('DashboardPage', () => {
     await user.click(screen.getByRole('button', { name: 'Try again' }));
 
     await waitFor(() => expect(screen.getByText('Performance Overview')).toBeInTheDocument());
+  });
+
+  it('renders the Top Categories card with real category data', async () => {
+    renderPage();
+    await screen.findByText('Performance Overview');
+
+    expect(screen.getByText('Top Categories')).toBeInTheDocument();
+    expect(screen.getByText('Electronics')).toBeInTheDocument();
+    expect(screen.getByText('28,540')).toBeInTheDocument();
+  });
+
+  it('renders the Recent Products card with real product data', async () => {
+    renderPage();
+    await screen.findByText('Performance Overview');
+
+    expect(screen.getByText('Recent Products')).toBeInTheDocument();
+    expect(screen.getByText('Soundcore Liberty 4 NC')).toBeInTheDocument();
+    expect(screen.getByText('342')).toBeInTheDocument();
   });
 });

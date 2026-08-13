@@ -6,6 +6,8 @@ import DashboardLineChart from '../../components/DashboardLineChart.jsx';
 import FilterDropdown from '../../components/FilterDropdown.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
+import TopCategoriesCard from '../../components/TopCategoriesCard.jsx';
+import RecentProductsCard from '../../components/RecentProductsCard.jsx';
 import { useDashboardData } from '../../hooks/useDashboardData.js';
 
 const GRANULARITY_OPTIONS = [
@@ -131,24 +133,31 @@ function DashboardPage() {
         />
       </div>
 
-      <DashboardLineChart
-        data={chartData}
-        xKey="date"
-        series={[
-          { key: 'views', name: 'Views', color: '#5b2cf2' },
-          { key: 'clicks', name: 'Clicks', color: '#ff6b00' },
-        ]}
-        label="Performance Overview"
-        headerAction={
-          <FilterDropdown
-            label="Granularity"
-            hideLabel
-            value={granularity}
-            options={GRANULARITY_OPTIONS}
-            onChange={setGranularity}
-          />
-        }
-      />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2.2fr)_minmax(310px,1fr)]">
+        <DashboardLineChart
+          data={chartData}
+          xKey="date"
+          series={[
+            { key: 'views', name: 'Views', color: '#5b2cf2' },
+            { key: 'clicks', name: 'Clicks', color: '#ff6b00' },
+          ]}
+          label="Performance Overview"
+          headerAction={
+            <FilterDropdown
+              label="Granularity"
+              hideLabel
+              value={granularity}
+              options={GRANULARITY_OPTIONS}
+              onChange={setGranularity}
+            />
+          }
+        />
+        <TopCategoriesCard categories={analytics.topCategories} />
+      </div>
+
+      <div className="mt-4 grid grid-cols-1">
+        <RecentProductsCard products={analytics.recentProducts} />
+      </div>
     </div>
   );
 }
