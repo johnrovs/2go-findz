@@ -10,6 +10,7 @@ import TopCategoriesCard from '../../components/TopCategoriesCard.jsx';
 import RecentProductsCard from '../../components/RecentProductsCard.jsx';
 import LatestGuidesCard from '../../components/LatestGuidesCard.jsx';
 import QuickActionsCard from '../../components/QuickActionsCard.jsx';
+import SystemAlertsCard from '../../components/SystemAlertsCard.jsx';
 import { useDashboardData } from '../../hooks/useDashboardData.js';
 
 const GRANULARITY_OPTIONS = [
@@ -160,7 +161,14 @@ function DashboardPage() {
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,1fr)_minmax(280px,1fr)]">
         <RecentProductsCard products={analytics.recentProducts} />
         <LatestGuidesCard guides={analytics.latestGuides} />
-        <QuickActionsCard />
+        <div className="flex flex-col gap-4">
+          <QuickActionsCard />
+          <SystemAlertsCard
+            draftProductCount={summary.draftProductCount}
+            draftGuideCount={summary.draftGuideCount}
+            emptyCategoryCount={summary.emptyCategoryCount}
+          />
+        </div>
       </div>
     </div>
   );

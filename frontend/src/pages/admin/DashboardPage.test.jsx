@@ -15,6 +15,9 @@ const currentSummary = {
   trendingCount: 8,
   bestSellerCount: 5,
   publishedGuideCount: 14,
+  draftProductCount: 3,
+  draftGuideCount: 1,
+  emptyCategoryCount: 2,
 };
 
 const previousSummary = {
@@ -203,5 +206,16 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Latest Guides')).toBeInTheDocument();
     expect(screen.getByText('Best Wireless Earbuds Under $100')).toBeInTheDocument();
     expect(screen.getByText('1,240')).toBeInTheDocument();
+  });
+
+  it('renders the System Alerts card with real alert data', async () => {
+    renderPage();
+    await screen.findByText('Performance Overview');
+
+    expect(screen.getByText('System Alerts')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /3 draft products need review/ })).toHaveAttribute(
+      'href',
+      '/admin/products'
+    );
   });
 });
