@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import api from './api.js';
-import { getSummary, getAnalytics } from './dashboardService.js';
+import { getSummary, getAnalytics, exportDashboardReport } from './dashboardService.js';
 
 describe('dashboardService', () => {
   beforeEach(() => {
@@ -39,5 +39,18 @@ describe('dashboardService', () => {
       params: { from: '2026-07-01', to: '2026-07-27' },
     });
     expect(result).toEqual(analytics);
+  });
+
+  it('exportDashboardReport fetches the CSV blob from /admin/dashboard/export with the given date range', async () => {
+    const blob = new Blob(['Metric,Value'], { type: 'text/csv' });
+    vi.spyOn(api, 'get').mockResolvedValue({ data: blob });
+
+    const result = await exportDashboardReport({ from: '2026-07-01', to: '2026-07-27' });
+
+    expect(api.get).toHaveBeenCalledWith('/admin/dashboard/export', {
+      params: { from: '2026-07-01', to: '2026-07-27' },
+      responseType: 'blob',
+    });
+    expect(result).toBe(blob);
   });
 });

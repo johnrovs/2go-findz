@@ -9,3 +9,11 @@ export async function getAnalytics({ from, to } = {}) {
   const response = await api.get('/admin/dashboard/analytics', { params: { from, to } });
   return response.data.data;
 }
+
+export async function exportDashboardReport({ from, to } = {}) {
+  const response = await api.get('/admin/dashboard/export', {
+    params: { from, to },
+    responseType: 'blob',
+  });
+  return response.data;
+}
