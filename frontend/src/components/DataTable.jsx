@@ -1,7 +1,16 @@
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner.jsx';
 
-function DataTable({ columns, rows, sortKey, sortDirection, onSortChange, isLoading, emptyState }) {
+function DataTable({
+  columns,
+  rows,
+  sortKey,
+  sortDirection,
+  onSortChange,
+  isLoading,
+  emptyState,
+  headerClassName = 'bg-primary',
+}) {
   if (isLoading) {
     return <LoadingSpinner label="Loading..." />;
   }
@@ -13,7 +22,7 @@ function DataTable({ columns, rows, sortKey, sortDirection, onSortChange, isLoad
   return (
     <div className="overflow-x-auto rounded-card border border-slate-200 bg-white shadow-card">
       <table className="min-w-full divide-y divide-slate-200">
-        <thead className="bg-primary">
+        <thead className={headerClassName}>
           <tr>
             {columns.map((column) => {
               const isSorted = sortKey === column.key;
@@ -47,7 +56,7 @@ function DataTable({ columns, rows, sortKey, sortDirection, onSortChange, isLoad
           {rows.map((row) => (
             <tr key={row.id}>
               {columns.map((column) => (
-                <td key={column.key} className="px-4 py-3 text-sm text-body">
+                <td key={column.key} className="px-4 py-4 text-sm text-body">
                   {column.render ? column.render(row) : row[column.key]}
                 </td>
               ))}

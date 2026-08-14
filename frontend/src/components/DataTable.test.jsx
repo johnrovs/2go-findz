@@ -59,4 +59,25 @@ describe('DataTable', () => {
     render(<DataTable columns={columns} rows={rows} onSortChange={vi.fn()} emptyState={<p>Empty</p>} />);
     expect(screen.queryByRole('button', { name: 'Actions' })).not.toBeInTheDocument();
   });
+
+  it('applies a custom headerClassName when provided, defaulting to bg-primary', () => {
+    const { container, rerender } = render(
+      <DataTable columns={columns} rows={rows} isLoading={false} emptyState={null} />
+    );
+    expect(container.querySelector('thead')).toHaveClass('bg-primary');
+
+    rerender(
+      <DataTable
+        columns={columns}
+        rows={rows}
+        isLoading={false}
+        emptyState={null}
+        headerClassName="bg-[linear-gradient(90deg,#5B2CF2_0%,#6D35F5_55%,#5425E8_100%)]"
+      />
+    );
+    expect(container.querySelector('thead')).toHaveClass(
+      'bg-[linear-gradient(90deg,#5B2CF2_0%,#6D35F5_55%,#5425E8_100%)]'
+    );
+    expect(container.querySelector('thead')).not.toHaveClass('bg-primary');
+  });
 });
