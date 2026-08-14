@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar.jsx';
 import AdminTopbar from '../components/AdminTopbar.jsx';
+import AdminFooter from '../components/AdminFooter.jsx';
 
 function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -18,6 +19,7 @@ function AdminLayout() {
               useOutletContext() to still open the mobile sidebar drawer. */}
           <Outlet context={{ onMenuClick }} />
         </main>
+        <AdminFooter />
       </div>
     </div>
   );

@@ -69,4 +69,10 @@ describe('AdminLayout', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('renders the AdminFooter copyright text alongside the routed content', () => {
+    renderLayout();
+    const year = new Date().getFullYear();
+    expect(screen.getByText(`© ${year} 2Go Findz. All rights reserved.`)).toBeInTheDocument();
+  });
 });
