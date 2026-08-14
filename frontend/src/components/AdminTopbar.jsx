@@ -10,6 +10,10 @@ const BREADCRUMB_LABELS = {
   new: 'New',
 };
 
+const ROLE_LABELS = {
+  ADMIN: 'Administrator',
+};
+
 function buildBreadcrumbs(pathname) {
   const segments = pathname.split('/').filter(Boolean);
   return segments.map((segment) => BREADCRUMB_LABELS[segment] ?? segment);
@@ -29,6 +33,8 @@ function AdminTopbar({ onMenuClick }) {
   if (location.pathname === '/admin' || isBuyingGuideEditorPath(location.pathname)) return null;
 
   const breadcrumbs = buildBreadcrumbs(location.pathname);
+  const fullName = user?.fullName ?? 'Administrator';
+  const roleLabel = user?.role ? ROLE_LABELS[user.role] ?? user.role : 'Administrator';
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 shadow-navbar md:px-6">
@@ -44,7 +50,15 @@ function AdminTopbar({ onMenuClick }) {
           {breadcrumbs.join(' / ')}
         </nav>
       </div>
-      <span className="text-small font-medium text-heading">{user?.fullName}</span>
+      <div className="flex items-center gap-2">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-dashboard-purpleLight text-small font-semibold text-dashboard-purple">
+          {fullName.charAt(0)}
+        </span>
+        <span className="hidden text-left sm:block">
+          <span className="block text-small font-semibold text-heading">{fullName}</span>
+          <span className="block text-xs text-muted">{roleLabel}</span>
+        </span>
+      </div>
     </header>
   );
 }
