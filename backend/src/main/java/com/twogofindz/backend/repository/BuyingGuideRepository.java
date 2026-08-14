@@ -17,4 +17,5 @@ public interface BuyingGuideRepository extends JpaRepository<BuyingGuide, Long> 
     List<BuyingGuide> findByActiveFalseAndScheduledPublishAtLessThanEqual(LocalDateTime now);
     long countByActiveTrueAndVisibility(Visibility visibility);
     List<BuyingGuide> findTop5ByOrderByCreatedAtDesc();
+    long countByActiveFalse();
 }

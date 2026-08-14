@@ -16,6 +16,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     long countByActiveTrueAndBestSellerTrue();
 
+    long countByActiveFalse();
+
     List<Product> findAllByIdInAndActiveTrue(List<Long> ids);
 
     List<Product> findByActiveFalseAndScheduledPublishAtLessThanEqual(LocalDateTime now);

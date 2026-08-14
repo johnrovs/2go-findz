@@ -10,6 +10,9 @@ public record DashboardSummaryResponse(
         long totalCategories,
         long trendingCount,
         long bestSellerCount,
-        long publishedGuideCount
+        long publishedGuideCount,
+        long draftProductCount,
+        long draftGuideCount,
+        long emptyCategoryCount
 ) {
 }

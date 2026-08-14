@@ -87,9 +87,16 @@ public class DashboardServiceImpl implements DashboardService {
         // Same all-time, non-range-filtered convention as totalProducts/totalCategories (Rule 3/4).
         long publishedGuideCount = buyingGuideRepository.countByActiveTrueAndVisibility(Visibility.PUBLIC);
 
+        // New: all-time counts of things that need admin attention, same non-range-filtered
+        // convention as totalProducts/totalCategories/publishedGuideCount.
+        long draftProductCount = productRepository.countByActiveFalse();
+        long draftGuideCount = buyingGuideRepository.countByActiveFalse();
+        long emptyCategoryCount = productCategoryRepository.countCategoriesWithNoActiveProducts();
+
         return new DashboardSummaryResponse(
                 totalViews, totalClicks, estimatedTotalCommission,
-                totalProducts, totalCategories, trendingCount, bestSellerCount, publishedGuideCount);
+                totalProducts, totalCategories, trendingCount, bestSellerCount, publishedGuideCount,
+                draftProductCount, draftGuideCount, emptyCategoryCount);
     }
 
     @Override

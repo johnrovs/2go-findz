@@ -229,6 +229,54 @@ class AdminDashboardControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void summary_draftProductCount_countsOnlyInactiveProducts() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Draft Product Count Category");
+
+        long before = fetchSummaryData(token, null, null).path("draftProductCount").asLong();
+
+        createProductId(token, "Draft Count Active Product", categoryId, new BigDecimal("10.00"), false, false, true);
+        createProductId(token, "Draft Count Inactive Product", categoryId, new BigDecimal("10.00"), false, false, false);
+
+        long after = fetchSummaryData(token, null, null).path("draftProductCount").asLong();
+
+        assertEquals(before + 1, after, "draftProductCount must count only inactive products");
+    }
+
+    @Test
+    void summary_draftGuideCount_countsOnlyInactiveGuides() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Draft Guide Count Category");
+
+        long before = fetchSummaryData(token, null, null).path("draftGuideCount").asLong();
+
+        createBuyingGuideId(token, "Draft Count Active Guide", categoryId, true, Visibility.PUBLIC);
+        createBuyingGuideId(token, "Draft Count Inactive Guide", categoryId, false, Visibility.PUBLIC);
+
+        long after = fetchSummaryData(token, null, null).path("draftGuideCount").asLong();
+
+        assertEquals(before + 1, after, "draftGuideCount must count only inactive guides");
+    }
+
+    @Test
+    void summary_emptyCategoryCount_countsOnlyCategoriesWithNoActiveProducts() throws Exception {
+        String token = adminToken();
+        long before = fetchSummaryData(token, null, null).path("emptyCategoryCount").asLong();
+
+        Long categoryWithActiveProductId = createCategoryId(token, "Empty Category Count Has Product");
+        Long emptyCategoryId = createCategoryId(token, "Empty Category Count Truly Empty");
+        Long categoryWithOnlyInactiveProductId = createCategoryId(token, "Empty Category Count Only Inactive");
+
+        createProductId(token, "Empty Category Count Active Product", categoryWithActiveProductId, new BigDecimal("10.00"), false, false, true);
+        createProductId(token, "Empty Category Count Inactive Product", categoryWithOnlyInactiveProductId, new BigDecimal("10.00"), false, false, false);
+
+        long after = fetchSummaryData(token, null, null).path("emptyCategoryCount").asLong();
+
+        assertEquals(before + 2, after,
+                "emptyCategoryCount must count the truly-empty category and the only-inactive-products category, but not the one with an active product");
+    }
+
+    @Test
     void analytics_topCategories_ranksByClickCount_omittingZeroClickCategories() throws Exception {
         String token = adminToken();
         Long busyCategoryId = createCategoryId(token, "Top Categories Busy Category");
