@@ -22,54 +22,60 @@ function getPageItems(page, totalPages) {
   return items;
 }
 
-function Pagination({ page, totalPages, onPageChange, activeClassName = 'bg-primary text-white' }) {
+function Pagination({ page, totalPages, onPageChange, activeClassName = 'bg-primary text-white', summary }) {
   const { t } = useTranslation('common');
-  if (totalPages <= 1) return null;
+  const showNav = totalPages > 1;
+  if (!showNav && !summary) return null;
 
-  const items = getPageItems(page, totalPages);
+  const items = showNav ? getPageItems(page, totalPages) : [];
 
   return (
-    <nav aria-label={t('pagination.navigationAriaLabel')} className="flex items-center justify-center gap-1 pt-8">
-      <button
-        type="button"
-        onClick={() => onPageChange(page - 1)}
-        disabled={page <= 1}
-        aria-label={t('pagination.previousPageAriaLabel')}
-        className="rounded-btn p-2 text-muted hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        <ChevronLeft size={18} />
-      </button>
-
-      {items.map((item) =>
-        item.type === 'ellipsis' ? (
-          <span key={item.key} aria-hidden="true" className="px-1 text-sm text-muted">
-            …
-          </span>
-        ) : (
+    <div className="flex flex-wrap items-center justify-between gap-3 pt-8">
+      {summary ? <p className="text-small text-muted">{summary}</p> : <span />}
+      {showNav && (
+        <nav aria-label={t('pagination.navigationAriaLabel')} className="flex items-center gap-1">
           <button
-            key={item.key}
             type="button"
-            onClick={() => onPageChange(item.number)}
-            aria-current={item.number === page ? 'page' : undefined}
-            className={`h-9 w-9 rounded-btn text-sm font-medium transition ${
-              item.number === page ? activeClassName : 'text-body hover:bg-surface-secondary'
-            }`}
+            onClick={() => onPageChange(page - 1)}
+            disabled={page <= 1}
+            aria-label={t('pagination.previousPageAriaLabel')}
+            className="rounded-btn p-2 text-muted hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {item.number}
+            <ChevronLeft size={18} />
           </button>
-        )
-      )}
 
-      <button
-        type="button"
-        onClick={() => onPageChange(page + 1)}
-        disabled={page >= totalPages}
-        aria-label={t('pagination.nextPageAriaLabel')}
-        className="rounded-btn p-2 text-muted hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        <ChevronRight size={18} />
-      </button>
-    </nav>
+          {items.map((item) =>
+            item.type === 'ellipsis' ? (
+              <span key={item.key} aria-hidden="true" className="px-1 text-sm text-muted">
+                …
+              </span>
+            ) : (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => onPageChange(item.number)}
+                aria-current={item.number === page ? 'page' : undefined}
+                className={`h-9 w-9 rounded-btn text-sm font-medium transition ${
+                  item.number === page ? activeClassName : 'text-body hover:bg-surface-secondary'
+                }`}
+              >
+                {item.number}
+              </button>
+            )
+          )}
+
+          <button
+            type="button"
+            onClick={() => onPageChange(page + 1)}
+            disabled={page >= totalPages}
+            aria-label={t('pagination.nextPageAriaLabel')}
+            className="rounded-btn p-2 text-muted hover:bg-surface-secondary disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </nav>
+      )}
+    </div>
   );
 }
 
