@@ -79,4 +79,41 @@ describe('ProductFormPage', () => {
 
     expect(await screen.findByText('Failed to load product.')).toBeInTheDocument();
   });
+
+  it('shows a back-to-products link and subtitle in create mode', async () => {
+    renderPage('/admin/products/new');
+    await screen.findByRole('heading', { name: 'Add Product' });
+
+    expect(screen.getByRole('button', { name: /back to products/i })).toBeInTheDocument();
+    expect(screen.getByText('Create a new product and prepare it for your storefront.')).toBeInTheDocument();
+  });
+
+  it('navigates back to the products list when Back to Products is clicked', async () => {
+    const user = userEvent.setup();
+    renderPage('/admin/products/new');
+    await screen.findByRole('heading', { name: 'Add Product' });
+
+    await user.click(screen.getByRole('button', { name: /back to products/i }));
+
+    expect(await screen.findByText('Products List')).toBeInTheDocument();
+  });
+
+  it('shows the edit-mode subtitle when editing a product', async () => {
+    vi.spyOn(adminProductService, 'getProductById').mockResolvedValue({
+      id: 5,
+      name: 'Wireless Earbuds',
+      description: 'Compact wireless earbuds.',
+      categoryId: 1,
+      imageFileName: null,
+      productPrice: 49.99,
+      productLink: 'https://amazon.com/dp/example',
+      trending: false,
+      bestSeller: false,
+      active: true,
+    });
+    renderPage('/admin/products/5');
+
+    expect(await screen.findByRole('heading', { name: 'Edit Product' })).toBeInTheDocument();
+    expect(screen.getByText("Update this product's details and Amazon listing information.")).toBeInTheDocument();
+  });
 });

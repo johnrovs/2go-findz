@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import ProductForm from '../../components/ProductForm.jsx';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
@@ -51,7 +52,21 @@ function ProductFormPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-page-heading text-heading">{isEditMode ? 'Edit Product' : 'Add Product'}</h1>
+      <button
+        type="button"
+        onClick={() => navigate('/admin/products')}
+        className="mb-4 inline-flex items-center gap-2 text-small font-medium text-dashboard-purple hover:underline"
+      >
+        <ArrowLeft size={16} />
+        Back to Products
+      </button>
+
+      <h1 className="text-page-heading text-heading">{isEditMode ? 'Edit Product' : 'Add Product'}</h1>
+      <p className="mb-6 mt-1 text-small text-muted">
+        {isEditMode
+          ? "Update this product's details and Amazon listing information."
+          : 'Create a new product and prepare it for your storefront.'}
+      </p>
 
       {isLoading ? (
         <LoadingSpinner label="Loading product..." />
