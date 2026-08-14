@@ -113,6 +113,7 @@ export function useAdminProductSearch() {
     setPageSize: (value) => updateParams({ pageSize: value }),
     setSort: (nextSortKey, nextSortDirection) =>
       updateParams({ sortKey: nextSortKey, sortDirection: nextSortDirection }, { resetPage: false }),
+    clearFilters: () => updateParams({ search: '', category: '', filter: '', status: '' }),
     reload: () => setRefreshIndex((n) => n + 1),
   };
 }

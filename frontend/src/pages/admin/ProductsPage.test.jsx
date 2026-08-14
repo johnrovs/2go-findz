@@ -195,4 +195,53 @@ describe('ProductsPage', () => {
     );
     expect(screen.getByLabelText('Sort by')).toHaveValue('name,asc');
   });
+
+  it('shows a Published badge for an active product with no other flags', async () => {
+    adminProductService.searchProducts.mockResolvedValue({
+      content: [
+        {
+          id: 4,
+          name: 'Plain Active Product',
+          categoryName: 'Electronics',
+          imageFileName: null,
+          productPrice: 15.0,
+          trending: false,
+          bestSeller: false,
+          active: true,
+          createdAt: '2026-04-01T10:00:00',
+        },
+      ],
+      totalPages: 1,
+      totalElements: 1,
+    });
+    renderPage();
+
+    expect(await screen.findByText('Published')).toBeInTheDocument();
+  });
+
+  it('clears all filters when Clear filters is clicked', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Wireless Earbuds');
+
+    await user.type(screen.getByLabelText('Search products'), 'lamp');
+    await waitFor(() =>
+      expect(adminProductService.searchProducts).toHaveBeenLastCalledWith(expect.objectContaining({ search: 'lamp' }))
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Clear filters' }));
+
+    await waitFor(() =>
+      expect(adminProductService.searchProducts).toHaveBeenLastCalledWith(
+        expect.not.objectContaining({ search: expect.anything() })
+      )
+    );
+  });
+
+  it('shows the pagination summary text with real counts', async () => {
+    renderPage();
+    await screen.findByText('Wireless Earbuds');
+
+    expect(await screen.findByText('Showing 1–2 of 2 products')).toBeInTheDocument();
+  });
 });
