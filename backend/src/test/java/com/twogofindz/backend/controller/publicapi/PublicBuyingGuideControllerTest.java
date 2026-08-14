@@ -1,5 +1,6 @@
 package com.twogofindz.backend.controller.publicapi;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.twogofindz.backend.AbstractIntegrationTest;
 import com.twogofindz.backend.dto.request.BuyingGuideRequest;
 import com.twogofindz.backend.dto.request.ProductRequest;
@@ -9,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -90,6 +93,53 @@ class PublicBuyingGuideControllerTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.data.introduction").value("Full introduction body."))
                 .andExpect(jsonPath("$.data.recommendedProducts[0].id").value(secondProductId))
                 .andExpect(jsonPath("$.data.recommendedProducts[1].id").value(firstProductId));
+    }
+
+    @Test
+    void recordView_incrementsGuideViewCount() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Guide View Category");
+        Long guideId = createBuyingGuideId(token, "Guide View Test Guide", categoryId, true, Visibility.PUBLIC);
+
+        mockMvc.perform(post("/api/public/buying-guides/{id}/view", guideId))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/public/buying-guides/{id}/view", guideId))
+                .andExpect(status().isOk());
+
+        var result = mockMvc.perform(get("/api/admin/dashboard/analytics")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode latestGuides = objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("data").path("latestGuides");
+
+        boolean found = false;
+        for (int i = 0; i < latestGuides.size(); i++) {
+            JsonNode row = latestGuides.get(i);
+            if (row.path("id").asLong() == guideId) {
+                found = true;
+                assertEquals(2, row.path("views").asLong());
+            }
+        }
+        assertTrue(found, "the guide should appear in latestGuides with its recorded view count");
+    }
+
+    private Long createBuyingGuideId(String token, String title, Long categoryId, boolean active,
+                                      Visibility visibility) throws Exception {
+        BuyingGuideRequest request = new BuyingGuideRequest(
+                title, "", "Excerpt for " + title, "Introduction", null,
+                categoryId, null, null, active, null, List.of(),
+                List.of(), List.of(), List.of(), List.of(), List.of(), null, List.of(), null,
+                visibility, true, true, null, null, null, "summary_large_image");
+
+        var result = mockMvc.perform(post("/api/admin/buying-guides")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("data").path("id").asLong();
     }
 
     private Long createProductId(String token, Long categoryId, String name) throws Exception {
