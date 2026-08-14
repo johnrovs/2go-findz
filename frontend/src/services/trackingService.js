@@ -8,3 +8,7 @@ export async function recordView() {
 export async function recordClick(productId, sessionId) {
   await api.post(`/public/products/${productId}/click`, sessionId ? { sessionId } : undefined);
 }
+
+export async function recordGuideView(guideId, sessionId) {
+  await api.post(`/public/buying-guides/${guideId}/view`, sessionId ? { sessionId } : undefined);
+}

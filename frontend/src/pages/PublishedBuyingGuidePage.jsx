@@ -17,6 +17,7 @@ import BuyingGuideFaqSection from '../components/buying-guide/BuyingGuideFaqSect
 import FinalRecommendationSection from '../components/buying-guide/FinalRecommendationSection.jsx';
 import { getBuyingGuideBySlug } from '../services/buyingGuideService.js';
 import { getSettings } from '../services/settingsService.js';
+import { recordGuideView } from '../services/trackingService.js';
 import { useDocumentHead } from '../hooks/useDocumentHead.js';
 import { trackEvent } from '../hooks/useAnalytics.js';
 import { computeGuideSectionNumbers } from '../utils/computeGuideSectionNumbers.js';
@@ -85,6 +86,10 @@ function PublishedBuyingGuidePage() {
     if (!guide || hasTrackedView.current) return;
     hasTrackedView.current = true;
     trackEvent('guide_view', { guideId: guide.id });
+    const sessionId = sessionStorage.getItem('sessionId');
+    recordGuideView(guide.id, sessionId).catch(() => {
+      // View tracking is best-effort; never block rendering on a tracking failure.
+    });
   }, [guide]);
 
   const customSectionsWithAnchors = useMemo(() => {

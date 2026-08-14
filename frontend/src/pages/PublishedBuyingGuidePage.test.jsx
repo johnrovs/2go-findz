@@ -5,6 +5,7 @@ import PublishedBuyingGuidePage from './PublishedBuyingGuidePage.jsx';
 import { CompareProvider } from '../context/CompareContext.jsx';
 import * as buyingGuideService from '../services/buyingGuideService.js';
 import * as settingsService from '../services/settingsService.js';
+import * as trackingService from '../services/trackingService.js';
 
 function fullGuide(overrides = {}) {
   return {
@@ -73,6 +74,7 @@ function renderAtSlug(slug) {
 describe('PublishedBuyingGuidePage', () => {
   beforeEach(() => {
     vi.spyOn(settingsService, 'getSettings').mockResolvedValue({ affiliateDisclosure: 'Disclosure.' });
+    vi.spyOn(trackingService, 'recordGuideView').mockResolvedValue();
   });
 
   it('shows a loading state, then the guide title as the page h1', async () => {
