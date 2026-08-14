@@ -44,6 +44,16 @@ const analytics = {
       clicks: 342,
     },
   ],
+  latestGuides: [
+    {
+      id: 1,
+      title: 'Best Wireless Earbuds Under $100',
+      coverImageFilename: null,
+      active: true,
+      createdAt: '2026-06-01T00:00:00',
+      views: 1240,
+    },
+  ],
 };
 
 function renderPage() {
@@ -184,5 +194,14 @@ describe('DashboardPage', () => {
       '/admin/comparisons/new'
     );
     expect(screen.getByRole('link', { name: /Manage Categories/ })).toHaveAttribute('href', '/admin/categories');
+  });
+
+  it('renders the Latest Guides card with real guide data', async () => {
+    renderPage();
+    await screen.findByText('Performance Overview');
+
+    expect(screen.getByText('Latest Guides')).toBeInTheDocument();
+    expect(screen.getByText('Best Wireless Earbuds Under $100')).toBeInTheDocument();
+    expect(screen.getByText('1,240')).toBeInTheDocument();
   });
 });

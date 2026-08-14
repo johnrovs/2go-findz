@@ -8,6 +8,7 @@ import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import TopCategoriesCard from '../../components/TopCategoriesCard.jsx';
 import RecentProductsCard from '../../components/RecentProductsCard.jsx';
+import LatestGuidesCard from '../../components/LatestGuidesCard.jsx';
 import QuickActionsCard from '../../components/QuickActionsCard.jsx';
 import { useDashboardData } from '../../hooks/useDashboardData.js';
 
@@ -156,8 +157,9 @@ function DashboardPage() {
         <TopCategoriesCard categories={analytics.topCategories} />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2.2fr)_minmax(310px,1fr)]">
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(280px,1fr)_minmax(280px,1fr)]">
         <RecentProductsCard products={analytics.recentProducts} />
+        <LatestGuidesCard guides={analytics.latestGuides} />
         <QuickActionsCard />
       </div>
     </div>
