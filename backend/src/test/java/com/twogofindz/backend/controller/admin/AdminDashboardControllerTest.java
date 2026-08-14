@@ -315,6 +315,37 @@ class AdminDashboardControllerTest extends AbstractIntegrationTest {
         assertTrue(recentProducts.size() <= 5, "recentProducts must never return more than 5 rows");
     }
 
+    @Test
+    void analytics_latestGuides_returnsFiveMostRecent_regardlessOfActiveFlag_withRangeScopedViews() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Latest Guides Category");
+
+        Long draftGuideId = createBuyingGuideId(token, "Latest Guides Draft Guide", categoryId, false, Visibility.PUBLIC);
+        mockMvc.perform(post("/api/public/buying-guides/{id}/view", draftGuideId));
+        mockMvc.perform(post("/api/public/buying-guides/{id}/view", draftGuideId));
+        mockMvc.perform(post("/api/public/buying-guides/{id}/view", draftGuideId));
+
+        var result = mockMvc.perform(get("/api/admin/dashboard/analytics")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode latestGuides = objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("data").path("latestGuides");
+
+        boolean found = false;
+        for (int i = 0; i < latestGuides.size(); i++) {
+            JsonNode row = latestGuides.get(i);
+            if (row.path("id").asLong() == draftGuideId) {
+                found = true;
+                assertEquals(false, row.path("active").asBoolean());
+                assertEquals(3, row.path("views").asLong());
+            }
+        }
+        assertTrue(found, "a draft guide must still appear in latestGuides if it's among the 5 most recently created");
+        assertTrue(latestGuides.size() <= 5, "latestGuides must never return more than 5 rows");
+    }
+
     private Long createBuyingGuideId(String token, String title, Long categoryId, boolean active,
                                       Visibility visibility) throws Exception {
         BuyingGuideRequest request = new BuyingGuideRequest(

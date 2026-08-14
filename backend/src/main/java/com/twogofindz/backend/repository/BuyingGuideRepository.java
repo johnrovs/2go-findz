@@ -16,4 +16,5 @@ public interface BuyingGuideRepository extends JpaRepository<BuyingGuide, Long> 
     boolean existsBySlugAndIdNot(String slug, Long id);
     List<BuyingGuide> findByActiveFalseAndScheduledPublishAtLessThanEqual(LocalDateTime now);
     long countByActiveTrueAndVisibility(Visibility visibility);
+    List<BuyingGuide> findTop5ByOrderByCreatedAtDesc();
 }

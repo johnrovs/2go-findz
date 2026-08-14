@@ -5,12 +5,15 @@ import com.twogofindz.backend.dto.response.CategoryCommissionResponse;
 import com.twogofindz.backend.dto.response.DailyCountResponse;
 import com.twogofindz.backend.dto.response.DashboardAnalyticsResponse;
 import com.twogofindz.backend.dto.response.DashboardSummaryResponse;
+import com.twogofindz.backend.dto.response.LatestGuideResponse;
 import com.twogofindz.backend.dto.response.MonthlyCountResponse;
 import com.twogofindz.backend.dto.response.ProductClickCountResponse;
 import com.twogofindz.backend.dto.response.RecentProductResponse;
+import com.twogofindz.backend.entity.BuyingGuide;
 import com.twogofindz.backend.entity.Product;
 import com.twogofindz.backend.entity.Visibility;
 import com.twogofindz.backend.repository.BuyingGuideRepository;
+import com.twogofindz.backend.repository.BuyingGuideViewRepository;
 import com.twogofindz.backend.repository.ProductCategoryRepository;
 import com.twogofindz.backend.repository.ProductClickRepository;
 import com.twogofindz.backend.repository.ProductRepository;
@@ -47,17 +50,20 @@ public class DashboardServiceImpl implements DashboardService {
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final BuyingGuideRepository buyingGuideRepository;
+    private final BuyingGuideViewRepository buyingGuideViewRepository;
 
     public DashboardServiceImpl(WebsiteViewRepository websiteViewRepository,
                                  ProductClickRepository productClickRepository,
                                  ProductRepository productRepository,
                                  ProductCategoryRepository productCategoryRepository,
-                                 BuyingGuideRepository buyingGuideRepository) {
+                                 BuyingGuideRepository buyingGuideRepository,
+                                 BuyingGuideViewRepository buyingGuideViewRepository) {
         this.websiteViewRepository = websiteViewRepository;
         this.productClickRepository = productClickRepository;
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
         this.buyingGuideRepository = buyingGuideRepository;
+        this.buyingGuideViewRepository = buyingGuideViewRepository;
     }
 
     @Override
@@ -134,9 +140,23 @@ public class DashboardServiceImpl implements DashboardService {
                         p.isActive(), p.getCreatedAt(), clicksByProductId.getOrDefault(p.getId(), 0L)))
                 .toList();
 
+        List<BuyingGuide> latestGuideEntities = buyingGuideRepository.findTop5ByOrderByCreatedAtDesc();
+        List<Long> latestGuideIds = latestGuideEntities.stream().map(BuyingGuide::getId).toList();
+        Map<Long, Long> viewsByGuideId = latestGuideIds.isEmpty()
+                ? Map.of()
+                : buyingGuideViewRepository.countViewsByGuideIdsBetween(latestGuideIds, start, end).stream()
+                        .collect(Collectors.toMap(
+                                BuyingGuideViewRepository.GuideIdViewCountProjection::getGuideId,
+                                BuyingGuideViewRepository.GuideIdViewCountProjection::getViewCount));
+        List<LatestGuideResponse> latestGuides = latestGuideEntities.stream()
+                .map(g -> new LatestGuideResponse(
+                        g.getId(), g.getTitle(), g.getCoverImageFilename(),
+                        g.getActive(), g.getCreatedAt(), viewsByGuideId.getOrDefault(g.getId(), 0L)))
+                .toList();
+
         return new DashboardAnalyticsResponse(
                 viewsByDay, clicksByDay, mostClickedProducts, commissionByCategory, productsAddedByMonth,
-                topCategories, recentProducts);
+                topCategories, recentProducts, latestGuides);
     }
 
     private LocalDateTime effectiveFrom(LocalDate from) {
