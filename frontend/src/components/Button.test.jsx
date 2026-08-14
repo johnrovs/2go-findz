@@ -53,6 +53,11 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Delete' })).toHaveClass('bg-danger', 'text-white');
   });
 
+  it('renders the accent variant with the dashboard-orange background', () => {
+    render(<Button variant="accent">Add Product</Button>);
+    expect(screen.getByRole('button', { name: 'Add Product' })).toHaveClass('bg-dashboard-orange');
+  });
+
   it('forwards onClick and disabled to a native button', async () => {
     const onClick = vi.fn();
     const user = userEvent.setup();

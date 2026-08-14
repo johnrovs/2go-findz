@@ -8,6 +8,7 @@ const VARIANT_CLASSES = {
   secondary: 'bg-white text-heading border border-heading hover:bg-heading/5',
   amazon: 'bg-amazon text-white shadow-card hover:bg-amazon-hover',
   danger: 'bg-danger text-white shadow-card hover:bg-red-700',
+  accent: 'bg-dashboard-orange text-white shadow-card hover:opacity-90',
 };
 
 const SIZE_CLASSES = {
