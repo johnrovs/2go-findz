@@ -8,4 +8,5 @@ import java.time.LocalDate;
 public interface DashboardService {
     DashboardSummaryResponse getSummary(LocalDate from, LocalDate to);
     DashboardAnalyticsResponse getAnalytics(LocalDate from, LocalDate to);
+    byte[] exportSummaryCsv(LocalDate from, LocalDate to);
 }

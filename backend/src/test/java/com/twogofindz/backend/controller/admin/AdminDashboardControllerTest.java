@@ -19,6 +19,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -392,6 +394,42 @@ class AdminDashboardControllerTest extends AbstractIntegrationTest {
         }
         assertTrue(found, "a draft guide must still appear in latestGuides if it's among the 5 most recently created");
         assertTrue(latestGuides.size() <= 5, "latestGuides must never return more than 5 rows");
+    }
+
+    @Test
+    void export_returnsCsvWithRealSummaryAndDailyData() throws Exception {
+        String token = adminToken();
+        Long categoryId = createCategoryId(token, "Export Test Category");
+        Long productId = createProductId(token, "Export Test Product", categoryId, new BigDecimal("10.00"), false, false, true);
+        mockMvc.perform(post("/api/public/products/{id}/click", productId));
+
+        var result = mockMvc.perform(get("/api/admin/dashboard/export")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("text/csv"))
+                .andReturn();
+
+        String contentDisposition = result.getResponse().getHeader("Content-Disposition");
+        assertTrue(contentDisposition != null && contentDisposition.startsWith("attachment; filename=\"dashboard-report_"),
+                "Content-Disposition must attach a dashboard-report CSV file");
+
+        String csv = result.getResponse().getContentAsString();
+        assertTrue(csv.contains("Metric,Value"), "CSV must include the summary header row");
+        assertTrue(csv.contains("Date,Views,Clicks"), "CSV must include the daily-data header row");
+        assertTrue(csv.contains("Total Products,"), "CSV must include a Total Products row");
+    }
+
+    @Test
+    void export_includesRequestedDateRangeInFilename() throws Exception {
+        String token = adminToken();
+
+        mockMvc.perform(get("/api/admin/dashboard/export")
+                        .header("Authorization", "Bearer " + token)
+                        .param("from", "2026-07-01")
+                        .param("to", "2026-07-31"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition",
+                        "attachment; filename=\"dashboard-report_2026-07-01_to_2026-07-31.csv\""));
     }
 
     private Long createBuyingGuideId(String token, String title, Long categoryId, boolean active,

@@ -25,10 +25,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Service
@@ -164,6 +169,47 @@ public class DashboardServiceImpl implements DashboardService {
         return new DashboardAnalyticsResponse(
                 viewsByDay, clicksByDay, mostClickedProducts, commissionByCategory, productsAddedByMonth,
                 topCategories, recentProducts, latestGuides);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportSummaryCsv(LocalDate from, LocalDate to) {
+        DashboardSummaryResponse summary = getSummary(from, to);
+        DashboardAnalyticsResponse analytics = getAnalytics(from, to);
+
+        DateTimeFormatter dateLabelFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.US);
+        String fromLabel = from != null ? from.format(dateLabelFormatter) : "All time";
+        String toLabel = to != null ? to.format(dateLabelFormatter) : "All time";
+
+        double ctr = summary.totalViews() == 0 ? 0
+                : Math.round((double) summary.totalClicks() / summary.totalViews() * 1000) / 10.0;
+        String ctrLabel = ctr == Math.floor(ctr) ? String.format("%d%%", (long) ctr) : String.format("%.1f%%", ctr);
+
+        StringBuilder csv = new StringBuilder();
+        csv.append("Metric,Value\n");
+        csv.append("Date Range,\"").append(fromLabel).append(" - ").append(toLabel).append("\"\n");
+        csv.append("Total Views,").append(summary.totalViews()).append('\n');
+        csv.append("Total Clicks,").append(summary.totalClicks()).append('\n');
+        csv.append("Total Products,").append(summary.totalProducts()).append('\n');
+        csv.append("Published Guides,").append(summary.publishedGuideCount()).append('\n');
+        csv.append("Avg. Click Through Rate,").append(ctrLabel).append('\n');
+        csv.append('\n');
+        csv.append("Date,Views,Clicks\n");
+
+        Map<LocalDate, Long> viewsByDate = analytics.viewsByDay().stream()
+                .collect(Collectors.toMap(DailyCountResponse::date, DailyCountResponse::count));
+        Map<LocalDate, Long> clicksByDate = analytics.clicksByDay().stream()
+                .collect(Collectors.toMap(DailyCountResponse::date, DailyCountResponse::count));
+        Set<LocalDate> allDates = new TreeSet<>();
+        allDates.addAll(viewsByDate.keySet());
+        allDates.addAll(clicksByDate.keySet());
+        for (LocalDate date : allDates) {
+            csv.append(date).append(',')
+                    .append(viewsByDate.getOrDefault(date, 0L)).append(',')
+                    .append(clicksByDate.getOrDefault(date, 0L)).append('\n');
+        }
+
+        return csv.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     private LocalDateTime effectiveFrom(LocalDate from) {
