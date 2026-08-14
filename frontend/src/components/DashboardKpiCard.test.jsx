@@ -64,4 +64,20 @@ describe('DashboardKpiCard', () => {
     expect(screen.getByText('All-time total')).toBeInTheDocument();
     expect(screen.queryByText(/↑|↓/)).not.toBeInTheDocument();
   });
+
+  it('keeps long labels on a single line so card layouts stay aligned across a KPI row', () => {
+    render(
+      <DashboardKpiCard
+        label="Avg. Click Through Rate"
+        value="13%"
+        icon={Eye}
+        iconColorClass="bg-dashboard-purple/10 text-dashboard-purple"
+        changePercent={null}
+        comparisonLabel={null}
+      />
+    );
+    const label = screen.getByText('Avg. Click Through Rate');
+    expect(label).toHaveClass('truncate');
+    expect(label).toHaveAttribute('title', 'Avg. Click Through Rate');
+  });
 });

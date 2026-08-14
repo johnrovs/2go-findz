@@ -4,8 +4,10 @@ function DashboardKpiCard({ label, value, icon: Icon, iconColorClass, changePerc
 
   return (
     <div className="flex h-full flex-col rounded-card border border-slate-200 bg-white p-5 shadow-card">
-      <div className="flex items-center justify-between">
-        <span className="text-[13px] font-semibold text-muted">{label}</span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="min-w-0 truncate text-[13px] font-semibold text-muted" title={label}>
+          {label}
+        </span>
         <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${iconColorClass}`}>
           <Icon size={18} />
         </span>
