@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { searchProducts } from '../services/adminProductService.js';
 
-const PAGE_SIZE = 20;
+const DEFAULT_PAGE_SIZE = 20;
 
 export function useAdminProductSearch() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +20,7 @@ export function useAdminProductSearch() {
   const sortKey = searchParams.get('sortKey') ?? 'createdAt';
   const sortDirection = searchParams.get('sortDirection') ?? 'asc';
   const page = Number(searchParams.get('page') ?? '1');
+  const pageSize = Number(searchParams.get('pageSize') ?? DEFAULT_PAGE_SIZE);
 
   useEffect(() => {
     let isCancelled = false;
@@ -32,7 +33,7 @@ export function useAdminProductSearch() {
 
     const params = {
       page: page - 1,
-      size: PAGE_SIZE,
+      size: pageSize,
       sort: `${sortKey},${sortDirection}`,
     };
     if (search) params.search = search;
@@ -61,7 +62,7 @@ export function useAdminProductSearch() {
     return () => {
       isCancelled = true;
     };
-  }, [search, categoryId, filter, status, sortKey, sortDirection, page, refreshIndex]);
+  }, [search, categoryId, filter, status, sortKey, sortDirection, page, pageSize, refreshIndex]);
 
   const updateParams = useCallback(
     (updates, { resetPage = true } = {}) => {
@@ -102,12 +103,16 @@ export function useAdminProductSearch() {
     sortKey,
     sortDirection,
     page,
+    pageSize,
     setSearch: (value) => updateParams({ search: value }),
     setCategoryId: (value) => updateParams({ category: value }),
     setFilter: (value) => updateParams({ filter: value === 'all' ? '' : value }),
     setStatus: (value) => updateParams({ status: value === 'all' ? '' : value }),
     onSortChange: handleSortChange,
     setPage: (value) => updateParams({ page: value === 1 ? '' : value }, { resetPage: false }),
+    setPageSize: (value) => updateParams({ pageSize: value }),
+    setSort: (nextSortKey, nextSortDirection) =>
+      updateParams({ sortKey: nextSortKey, sortDirection: nextSortDirection }, { resetPage: false }),
     reload: () => setRefreshIndex((n) => n + 1),
   };
 }

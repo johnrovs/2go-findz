@@ -159,4 +159,40 @@ describe('ProductsPage', () => {
     expect(await screen.findByText('ErgoPro')).toBeInTheDocument();
     expect(screen.getByText('Scheduled')).toBeInTheDocument();
   });
+
+  it('requests a different page size when the rows-per-page control changes', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Wireless Earbuds');
+
+    await user.selectOptions(screen.getByLabelText('Rows per page'), '50');
+
+    await waitFor(() =>
+      expect(adminProductService.searchProducts).toHaveBeenLastCalledWith(expect.objectContaining({ size: 50 }))
+    );
+  });
+
+  it('keeps the sort dropdown and column-click sorting in sync', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Wireless Earbuds');
+
+    await user.selectOptions(screen.getByLabelText('Sort by'), 'productPrice,asc');
+
+    await waitFor(() =>
+      expect(adminProductService.searchProducts).toHaveBeenLastCalledWith(
+        expect.objectContaining({ sort: 'productPrice,asc' })
+      )
+    );
+    expect(screen.getByLabelText('Sort by')).toHaveValue('productPrice,asc');
+
+    await user.click(screen.getByRole('columnheader', { name: /Product/ }).querySelector('button'));
+
+    await waitFor(() =>
+      expect(adminProductService.searchProducts).toHaveBeenLastCalledWith(
+        expect.objectContaining({ sort: 'name,asc' })
+      )
+    );
+    expect(screen.getByLabelText('Sort by')).toHaveValue('name,asc');
+  });
 });
