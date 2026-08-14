@@ -1,6 +1,10 @@
 import { useState } from 'react';
+import { Link as LinkIcon, Calendar, Clock } from 'lucide-react';
 import Button from './Button.jsx';
 import ImageUploader from './ImageUploader.jsx';
+import ToggleSwitch from './ToggleSwitch.jsx';
+
+const DESCRIPTION_MAX_LENGTH = 500;
 
 function ProductForm({ product, categories, onSubmit, onCancel }) {
   const [imageFileName, setImageFileName] = useState(product?.imageFileName ?? null);
@@ -89,229 +93,315 @@ function ProductForm({ product, categories, onSubmit, onCancel }) {
     }
   }
 
+  const fieldClasses =
+    'w-full rounded-btn border border-border px-3 py-2.5 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary';
+
   return (
-    <form onSubmit={handleSubmit} noValidate className="max-w-2xl">
+    <form onSubmit={handleSubmit} noValidate>
       {formError && (
         <p role="alert" className="mb-4 rounded-btn bg-danger/10 px-3 py-2 text-sm text-danger">
           {formError}
         </p>
       )}
 
-      <div className="mb-6">
-        <ImageUploader imageFileName={imageFileName} onChange={setImageFileName} />
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor="name" className="mb-1 block text-small font-medium text-body">
-          Product Name
-        </label>
-        <input
-          id="name"
-          type="text"
-          maxLength={200}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-invalid={Boolean(fieldErrors.name)}
-          aria-describedby={fieldErrors.name ? 'name-error' : undefined}
-        />
-        {fieldErrors.name && (
-          <p id="name-error" className="mt-1 text-sm text-danger">
-            {fieldErrors.name}
-          </p>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor="brand" className="mb-1 block text-small font-medium text-body">
-          Brand
-        </label>
-        <input
-          id="brand"
-          type="text"
-          maxLength={200}
-          value={brand}
-          onChange={(event) => setBrand(event.target.value)}
-          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor="sku" className="mb-1 block text-small font-medium text-body">
-          SKU
-        </label>
-        <input
-          id="sku"
-          type="text"
-          maxLength={64}
-          value={sku}
-          onChange={(event) => setSku(event.target.value)}
-          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor="categoryId" className="mb-1 block text-small font-medium text-body">
-          Category
-        </label>
-        <select
-          id="categoryId"
-          value={categoryId}
-          onChange={(event) => setCategoryId(event.target.value)}
-          className="w-full rounded-btn border border-border bg-white px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-invalid={Boolean(fieldErrors.categoryId)}
-          aria-describedby={fieldErrors.categoryId ? 'categoryId-error' : undefined}
-        >
-          <option value="">Select a category</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.productCategoryName}
-            </option>
-          ))}
-        </select>
-        {fieldErrors.categoryId && (
-          <p id="categoryId-error" className="mt-1 text-sm text-danger">
-            {fieldErrors.categoryId}
-          </p>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor="description" className="mb-1 block text-small font-medium text-body">
-          Description
-        </label>
-        <textarea
-          id="description"
-          rows={4}
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-invalid={Boolean(fieldErrors.description)}
-          aria-describedby={fieldErrors.description ? 'description-error' : undefined}
-        />
-        {fieldErrors.description && (
-          <p id="description-error" className="mt-1 text-sm text-danger">
-            {fieldErrors.description}
-          </p>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <label htmlFor="productPrice" className="mb-1 block text-small font-medium text-body">
-          Price ($)
-        </label>
-        <input
-          id="productPrice"
-          type="number"
-          step="0.01"
-          min="0"
-          value={productPrice}
-          onChange={(event) => setProductPrice(event.target.value)}
-          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-invalid={Boolean(fieldErrors.productPrice)}
-          aria-describedby={fieldErrors.productPrice ? 'productPrice-error' : undefined}
-        />
-        {fieldErrors.productPrice && (
-          <p id="productPrice-error" className="mt-1 text-sm text-danger">
-            {fieldErrors.productPrice}
-          </p>
-        )}
-      </div>
-
-      <div className="mb-6">
-        <label htmlFor="productLink" className="mb-1 block text-small font-medium text-body">
-          Amazon Affiliate Link
-        </label>
-        <input
-          id="productLink"
-          type="text"
-          value={productLink}
-          onChange={(event) => setProductLink(event.target.value)}
-          className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-invalid={Boolean(fieldErrors.productLink)}
-          aria-describedby={fieldErrors.productLink ? 'productLink-error' : undefined}
-        />
-        {fieldErrors.productLink && (
-          <p id="productLink-error" className="mt-1 text-sm text-danger">
-            {fieldErrors.productLink}
-          </p>
-        )}
-      </div>
-
-      <div className="mb-6 flex flex-wrap gap-6">
-        <label className="flex items-center gap-2 text-small font-medium text-body">
-          <input type="checkbox" checked={trending} onChange={(event) => setTrending(event.target.checked)} />
-          Trending
-        </label>
-        <label className="flex items-center gap-2 text-small font-medium text-body">
-          <input
-            type="checkbox"
-            checked={bestSeller}
-            onChange={(event) => setBestSeller(event.target.checked)}
-          />
-          Best Seller
-        </label>
-        {!isScheduled && (
-          <label className="flex items-center gap-2 text-small font-medium text-body">
-            <input type="checkbox" checked={active} onChange={(event) => setActive(event.target.checked)} />
-            Active
-          </label>
-        )}
-      </div>
-
-      <div className="mb-6">
-        <div className="flex items-center justify-between rounded-btn border border-border p-4">
+      <div className="rounded-card border border-slate-200 bg-white p-6 shadow-card">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr]">
           <div>
-            <p className="text-small font-medium text-body">Schedule for later</p>
-            <p className="text-xs text-muted">Automatically publish this product at a future date and time.</p>
-          </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={isScheduled}
-            aria-label="Schedule for later"
-            onClick={() => setIsScheduled((current) => !current)}
-            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-              isScheduled ? 'bg-primary' : 'bg-slate-300'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                isScheduled ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
-        </div>
-        {isScheduled && (
-          <div className="mt-4">
-            <label htmlFor="scheduledPublishAt" className="mb-1 block text-small font-medium text-body">
-              Publish Date &amp; Time
-            </label>
-            <input
-              id="scheduledPublishAt"
-              type="datetime-local"
-              value={scheduledPublishAt}
-              onChange={(event) => setScheduledPublishAt(event.target.value)}
-              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-              aria-invalid={Boolean(fieldErrors.scheduledPublishAt)}
-              aria-describedby={fieldErrors.scheduledPublishAt ? 'scheduledPublishAt-error' : undefined}
-            />
-            {fieldErrors.scheduledPublishAt && (
-              <p id="scheduledPublishAt-error" className="mt-1 text-sm text-danger">
-                {fieldErrors.scheduledPublishAt}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
+            <div className="mb-6">
+              <h2 className="text-small font-semibold text-heading">Product Information</h2>
+              <p className="text-xs text-muted">Enter the product details and Amazon listing information.</p>
+            </div>
 
-      <div className="flex justify-end gap-3">
-        <Button type="button" variant="secondary" size="sm" onClick={onCancel} disabled={isSubmitting}>
-          Cancel
-        </Button>
-        <Button type="submit" size="sm" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : product ? 'Save Changes' : 'Add Product'}
-        </Button>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-[55%_1fr]">
+              <div>
+                <div className="mb-1 flex items-center gap-1">
+                  <label htmlFor="name" className="block text-small font-medium text-body">
+                    Product Name
+                  </label>
+                  <span aria-hidden="true" className="text-danger">
+                    *
+                  </span>
+                </div>
+                <input
+                  id="name"
+                  type="text"
+                  maxLength={200}
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  className={fieldClasses}
+                  aria-invalid={Boolean(fieldErrors.name)}
+                  aria-describedby={fieldErrors.name ? 'name-error' : undefined}
+                />
+                {fieldErrors.name && (
+                  <p id="name-error" className="mt-1 text-sm text-danger">
+                    {fieldErrors.name}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="brand" className="mb-1 block text-small font-medium text-body">
+                  Brand
+                </label>
+                <input
+                  id="brand"
+                  type="text"
+                  maxLength={200}
+                  value={brand}
+                  onChange={(event) => setBrand(event.target.value)}
+                  className={fieldClasses}
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="sku" className="mb-1 block text-small font-medium text-body">
+                  SKU
+                </label>
+                <input
+                  id="sku"
+                  type="text"
+                  maxLength={64}
+                  value={sku}
+                  onChange={(event) => setSku(event.target.value)}
+                  className={fieldClasses}
+                />
+              </div>
+
+              <div>
+                <div className="mb-1 flex items-center gap-1">
+                  <label htmlFor="categoryId" className="block text-small font-medium text-body">
+                    Category
+                  </label>
+                  <span aria-hidden="true" className="text-danger">
+                    *
+                  </span>
+                </div>
+                <select
+                  id="categoryId"
+                  value={categoryId}
+                  onChange={(event) => setCategoryId(event.target.value)}
+                  className={`${fieldClasses} bg-white`}
+                  aria-invalid={Boolean(fieldErrors.categoryId)}
+                  aria-describedby={fieldErrors.categoryId ? 'categoryId-error' : undefined}
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.productCategoryName}
+                    </option>
+                  ))}
+                </select>
+                {fieldErrors.categoryId && (
+                  <p id="categoryId-error" className="mt-1 text-sm text-danger">
+                    {fieldErrors.categoryId}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <div className="mb-1 flex items-center gap-1">
+                <label htmlFor="description" className="block text-small font-medium text-body">
+                  Description
+                </label>
+                <span aria-hidden="true" className="text-danger">
+                  *
+                </span>
+              </div>
+              <div className="relative">
+                <textarea
+                  id="description"
+                  rows={4}
+                  maxLength={DESCRIPTION_MAX_LENGTH}
+                  placeholder="Write a clear, helpful product description..."
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  className={`${fieldClasses} h-[110px] resize-none pb-6`}
+                  aria-invalid={Boolean(fieldErrors.description)}
+                  aria-describedby={fieldErrors.description ? 'description-error' : undefined}
+                />
+                <span className="pointer-events-none absolute bottom-2 right-3 text-xs text-muted">
+                  {description.length} / {DESCRIPTION_MAX_LENGTH}
+                </span>
+              </div>
+              {fieldErrors.description && (
+                <p id="description-error" className="mt-1 text-sm text-danger">
+                  {fieldErrors.description}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <div className="mb-1 flex items-center gap-1">
+                  <label htmlFor="productPrice" className="block text-small font-medium text-body">
+                    Price ($)
+                  </label>
+                  <span aria-hidden="true" className="text-danger">
+                    *
+                  </span>
+                </div>
+                <div className="relative">
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+                  >
+                    $
+                  </span>
+                  <input
+                    id="productPrice"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={productPrice}
+                    onChange={(event) => setProductPrice(event.target.value)}
+                    className={`${fieldClasses} pl-7`}
+                    aria-invalid={Boolean(fieldErrors.productPrice)}
+                    aria-describedby={fieldErrors.productPrice ? 'productPrice-error' : undefined}
+                  />
+                </div>
+                {fieldErrors.productPrice && (
+                  <p id="productPrice-error" className="mt-1 text-sm text-danger">
+                    {fieldErrors.productPrice}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <div className="mb-1 flex items-center gap-1">
+                  <label htmlFor="productLink" className="block text-small font-medium text-body">
+                    Amazon Affiliate Link
+                  </label>
+                  <span aria-hidden="true" className="text-danger">
+                    *
+                  </span>
+                </div>
+                <div className="relative">
+                  <LinkIcon
+                    size={16}
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+                  />
+                  <input
+                    id="productLink"
+                    type="text"
+                    placeholder="https://amazon.com/dp/..."
+                    value={productLink}
+                    onChange={(event) => setProductLink(event.target.value)}
+                    className={`${fieldClasses} pl-8`}
+                    aria-invalid={Boolean(fieldErrors.productLink)}
+                    aria-describedby={fieldErrors.productLink ? 'productLink-error' : undefined}
+                  />
+                </div>
+                {fieldErrors.productLink && (
+                  <p id="productLink-error" className="mt-1 text-sm text-danger">
+                    {fieldErrors.productLink}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+            <h2 className="mb-2 text-small font-semibold text-heading">Product Image</h2>
+            <ImageUploader imageFileName={imageFileName} onChange={setImageFileName} variant="dropzone" />
+
+            <h2 className="mb-2 mt-6 text-small font-semibold text-heading">Product Visibility</h2>
+            <div className="divide-y divide-border rounded-btn border border-border px-4">
+              {!isScheduled && (
+                <ToggleSwitch
+                  label="Active"
+                  helperText="Visible on the storefront"
+                  checked={active}
+                  onChange={setActive}
+                />
+              )}
+              <ToggleSwitch
+                label="Trending"
+                helperText="Feature in Trending"
+                checked={trending}
+                onChange={setTrending}
+              />
+              <ToggleSwitch
+                label="Best Seller"
+                helperText="Show the Best Seller badge"
+                checked={bestSeller}
+                onChange={setBestSeller}
+              />
+            </div>
+
+            <div className="mt-6 rounded-btn border border-border px-4">
+              <ToggleSwitch
+                label="Schedule for later"
+                helperText="Automatically publish this product at a future date and time."
+                checked={isScheduled}
+                onChange={setIsScheduled}
+              />
+              {isScheduled && (
+                <div className="pb-4">
+                  <label
+                    htmlFor="scheduledPublishAt"
+                    className="mb-1 flex items-center gap-1 text-small font-medium text-body"
+                  >
+                    <Calendar size={14} />
+                    Publish Date &amp; Time
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="scheduledPublishAt"
+                      type="datetime-local"
+                      value={scheduledPublishAt}
+                      onChange={(event) => setScheduledPublishAt(event.target.value)}
+                      className={`${fieldClasses} pr-9`}
+                      aria-invalid={Boolean(fieldErrors.scheduledPublishAt)}
+                      aria-describedby={fieldErrors.scheduledPublishAt ? 'scheduledPublishAt-error' : undefined}
+                    />
+                    <Clock
+                      size={14}
+                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted"
+                    />
+                  </div>
+                  {fieldErrors.scheduledPublishAt && (
+                    <p id="scheduledPublishAt-error" className="mt-1 text-sm text-danger">
+                      {fieldErrors.scheduledPublishAt}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
+          <p className="text-xs text-muted">
+            <span aria-hidden="true" className="text-danger">
+              *
+            </span>{' '}
+            Required fields
+          </p>
+          <div className="flex w-full gap-3 sm:w-auto">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={onCancel}
+              disabled={isSubmitting}
+              className="flex-1 sm:flex-none"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="accent"
+              size="sm"
+              disabled={isSubmitting}
+              className="flex-1 sm:flex-none"
+            >
+              {isSubmitting ? 'Saving...' : product ? 'Save Changes' : 'Add Product'}
+            </Button>
+          </div>
+        </div>
       </div>
     </form>
   );

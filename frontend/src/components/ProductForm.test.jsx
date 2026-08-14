@@ -43,7 +43,7 @@ describe('ProductForm', () => {
     await user.type(screen.getByLabelText('Price ($)'), '49.99');
     await user.type(screen.getByLabelText('Amazon Affiliate Link'), 'https://amazon.com/dp/example');
     await user.type(screen.getByLabelText('SKU'), 'SKU-001');
-    await user.click(screen.getByRole('checkbox', { name: 'Trending' }));
+    await user.click(screen.getByRole('switch', { name: 'Trending' }));
     await user.click(screen.getByRole('button', { name: 'Add Product' }));
 
     expect(onSubmit).toHaveBeenCalledWith({
@@ -82,7 +82,7 @@ describe('ProductForm', () => {
 
     expect(screen.getByLabelText('Product Name')).toHaveValue('Wireless Earbuds');
     expect(screen.getByLabelText('Category')).toHaveValue('1');
-    expect(screen.getByRole('checkbox', { name: 'Best Seller' })).toBeChecked();
+    expect(screen.getByRole('switch', { name: 'Best Seller' })).toBeChecked();
 
     await user.click(screen.getByRole('button', { name: 'Save Changes' }));
 
@@ -137,16 +137,16 @@ describe('ProductForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ brand: 'Sony' }));
   });
 
-  it('hides the Active checkbox and shows a date/time field when Schedule for later is toggled on', async () => {
+  it('hides the Active switch and shows a date/time field when Schedule for later is toggled on', async () => {
     const user = userEvent.setup();
     render(<ProductForm product={null} categories={categories} onSubmit={vi.fn()} onCancel={vi.fn()} />);
 
-    expect(screen.getByRole('checkbox', { name: 'Active' })).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Active' })).toBeInTheDocument();
     expect(screen.queryByLabelText('Publish Date & Time')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('switch', { name: 'Schedule for later' }));
 
-    expect(screen.queryByRole('checkbox', { name: 'Active' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('switch', { name: 'Active' })).not.toBeInTheDocument();
     expect(screen.getByLabelText('Publish Date & Time')).toBeInTheDocument();
   });
 
@@ -221,5 +221,21 @@ describe('ProductForm', () => {
 
     expect(screen.getByRole('switch', { name: 'Schedule for later' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByLabelText('Publish Date & Time')).toHaveValue('2030-06-15T10:00');
+  });
+
+  it('shows a live character counter for the description field', async () => {
+    const user = userEvent.setup();
+    render(<ProductForm product={null} categories={categories} onSubmit={vi.fn()} onCancel={vi.fn()} />);
+
+    expect(screen.getByText('0 / 500')).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText('Description'), 'Hello');
+
+    expect(screen.getByText('5 / 500')).toBeInTheDocument();
+  });
+
+  it('caps the description field at 500 characters', () => {
+    render(<ProductForm product={null} categories={categories} onSubmit={vi.fn()} onCancel={vi.fn()} />);
+    expect(screen.getByLabelText('Description')).toHaveAttribute('maxLength', '500');
   });
 });
