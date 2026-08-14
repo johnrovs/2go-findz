@@ -1,13 +1,41 @@
+import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { ChevronDown, Download, Menu } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.js';
+import { useToast } from '../hooks/useToast.js';
+import { exportDashboardReport } from '../services/dashboardService.js';
 import DashboardDateRangePicker from './DashboardDateRangePicker.jsx';
 import Button from './Button.jsx';
+
+function formatDate(date) {
+  return date.toISOString().slice(0, 10);
+}
 
 function DashboardHeader({ startDate, endDate, onRangeChange }) {
   const { onMenuClick } = useOutletContext() ?? {};
   const { user } = useAuth();
+  const { showToast } = useToast();
   const fullName = user?.fullName ?? 'Administrator';
+  const [isExporting, setIsExporting] = useState(false);
+
+  async function handleExport() {
+    const from = formatDate(startDate);
+    const to = formatDate(endDate);
+    setIsExporting(true);
+    try {
+      const blob = await exportDashboardReport({ from, to });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `dashboard-report_${from}_to_${to}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      showToast('Failed to export report. Please try again.', 'error');
+    } finally {
+      setIsExporting(false);
+    }
+  }
 
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -28,16 +56,9 @@ function DashboardHeader({ startDate, endDate, onRangeChange }) {
 
       <div className="flex flex-wrap items-center gap-3">
         <DashboardDateRangePicker startDate={startDate} endDate={endDate} onChange={onRangeChange} />
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          disabled
-          title="Export Report is coming soon"
-          className="gap-2"
-        >
+        <Button type="button" variant="secondary" size="sm" disabled={isExporting} onClick={handleExport} className="gap-2">
           <Download size={16} />
-          Export Report
+          {isExporting ? 'Exporting…' : 'Export Report'}
         </Button>
         <button
           type="button"

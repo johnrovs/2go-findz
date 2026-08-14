@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { ToastProvider } from '../../context/ToastContext.jsx';
 import DashboardPage from './DashboardPage.jsx';
 import * as dashboardService from '../../services/dashboardService.js';
 import * as useAuthModule from '../../hooks/useAuth.js';
@@ -66,7 +67,9 @@ function renderPage() {
   });
   return render(
     <MemoryRouter initialEntries={['/admin']}>
-      <DashboardPage />
+      <ToastProvider>
+        <DashboardPage />
+      </ToastProvider>
     </MemoryRouter>
   );
 }
