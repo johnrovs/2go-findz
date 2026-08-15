@@ -1,5 +1,6 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { ToastProvider } from '../../context/ToastContext.jsx';
 import CategoriesPage from './CategoriesPage.jsx';
@@ -19,7 +20,9 @@ const categories = [
 function renderPage() {
   return render(
     <ToastProvider>
-      <CategoriesPage />
+      <MemoryRouter>
+        <CategoriesPage />
+      </MemoryRouter>
     </ToastProvider>
   );
 }
@@ -72,46 +75,18 @@ describe('CategoriesPage', () => {
     );
   });
 
-  it('creates a category and shows a success toast', async () => {
-    vi.spyOn(adminCategoryService, 'createCategory').mockResolvedValue({
-      id: 3,
-      productCategoryName: 'Toys',
-      commissionRate: 5,
-      createdAt: '2026-03-01T10:00:00',
-    });
-    const user = userEvent.setup();
+  it('links "Add Category" to the new-category route', async () => {
     renderPage();
     await screen.findByText('Electronics');
 
-    await user.click(screen.getByRole('button', { name: 'Add Category' }));
-    const dialog = screen.getByRole('dialog');
-    await user.type(within(dialog).getByLabelText('Category Name'), 'Toys');
-    await user.type(within(dialog).getByLabelText('Commission Rate (%)'), '5');
-    await user.click(within(dialog).getByRole('button', { name: 'Add Category' }));
-
-    expect(await screen.findByText('Toys')).toBeInTheDocument();
-    expect(await screen.findByText('Category created successfully.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Add Category' })).toHaveAttribute('href', '/admin/categories/new');
   });
 
-  it('edits a category and shows a success toast', async () => {
-    vi.spyOn(adminCategoryService, 'updateCategory').mockResolvedValue({
-      id: 1,
-      productCategoryName: 'Electronics & Gadgets',
-      commissionRate: 4,
-      createdAt: '2026-01-10T10:00:00',
-    });
-    const user = userEvent.setup();
+  it("links a row's edit action to its category route", async () => {
     renderPage();
     await screen.findByText('Electronics');
 
-    await user.click(screen.getByRole('button', { name: 'Edit Electronics' }));
-    const nameInput = screen.getByLabelText('Category Name');
-    await user.clear(nameInput);
-    await user.type(nameInput, 'Electronics & Gadgets');
-    await user.click(screen.getByRole('button', { name: 'Save Changes' }));
-
-    expect(await screen.findByText('Electronics & Gadgets')).toBeInTheDocument();
-    expect(await screen.findByText('Category updated successfully.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Edit Electronics' })).toHaveAttribute('href', '/admin/categories/1');
   });
 
   it('deletes a category after confirmation and shows a success toast', async () => {

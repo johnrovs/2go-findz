@@ -1,25 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plus, Pencil, Trash2, Image as ImageIcon, Search } from 'lucide-react';
 import Button from '../../components/Button.jsx';
 import DataTable from '../../components/DataTable.jsx';
-import Modal from '../../components/Modal.jsx';
 import ConfirmDialog from '../../components/ConfirmDialog.jsx';
-import CategoryForm from '../../components/CategoryForm.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
 import { useToast } from '../../hooks/useToast.js';
 import { getImageUrl } from '../../utils/imageUrl.js';
-import {
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from '../../services/adminCategoryService.js';
+import { getCategories, deleteCategory } from '../../services/adminCategoryService.js';
 
 function formatDate(isoString) {
   if (!isoString) return '—';
   return new Date(isoString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
+
+const TABLE_HEADER_GRADIENT = 'bg-[linear-gradient(90deg,#5B2CF2_0%,#6D35F5_55%,#5425E8_100%)]';
 
 function CategoriesPage() {
   const { showToast } = useToast();
@@ -29,7 +25,6 @@ function CategoriesPage() {
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState('productCategoryName');
   const [sortDirection, setSortDirection] = useState('asc');
-  const [modalState, setModalState] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -64,19 +59,6 @@ function CategoriesPage() {
       setSortKey(key);
       setSortDirection('asc');
     }
-  }
-
-  async function handleFormSubmit(payload) {
-    if (modalState.category) {
-      const updated = await updateCategory(modalState.category.id, payload);
-      setCategories((current) => current.map((item) => (item.id === updated.id ? updated : item)));
-      showToast('Category updated successfully.');
-    } else {
-      const created = await createCategory(payload);
-      setCategories((current) => [...current, created]);
-      showToast('Category created successfully.');
-    }
-    setModalState(null);
   }
 
   async function handleDeleteConfirm() {
@@ -122,21 +104,22 @@ function CategoriesPage() {
       label: 'Actions',
       render: (row) => (
         <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setModalState({ category: row })}
+          <Link
+            to={`/admin/categories/${row.id}`}
             aria-label={`Edit ${row.productCategoryName}`}
-            className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary"
+            title="Edit"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-muted hover:border-primary hover:bg-primary/10 hover:text-primary"
           >
-            <Pencil size={16} />
-          </button>
+            <Pencil size={14} />
+          </Link>
           <button
             type="button"
             onClick={() => setDeleteTarget(row)}
             aria-label={`Delete ${row.productCategoryName}`}
-            className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-danger"
+            title="Delete"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-muted hover:border-danger hover:bg-danger/10 hover:text-danger"
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} />
           </button>
         </div>
       ),
@@ -145,59 +128,60 @@ function CategoriesPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-page-heading text-heading">Product Categories</h1>
-        <Button onClick={() => setModalState({ category: null })} size="sm">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-page-heading text-heading">Product Categories</h1>
+          <p className="mt-1 text-small text-muted">Organize your storefront&apos;s product categories.</p>
+        </div>
+        <Button to="/admin/categories/new" variant="accent" size="sm">
           <Plus size={16} />
           Add Category
         </Button>
       </div>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search categories..."
-          aria-label="Search categories"
-          className="w-full max-w-sm rounded-search border border-border px-3 py-2 text-sm text-heading focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-      </div>
+      <div className="rounded-card border border-slate-200 bg-white shadow-card">
+        <div className="p-5">
+          <div className="relative max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted" />
+            <input
+              type="text"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search categories..."
+              aria-label="Search categories"
+              className="w-full rounded-search border border-border py-2.5 pl-10 pr-4 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        </div>
 
-      {error ? (
-        <ErrorState message={error} onRetry={loadCategories} />
-      ) : (
-        <DataTable
-          columns={columns}
-          rows={visibleCategories}
-          sortKey={sortKey}
-          sortDirection={sortDirection}
-          onSortChange={handleSortChange}
-          isLoading={isLoading}
-          emptyState={
-            <EmptyState
-              title={search ? 'No matching categories' : 'No categories yet'}
-              description={
-                search ? 'Try a different search term.' : 'Add your first product category to get started.'
+        <div className="border-t border-slate-100 px-5 py-3">
+          <p className="text-small text-muted">{visibleCategories.length} categories</p>
+        </div>
+
+        <div className="px-5 pb-5">
+          {error ? (
+            <ErrorState message={error} onRetry={loadCategories} />
+          ) : (
+            <DataTable
+              columns={columns}
+              rows={visibleCategories}
+              sortKey={sortKey}
+              sortDirection={sortDirection}
+              onSortChange={handleSortChange}
+              isLoading={isLoading}
+              headerClassName={TABLE_HEADER_GRADIENT}
+              emptyState={
+                <EmptyState
+                  title={search ? 'No matching categories' : 'No categories yet'}
+                  description={
+                    search ? 'Try a different search term.' : 'Add your first product category to get started.'
+                  }
+                />
               }
             />
-          }
-        />
-      )}
-
-      {modalState && (
-        <Modal
-          isOpen
-          onClose={() => setModalState(null)}
-          title={modalState.category ? 'Edit Category' : 'Add Category'}
-        >
-          <CategoryForm
-            category={modalState.category}
-            onSubmit={handleFormSubmit}
-            onCancel={() => setModalState(null)}
-          />
-        </Modal>
-      )}
+          )}
+        </div>
+      </div>
 
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
