@@ -113,45 +113,54 @@ function SettingsPage() {
     return <ErrorState message={loadError} onRetry={load} />;
   }
 
+  const fieldClasses =
+    'w-full rounded-btn border border-border px-3 py-2.5 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary';
+
   return (
     <div>
-      <h1 className="mb-6 text-page-heading text-heading">System Settings</h1>
+      <h1 className="text-page-heading text-heading">System Settings</h1>
+      <p className="mb-6 mt-1 text-small text-muted">
+        Manage your storefront&apos;s branding, content, and contact information.
+      </p>
 
-      <form onSubmit={handleSubmit} noValidate className="max-w-2xl space-y-10">
+      <form onSubmit={handleSubmit} noValidate className="space-y-10">
         {formError && (
           <p role="alert" className="rounded-btn bg-danger/10 px-3 py-2 text-sm text-danger">
             {formError}
           </p>
         )}
 
-        <section className="rounded-card bg-white p-6 shadow-card">
+        <section className="rounded-card border border-slate-200 bg-white p-6 shadow-card">
           <h2 className="mb-4 text-card-title text-heading">Branding &amp; Hero Images</h2>
           <div className="space-y-6">
             <div>
-              <span className="mb-1 block text-small font-medium text-body">Logo</span>
               <ImageUploader
                 imageFileName={settings.logoImageFilename}
                 onChange={(filename) => handleChange('logoImageFilename', filename)}
+                label="Logo"
+                variant="dropzone"
               />
             </div>
             <div>
-              <span className="mb-1 block text-small font-medium text-body">Hero Image</span>
               <ImageUploader
                 imageFileName={settings.heroImageFilename}
                 onChange={(filename) => handleChange('heroImageFilename', filename)}
+                label="Hero Image"
+                variant="dropzone"
               />
             </div>
             <div>
-              <span className="mb-1 block text-small font-medium text-body">Product Placeholder Image</span>
               <ImageUploader
                 imageFileName={settings.placeholderImageFilename}
                 onChange={(filename) => handleChange('placeholderImageFilename', filename)}
+                label="Product Placeholder Image"
+                variant="dropzone"
               />
             </div>
           </div>
         </section>
 
-        <section className="rounded-card bg-white p-6 shadow-card">
+        <section className="rounded-card border border-slate-200 bg-white p-6 shadow-card">
           <h2 className="mb-4 text-card-title text-heading">Hero Content</h2>
           <div className="mb-4">
             <label htmlFor="heroHeadline" className="mb-1 block text-small font-medium text-body">
@@ -162,7 +171,7 @@ function SettingsPage() {
               type="text"
               value={settings.heroHeadline}
               onChange={(event) => handleChange('heroHeadline', event.target.value)}
-              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+              className={fieldClasses}
             />
           </div>
           <div>
@@ -174,12 +183,12 @@ function SettingsPage() {
               rows={3}
               value={settings.heroDescription}
               onChange={(event) => handleChange('heroDescription', event.target.value)}
-              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+              className={fieldClasses}
             />
           </div>
         </section>
 
-        <section className="rounded-card bg-white p-6 shadow-card">
+        <section className="rounded-card border border-slate-200 bg-white p-6 shadow-card">
           <h2 className="mb-4 text-card-title text-heading">Social Links</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
@@ -191,7 +200,7 @@ function SettingsPage() {
                 type="text"
                 value={settings.tiktokUrl}
                 onChange={(event) => handleChange('tiktokUrl', event.target.value)}
-                className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                className={fieldClasses}
               />
             </div>
             <div>
@@ -203,7 +212,7 @@ function SettingsPage() {
                 type="text"
                 value={settings.pinterestUrl}
                 onChange={(event) => handleChange('pinterestUrl', event.target.value)}
-                className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                className={fieldClasses}
               />
             </div>
             <div>
@@ -215,7 +224,7 @@ function SettingsPage() {
                 type="text"
                 value={settings.instagramUrl}
                 onChange={(event) => handleChange('instagramUrl', event.target.value)}
-                className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                className={fieldClasses}
               />
             </div>
             <div>
@@ -227,7 +236,7 @@ function SettingsPage() {
                 type="text"
                 value={settings.youtubeUrl}
                 onChange={(event) => handleChange('youtubeUrl', event.target.value)}
-                className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                className={fieldClasses}
               />
             </div>
             <div>
@@ -239,13 +248,13 @@ function SettingsPage() {
                 type="text"
                 value={settings.facebookUrl}
                 onChange={(event) => handleChange('facebookUrl', event.target.value)}
-                className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                className={fieldClasses}
               />
             </div>
           </div>
         </section>
 
-        <section className="rounded-card bg-white p-6 shadow-card">
+        <section className="rounded-card border border-slate-200 bg-white p-6 shadow-card">
           <h2 className="mb-4 text-card-title text-heading">Shop Info &amp; Disclosure</h2>
           <div className="mb-4">
             <label htmlFor="shopBio" className="mb-1 block text-small font-medium text-body">
@@ -256,19 +265,24 @@ function SettingsPage() {
               rows={3}
               value={settings.shopBio}
               onChange={(event) => handleChange('shopBio', event.target.value)}
-              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+              className={fieldClasses}
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="affiliateDisclosure" className="mb-1 block text-small font-medium text-body">
-              Affiliate Disclosure
-            </label>
+            <div className="mb-1 flex items-center gap-1">
+              <label htmlFor="affiliateDisclosure" className="block text-small font-medium text-body">
+                Affiliate Disclosure
+              </label>
+              <span aria-hidden="true" className="text-danger">
+                *
+              </span>
+            </div>
             <textarea
               id="affiliateDisclosure"
               rows={3}
               value={settings.affiliateDisclosure}
               onChange={(event) => handleChange('affiliateDisclosure', event.target.value)}
-              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+              className={fieldClasses}
               aria-invalid={Boolean(fieldErrors.affiliateDisclosure)}
               aria-describedby={fieldErrors.affiliateDisclosure ? 'affiliateDisclosure-error' : undefined}
             />
@@ -287,7 +301,7 @@ function SettingsPage() {
               type="text"
               value={settings.contactEmail}
               onChange={(event) => handleChange('contactEmail', event.target.value)}
-              className="w-full rounded-btn border border-border px-3 py-2 text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+              className={fieldClasses}
               aria-invalid={Boolean(fieldErrors.contactEmail)}
               aria-describedby={fieldErrors.contactEmail ? 'contactEmail-error' : undefined}
             />
@@ -299,7 +313,7 @@ function SettingsPage() {
           </div>
         </section>
 
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" variant="accent" disabled={isSubmitting}>
           {isSubmitting ? 'Saving...' : 'Save Changes'}
         </Button>
       </form>
