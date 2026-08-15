@@ -91,7 +91,7 @@ describe('CategoryForm', () => {
     render(<CategoryForm category={null} onSubmit={onSubmit} onCancel={vi.fn()} />);
 
     const file = new File(['fake-image-bytes'], 'category.jpg', { type: 'image/jpeg' });
-    await user.upload(screen.getByLabelText(/upload image/i), file);
+    await user.upload(screen.getByLabelText('Upload product image'), file);
     await screen.findByAltText('Product preview');
 
     await user.type(screen.getByLabelText('Category Name'), 'Electronics');
