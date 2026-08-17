@@ -63,7 +63,10 @@ function LoginPage() {
           Back to storefront
         </Link>
 
-        <img src={logo} alt="2Go Findz" className="mb-8 h-10 lg:hidden" />
+        {/* The logo's wordmark is near-white for the dark navbar/sidebar it's normally shown on — give it a dark chip here since this section's background is light. */}
+        <div className="mb-8 rounded-xl bg-[#020D18] px-5 py-3 lg:hidden">
+          <img src={logo} alt="2Go Findz" className="h-8" />
+        </div>
 
         <AdminLoginCard
           username={username}
