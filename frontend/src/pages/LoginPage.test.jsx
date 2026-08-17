@@ -32,7 +32,7 @@ describe('LoginPage', () => {
 
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
-    expect(await screen.findByText('Username is required.')).toBeInTheDocument();
+    expect(await screen.findByText('Email address is required.')).toBeInTheDocument();
     expect(screen.getByText('Password is required.')).toBeInTheDocument();
   });
 
@@ -57,7 +57,7 @@ describe('LoginPage', () => {
     const user = userEvent.setup();
     renderLoginPage();
 
-    await user.type(screen.getByLabelText('Username'), 'johnrovs');
+    await user.type(screen.getByLabelText('Email address'), 'johnrovs');
     await user.type(screen.getByLabelText('Password'), 'admin123');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
@@ -76,7 +76,7 @@ describe('LoginPage', () => {
       { pathname: '/login', state: { from: { pathname: '/admin/settings' } } },
     ]);
 
-    await user.type(screen.getByLabelText('Username'), 'johnrovs');
+    await user.type(screen.getByLabelText('Email address'), 'johnrovs');
     await user.type(screen.getByLabelText('Password'), 'admin123');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
@@ -88,10 +88,22 @@ describe('LoginPage', () => {
     const user = userEvent.setup();
     renderLoginPage();
 
-    await user.type(screen.getByLabelText('Username'), 'johnrovs');
+    await user.type(screen.getByLabelText('Email address'), 'johnrovs');
     await user.type(screen.getByLabelText('Password'), 'wrong-password');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
 
     expect(await screen.findByText('Invalid username or password.')).toBeInTheDocument();
+  });
+
+  it('redirects an already-authenticated admin straight to /admin', async () => {
+    localStorage.setItem('token', 'existing-token');
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ username: 'johnrovs', fullName: 'John Rommel Rovero', role: 'ADMIN' })
+    );
+
+    renderLoginPage();
+
+    expect(await screen.findByText('Admin Dashboard')).toBeInTheDocument();
   });
 });
