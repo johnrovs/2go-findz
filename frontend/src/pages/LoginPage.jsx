@@ -47,14 +47,14 @@ function LoginPage() {
 
   return (
     <main
-      className="flex min-h-screen flex-col lg:flex-row"
+      className="flex min-h-screen flex-col lg:h-screen lg:flex-row"
       style={{
         background: 'radial-gradient(circle at center, rgba(91, 44, 242, 0.08), transparent 45%), #fafafc',
       }}
     >
       <AdminBrandingPanel />
 
-      <div className="relative flex flex-1 flex-col items-center justify-center px-5 py-10 lg:px-10">
+      <div className="relative flex flex-1 flex-col items-center justify-center overflow-y-auto px-5 py-10 lg:px-10">
         <Link
           to="/"
           className="absolute right-5 top-5 flex items-center gap-1.5 text-sm font-medium text-[#667085] transition-colors hover:text-dashboard-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dashboard-purple focus-visible:ring-offset-2 lg:right-10 lg:top-10"
