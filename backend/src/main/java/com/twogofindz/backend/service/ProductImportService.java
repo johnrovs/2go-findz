@@ -4,12 +4,15 @@ import com.twogofindz.backend.dto.ImportRowStatus;
 import com.twogofindz.backend.dto.ParsedProductRow;
 import com.twogofindz.backend.dto.response.ImportPreviewResponse;
 import com.twogofindz.backend.dto.response.ImportPreviewRow;
+import com.twogofindz.backend.dto.response.ImportResultResponse;
+import com.twogofindz.backend.dto.response.ImportRowIssue;
 import com.twogofindz.backend.entity.Product;
 import com.twogofindz.backend.repository.ProductCategoryRepository;
 import com.twogofindz.backend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,19 +27,60 @@ public class ProductImportService {
     private final ExcelImportParser parser;
     private final ProductImportValidator validator;
     private final ProductImportDuplicateChecker duplicateChecker;
+    private final ProductImportRowWriter rowWriter;
     private final ProductRepository productRepository;
     private final ProductCategoryRepository categoryRepository;
 
     public ProductImportService(ExcelImportParser parser,
                                  ProductImportValidator validator,
                                  ProductImportDuplicateChecker duplicateChecker,
+                                 ProductImportRowWriter rowWriter,
                                  ProductRepository productRepository,
                                  ProductCategoryRepository categoryRepository) {
         this.parser = parser;
         this.validator = validator;
         this.duplicateChecker = duplicateChecker;
+        this.rowWriter = rowWriter;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+    }
+
+    public ImportResultResponse importFile(MultipartFile file) {
+        List<ParsedProductRow> rows = parser.parse(file);
+        RowEvaluation evaluation = evaluateRows(rows);
+
+        int imported = 0;
+        int createdCategories = 0;
+        int skippedDuplicates = 0;
+        int failed = 0;
+        List<ImportRowIssue> issues = new ArrayList<>();
+
+        for (ParsedProductRow row : rows) {
+            List<String> errors = evaluation.errorsByRow().get(row.rowNumber());
+            if (!errors.isEmpty()) {
+                failed++;
+                issues.add(new ImportRowIssue(row.rowNumber(), row.productName(), row.sku(), String.join(" ", errors)));
+                continue;
+            }
+            if (evaluation.duplicateRowNumbers().contains(row.rowNumber())) {
+                skippedDuplicates++;
+                issues.add(new ImportRowIssue(row.rowNumber(), row.productName(), row.sku(),
+                        "Skipped: this product already exists (matched by SKU, link, or name and brand)."));
+                continue;
+            }
+            try {
+                BigDecimal price = validator.parsePrice(row);
+                boolean createdCategory = rowWriter.importRow(row, price);
+                imported++;
+                if (createdCategory) createdCategories++;
+            } catch (RuntimeException e) {
+                failed++;
+                issues.add(new ImportRowIssue(row.rowNumber(), row.productName(), row.sku(),
+                        "Failed to save: " + e.getMessage()));
+            }
+        }
+
+        return new ImportResultResponse(rows.size(), imported, createdCategories, skippedDuplicates, failed, issues);
     }
 
     public ImportPreviewResponse preview(MultipartFile file) {
