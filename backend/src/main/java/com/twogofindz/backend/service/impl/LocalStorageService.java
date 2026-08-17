@@ -3,6 +3,7 @@ package com.twogofindz.backend.service.impl;
 import com.twogofindz.backend.exception.InvalidFileException;
 import com.twogofindz.backend.service.StorageService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
+@Profile("!prod")
 public class LocalStorageService implements StorageService {
 
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of("image/jpeg", "image/png", "image/webp");

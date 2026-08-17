@@ -39,3 +39,5 @@ app:
     allowed-origin: ${FRONTEND_URL:http://localhost:5173}
   upload:
     directory: ${UPLOAD_DIRECTORY:uploads}
+  cloudinary:
+    url: ${CLOUDINARY_URL:}
