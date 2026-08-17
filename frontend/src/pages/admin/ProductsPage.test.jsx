@@ -7,6 +7,18 @@ import ProductsPage from './ProductsPage.jsx';
 import * as adminProductService from '../../services/adminProductService.js';
 import * as adminCategoryService from '../../services/adminCategoryService.js';
 
+vi.mock('../../components/ImportProductsModal.jsx', () => ({
+  default: ({ isOpen, onClose, onImportComplete }) =>
+    isOpen ? (
+      <div role="dialog" aria-label="Import Products (mock)">
+        <button onClick={() => onImportComplete({ importedProducts: 15, createdCategories: 4 })}>
+          Simulate import complete
+        </button>
+        <button onClick={onClose}>Simulate close</button>
+      </div>
+    ) : null,
+}));
+
 const products = [
   {
     id: 1,
@@ -243,5 +255,41 @@ describe('ProductsPage', () => {
     await screen.findByText('Wireless Earbuds');
 
     expect(await screen.findByText('Showing 1–2 of 2 products')).toBeInTheDocument();
+  });
+
+  it('renders the Import Products button before Add Product', async () => {
+    renderPage();
+    await screen.findByText('Wireless Earbuds');
+
+    const importButton = screen.getByRole('button', { name: 'Import Products' });
+    const addProductLink = screen.getByRole('link', { name: 'Add Product' });
+    expect(importButton.compareDocumentPosition(addProductLink) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('opens the import modal when Import Products is clicked, and closes it', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Wireless Earbuds');
+
+    await user.click(screen.getByRole('button', { name: 'Import Products' }));
+    expect(screen.getByRole('dialog', { name: 'Import Products (mock)' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Simulate close' }));
+    expect(screen.queryByRole('dialog', { name: 'Import Products (mock)' })).not.toBeInTheDocument();
+  });
+
+  it('reloads the product list and shows a success toast after a completed import', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Wireless Earbuds');
+
+    adminProductService.searchProducts.mockClear();
+    await user.click(screen.getByRole('button', { name: 'Import Products' }));
+    await user.click(screen.getByRole('button', { name: 'Simulate import complete' }));
+
+    expect(
+      await screen.findByText('15 products and 4 new categories were imported successfully.')
+    ).toBeInTheDocument();
+    await waitFor(() => expect(adminProductService.searchProducts).toHaveBeenCalled());
   });
 });

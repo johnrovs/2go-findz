@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image as ImageIcon, FileUp } from 'lucide-react';
 import Button from '../../components/Button.jsx';
 import DataTable from '../../components/DataTable.jsx';
 import ConfirmDialog from '../../components/ConfirmDialog.jsx';
@@ -10,6 +10,7 @@ import Pagination from '../../components/Pagination.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
 import StatusBadge from '../../components/StatusBadge.jsx';
+import ImportProductsModal from '../../components/ImportProductsModal.jsx';
 import { useToast } from '../../hooks/useToast.js';
 import { useAdminProductSearch } from '../../hooks/useAdminProductSearch.js';
 import { getImageUrl } from '../../utils/imageUrl.js';
@@ -55,6 +56,7 @@ function ProductsPage() {
   const [categories, setCategories] = useState([]);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   useEffect(() => {
     getCategories()
@@ -79,6 +81,14 @@ function ProductsPage() {
 
   function handleClearFilters() {
     productSearch.clearFilters();
+  }
+
+  function handleImportComplete(result) {
+    productSearch.setPage(1);
+    productSearch.reload();
+    showToast(
+      `${result.importedProducts} products and ${result.createdCategories} new categories were imported successfully.`
+    );
   }
 
   function handleSortChange(value) {
@@ -169,10 +179,16 @@ function ProductsPage() {
           <h1 className="text-[46px] font-extrabold leading-tight text-heading">Products</h1>
           <p className="mt-1 text-small text-muted">Manage, organize, and publish products across your storefront.</p>
         </div>
-        <Button to="/admin/products/new" variant="accent" size="sm">
-          <Plus size={16} />
-          Add Product
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" size="sm" onClick={() => setIsImportOpen(true)}>
+            <FileUp size={16} />
+            Import Products
+          </Button>
+          <Button to="/admin/products/new" variant="accent" size="sm">
+            <Plus size={16} />
+            Add Product
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-card border border-slate-200 bg-white shadow-card">
@@ -268,6 +284,12 @@ function ProductsPage() {
         isLoading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <ImportProductsModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        onImportComplete={handleImportComplete}
       />
     </div>
   );
