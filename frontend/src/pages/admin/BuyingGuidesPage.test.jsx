@@ -57,4 +57,38 @@ describe('BuyingGuidesPage (admin)', () => {
 
     await waitFor(() => expect(adminBuyingGuideService.deleteBuyingGuide).toHaveBeenCalledWith(1));
   });
+
+  it('shows a Scheduled badge for a guide with a future scheduledPublishAt and active:false', async () => {
+    vi.spyOn(adminBuyingGuideService, 'getBuyingGuides').mockResolvedValue([
+      {
+        id: 2,
+        title: 'Best Standing Desks',
+        excerpt: 'Coming soon.',
+        coverImageFilename: null,
+        active: false,
+        scheduledPublishAt: '2030-06-15T10:00:00',
+        createdAt: '2026-07-20T10:00:00',
+      },
+    ]);
+    renderPage();
+
+    expect(await screen.findByText('Scheduled')).toBeInTheDocument();
+  });
+
+  it('shows a Draft badge for a guide with no scheduledPublishAt and active:false', async () => {
+    vi.spyOn(adminBuyingGuideService, 'getBuyingGuides').mockResolvedValue([
+      {
+        id: 3,
+        title: 'Best Air Fryers',
+        excerpt: 'Still writing.',
+        coverImageFilename: null,
+        active: false,
+        scheduledPublishAt: null,
+        createdAt: '2026-07-20T10:00:00',
+      },
+    ]);
+    renderPage();
+
+    expect(await screen.findByText('Draft')).toBeInTheDocument();
+  });
 });
