@@ -786,7 +786,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         <LivePreview {...previewProps} />
       </Modal>
 
-      <Modal isOpen={isDesktopPreviewOpen} onClose={() => setIsDesktopPreviewOpen(false)} title="Preview" size="xl">
+      <Modal isOpen={isDesktopPreviewOpen} onClose={() => setIsDesktopPreviewOpen(false)} title="Preview" size="2xl">
         <DesktopGuidePreview {...previewProps} />
       </Modal>
 

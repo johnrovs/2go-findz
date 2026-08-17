@@ -8,6 +8,7 @@ const SIZE_CLASSES = {
   md: 'max-w-md',
   lg: 'max-w-3xl',
   xl: 'max-w-5xl',
+  '2xl': 'max-w-7xl',
 };
 
 function Modal({ isOpen, onClose, title, children, role = 'dialog', size = 'md' }) {

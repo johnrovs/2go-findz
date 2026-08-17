@@ -579,7 +579,7 @@ describe('BuyingGuideForm', () => {
     await user.click(screen.getByRole('button', { name: 'Preview on desktop' }));
 
     const dialog = screen.getByRole('dialog', { name: 'Preview' });
-    expect(dialog).toHaveClass('max-w-5xl');
+    expect(dialog).toHaveClass('max-w-7xl');
     expect(within(dialog).getByRole('heading', { level: 1, name: 'Sidebar Desktop Preview' })).toBeInTheDocument();
 
     // Only the sidebar's own toggle button exists now -- the dialog no longer has one.
