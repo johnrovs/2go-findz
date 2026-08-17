@@ -85,4 +85,13 @@ describe('Modal', () => {
     );
     expect(screen.getByRole('dialog', { name: 'Test Modal' })).toHaveClass('max-w-3xl');
   });
+
+  it('applies an even wider max-width when size="xl"', () => {
+    render(
+      <Modal isOpen onClose={vi.fn()} title="Test Modal" size="xl">
+        <p>Content</p>
+      </Modal>
+    );
+    expect(screen.getByRole('dialog', { name: 'Test Modal' })).toHaveClass('max-w-5xl');
+  });
 });
