@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, Tags, BookOpen, GitCompare, Settings, LogOut, Lightbulb } from 'lucide-react';
+import { LayoutDashboard, Package, Tags, BookOpen, Settings, LogOut, Lightbulb } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth.js';
 import logo from '../assets/2gofindz.png';
@@ -13,7 +13,8 @@ const NAV_GROUPS = [
       { to: '/admin/products', label: 'Products', icon: Package },
       { to: '/admin/categories', label: 'Categories', icon: Tags },
       { to: '/admin/buying-guides', label: 'Buying Guides', icon: BookOpen },
-      { to: '/admin/comparisons', label: 'Comparisons', icon: GitCompare },
+      // TODO(future development): Comparisons hidden from nav for now; route and page still work.
+      // { to: '/admin/comparisons', label: 'Comparisons', icon: GitCompare },
     ],
   },
   {
