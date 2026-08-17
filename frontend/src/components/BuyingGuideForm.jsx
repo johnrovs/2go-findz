@@ -112,6 +112,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
   const [isConfirmingUnpublish, setIsConfirmingUnpublish] = useState(false);
   const [settings, setSettings] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isDesktopPreviewOpen, setIsDesktopPreviewOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -775,12 +776,16 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
         </div>
         <div className="hidden lg:block lg:w-[28%]">
           <div className="sticky top-32">
-            <LivePreview {...previewProps} />
+            <LivePreview {...previewProps} onRequestDesktopModal={() => setIsDesktopPreviewOpen(true)} />
           </div>
         </div>
       </div>
 
       <Modal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} title="Preview">
+        <LivePreview {...previewProps} />
+      </Modal>
+
+      <Modal isOpen={isDesktopPreviewOpen} onClose={() => setIsDesktopPreviewOpen(false)} title="Preview" size="xl">
         <LivePreview {...previewProps} />
       </Modal>
 
