@@ -6,6 +6,7 @@ import DataTable from '../../components/DataTable.jsx';
 import ConfirmDialog from '../../components/ConfirmDialog.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
+import StatusBadge from '../../components/StatusBadge.jsx';
 import { useToast } from '../../hooks/useToast.js';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { getCategories, deleteCategory } from '../../services/adminCategoryService.js';
@@ -97,6 +98,16 @@ function CategoriesPage() {
       label: 'Commission Rate',
       sortable: true,
       render: (row) => `${Number(row.commissionRate).toFixed(2)}%`,
+    },
+    {
+      key: 'active',
+      label: 'Status',
+      render: (row) =>
+        row.active ? (
+          <StatusBadge variant="published">Active</StatusBadge>
+        ) : (
+          <StatusBadge variant="inactive">Inactive</StatusBadge>
+        ),
     },
     { key: 'createdAt', label: 'Created', sortable: true, render: (row) => formatDate(row.createdAt) },
     {
