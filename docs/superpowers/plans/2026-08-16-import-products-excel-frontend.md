@@ -31,7 +31,7 @@
 - Consumes: nothing (both are existing, standalone components).
 - Produces: `Button` accepts `variant="outline"`. `Modal` accepts an optional `size` prop (`'md'` default, unchanged; `'lg'` widens the dialog). Task 3's `ImportProductsModal` uses both.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add to `frontend/src/components/Button.test.jsx`, inside the existing `describe('Button', ...)` block:
 
@@ -66,12 +66,12 @@ Add to `frontend/src/components/Modal.test.jsx`, inside the existing `describe('
   });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `cd frontend && npx vitest run src/components/Button.test.jsx src/components/Modal.test.jsx`
 Expected: the two new tests fail (`outline` class not applied; `size` prop has no effect).
 
-- [ ] **Step 3: Implement the `Button` outline variant**
+- [x] **Step 3: Implement the `Button` outline variant**
 
 In `frontend/src/components/Button.jsx`, add to `VARIANT_CLASSES`:
 
@@ -86,7 +86,7 @@ const VARIANT_CLASSES = {
 };
 ```
 
-- [ ] **Step 4: Implement the `Modal` size prop**
+- [x] **Step 4: Implement the `Modal` size prop**
 
 In `frontend/src/components/Modal.jsx`, add above the component:
 
@@ -109,12 +109,12 @@ Change the dialog `className` (currently `"relative flex max-h-[90vh] w-full max
 className={`relative flex max-h-[90vh] w-full ${SIZE_CLASSES[size]} flex-col rounded-card bg-white p-6 shadow-dropdown`}
 ```
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `cd frontend && npx vitest run src/components/Button.test.jsx src/components/Modal.test.jsx`
 Expected: all tests pass, including every pre-existing test in both files.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/components/Button.jsx frontend/src/components/Modal.jsx \
@@ -134,7 +134,7 @@ git commit -m "feat(ui): add Button outline variant and Modal size prop"
 - Consumes: `api` (default export) from `frontend/src/services/api.js`.
 - Produces: `previewImport(file) -> Promise<ImportPreviewResponse>`, `importProducts(file) -> Promise<ImportResultResponse>` (both unwrap `response.data.data`, matching every other service module). Task 3's `ImportProductsModal` calls both.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```js
 import { describe, expect, it, vi, beforeEach } from 'vitest';
@@ -176,12 +176,12 @@ describe('adminProductImportService', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `cd frontend && npx vitest run src/services/adminProductImportService.test.js`
 Expected: module-not-found error (`adminProductImportService.js` doesn't exist yet).
 
-- [ ] **Step 3: Implement `adminProductImportService.js`**
+- [x] **Step 3: Implement `adminProductImportService.js`**
 
 ```js
 import api from './api.js';
@@ -201,12 +201,12 @@ export async function importProducts(file) {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `cd frontend && npx vitest run src/services/adminProductImportService.test.js`
 Expected: both tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/services/adminProductImportService.js frontend/src/services/adminProductImportService.test.js
@@ -225,7 +225,7 @@ git commit -m "feat(products): add adminProductImportService for Excel import"
 - Consumes: `Modal` (`size="lg"`) and `Button` (`variant="outline"`/`"secondary"`/`"accent"`) from Task 1; `previewImport`/`importProducts` from Task 2.
 - Produces: `<ImportProductsModal isOpen={boolean} onClose={() => void} onImportComplete={(ImportResultResponse) => void} />`. `onImportComplete` fires only when the admin clicks "Close" on the results screen (not immediately after the import request resolves), and receives the exact `ImportResultResponse` shape from the backend plan (`{ totalRows, importedProducts, createdCategories, skippedDuplicates, failedRows, issues }`). Task 4's `ProductsPage` renders this component and implements `onImportComplete`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```jsx
 import { render, screen } from '@testing-library/react';
@@ -407,12 +407,12 @@ describe('ImportProductsModal', () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `cd frontend && npx vitest run src/components/ImportProductsModal.test.jsx`
 Expected: module-not-found error (`ImportProductsModal.jsx` doesn't exist yet).
 
-- [ ] **Step 3: Implement `ImportProductsModal.jsx`**
+- [x] **Step 3: Implement `ImportProductsModal.jsx`**
 
 ```jsx
 import { useState } from 'react';
@@ -717,12 +717,12 @@ function ImportProductsModal({ isOpen, onClose, onImportComplete }) {
 export default ImportProductsModal;
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `cd frontend && npx vitest run src/components/ImportProductsModal.test.jsx`
 Expected: all tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/components/ImportProductsModal.jsx frontend/src/components/ImportProductsModal.test.jsx
@@ -741,7 +741,7 @@ git commit -m "feat(products): add ImportProductsModal"
 - Consumes: `ImportProductsModal` from Task 3; `productSearch.setPage`/`.reload` from the existing `useAdminProductSearch` hook; `useToast` from the existing `hooks/useToast.js`.
 - Produces: nothing further downstream — this is the final integration point.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Add near the top of `frontend/src/pages/admin/ProductsPage.test.jsx`, before the `describe` block, so the mock is hoisted:
 
@@ -799,12 +799,12 @@ Add these tests inside the existing `describe('ProductsPage', ...)` block:
   });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `cd frontend && npx vitest run src/pages/admin/ProductsPage.test.jsx`
 Expected: the three new tests fail (`Import Products` button doesn't exist yet).
 
-- [ ] **Step 3: Wire the modal into `ProductsPage.jsx`**
+- [x] **Step 3: Wire the modal into `ProductsPage.jsx`**
 
 Update the icon import (currently `import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react';`):
 
@@ -870,17 +870,17 @@ Add the modal at the end of the component's returned JSX, alongside the existing
       />
 ```
 
-- [ ] **Step 4: Run the tests to verify they pass**
+- [x] **Step 4: Run the tests to verify they pass**
 
 Run: `cd frontend && npx vitest run src/pages/admin/ProductsPage.test.jsx`
 Expected: all tests pass, including every pre-existing test in this file.
 
-- [ ] **Step 5: Run the full frontend suite**
+- [x] **Step 5: Run the full frontend suite**
 
 Run: `cd frontend && npx vitest run`
 Expected: same pass count as the pre-existing baseline, plus every test added across Tasks 1–4 (5 known pre-existing `DashboardHeader.test.jsx` failures are unrelated to this feature and expected to remain).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/pages/admin/ProductsPage.jsx frontend/src/pages/admin/ProductsPage.test.jsx
