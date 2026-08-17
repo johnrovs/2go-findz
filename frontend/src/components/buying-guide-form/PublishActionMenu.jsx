@@ -32,7 +32,7 @@ function PublishActionMenu({ status, disabled, onPreview, onSaveDraft, onSchedul
         aria-expanded={isOpen}
         aria-haspopup="menu"
         onClick={() => setIsOpen((open) => !open)}
-        className="rounded-l-none border-l border-white/20 px-2"
+        className="h-full rounded-l-none border-l border-white/20 px-2"
       >
         <ChevronDown size={16} />
       </Button>
