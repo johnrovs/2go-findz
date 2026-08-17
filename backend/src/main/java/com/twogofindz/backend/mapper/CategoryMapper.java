@@ -14,6 +14,7 @@ public class CategoryMapper {
                 category.getProductCategoryName(),
                 category.getCommissionRate(),
                 category.getImageFileName(),
+                category.isActive(),
                 category.getCreatedAt(),
                 category.getUpdatedAt()
         );

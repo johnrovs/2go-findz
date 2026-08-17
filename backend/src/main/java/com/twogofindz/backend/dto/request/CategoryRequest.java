@@ -20,6 +20,8 @@ public record CategoryRequest(
         @Digits(integer = 3, fraction = 2, message = "Commission rate must have at most 3 integer and 2 fraction digits.")
         BigDecimal commissionRate,
 
-        String imageFileName
+        String imageFileName,
+
+        @NotNull(message = "Active flag is required.") Boolean active
 ) {
 }

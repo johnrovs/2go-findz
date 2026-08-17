@@ -36,7 +36,7 @@ class AdminDashboardControllerTest extends AbstractIntegrationTest {
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new com.twogofindz.backend.dto.request.CategoryRequest(
-                                        "Commission Math Category", new BigDecimal("10.00"), null))))
+                                        "Commission Math Category", new BigDecimal("10.00"), null, true))))
                 .andReturn();
         Long categoryId = objectMapper.readTree(categoryResult.getResponse().getContentAsString())
                 .path("data").path("id").asLong();
@@ -151,7 +151,7 @@ class AdminDashboardControllerTest extends AbstractIntegrationTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
-                                new CategoryRequest("Rounding Trap Category", new BigDecimal("7.77"), null))))
+                                new CategoryRequest("Rounding Trap Category", new BigDecimal("7.77"), null, true))))
                 .andReturn();
         Long categoryId = objectMapper.readTree(categoryResult.getResponse().getContentAsString())
                 .path("data").path("id").asLong();

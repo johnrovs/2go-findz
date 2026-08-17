@@ -28,7 +28,7 @@ class PublicCategoryControllerTest extends AbstractIntegrationTest {
     @Test
     void getAll_exposesImageFileNameWhenConfigured() throws Exception {
         String token = adminToken();
-        CategoryRequest request = new CategoryRequest("Garden Tools", new BigDecimal("5.00"), "img_garden_tools.jpg");
+        CategoryRequest request = new CategoryRequest("Garden Tools", new BigDecimal("5.00"), "img_garden_tools.jpg", true);
         mockMvc.perform(post("/api/admin/categories")
                         .header("Authorization", "Bearer " + token)
                         .contentType(APPLICATION_JSON)
@@ -39,5 +39,28 @@ class PublicCategoryControllerTest extends AbstractIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[?(@.productCategoryName == 'Garden Tools')].imageFileName")
                         .value("img_garden_tools.jpg"));
+    }
+
+    @Test
+    void getAll_excludesInactiveCategories() throws Exception {
+        String token = adminToken();
+        CategoryRequest activeRequest = new CategoryRequest("Visible Category", new BigDecimal("5.00"), null, true);
+        CategoryRequest inactiveRequest = new CategoryRequest("Hidden Category", new BigDecimal("5.00"), null, false);
+
+        mockMvc.perform(post("/api/admin/categories")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(activeRequest)))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/admin/categories")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inactiveRequest)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/public/categories"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[?(@.productCategoryName == 'Visible Category')]").exists())
+                .andExpect(jsonPath("$.data[?(@.productCategoryName == 'Hidden Category')]").doesNotExist());
     }
 }
