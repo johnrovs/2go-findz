@@ -39,6 +39,7 @@ function LivePreview({
   comparisonProducts = [],
   recommendationSections = [],
   faqs = [],
+  onRequestDesktopModal,
 }) {
   const [device, setDevice] = useState('desktop');
   const previewUrl = getImageUrl(coverImageFilename);
@@ -74,10 +75,12 @@ function LivePreview({
         <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
-            onClick={() => setDevice('desktop')}
+            onClick={() => (onRequestDesktopModal ? onRequestDesktopModal() : setDevice('desktop'))}
             aria-label="Preview on desktop"
-            aria-pressed={device === 'desktop'}
-            className={`rounded-btn p-1.5 ${device === 'desktop' ? 'bg-primary/10 text-primary' : 'text-muted hover:bg-surface-secondary'}`}
+            aria-pressed={onRequestDesktopModal ? false : device === 'desktop'}
+            className={`rounded-btn p-1.5 ${
+              !onRequestDesktopModal && device === 'desktop' ? 'bg-primary/10 text-primary' : 'text-muted hover:bg-surface-secondary'
+            }`}
           >
             <Monitor size={16} />
           </button>

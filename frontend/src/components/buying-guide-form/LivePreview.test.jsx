@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import LivePreview from './LivePreview.jsx';
 
 const tocEntries = [
@@ -56,6 +56,29 @@ describe('LivePreview', () => {
     await user.click(screen.getByRole('button', { name: 'Preview on desktop' }));
 
     expect(container.firstChild).not.toHaveClass('max-w-[375px]');
+  });
+
+  it('calls onRequestDesktopModal instead of changing local state when provided', async () => {
+    const user = userEvent.setup();
+    const onRequestDesktopModal = vi.fn();
+    const { container } = render(
+      <LivePreview
+        title="Guide"
+        excerpt="Excerpt"
+        coverImageFilename={null}
+        tocEntries={[]}
+        settings={null}
+        onRequestDesktopModal={onRequestDesktopModal}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Preview on mobile' }));
+    expect(container.firstChild).toHaveClass('max-w-[375px]');
+
+    await user.click(screen.getByRole('button', { name: 'Preview on desktop' }));
+
+    expect(onRequestDesktopModal).toHaveBeenCalledTimes(1);
+    expect(container.firstChild).toHaveClass('max-w-[375px]');
   });
 
   it('renders the Quick Recommendations section when quick picks exist', () => {
