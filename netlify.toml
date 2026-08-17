@@ -3,6 +3,9 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  NODE_VERSION = "20"
+
 # React Router client-side routing: without this, Netlify's static file server
 # returns its own 404 for any nested route requested directly (e.g. a hard
 # refresh on /admin/products/5 or /buying-guides/some-slug) instead of loading
