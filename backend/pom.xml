@@ -87,6 +87,17 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>5.3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>5.3.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
@@ -110,6 +121,17 @@
 
   <dependencyManagement>
     <dependencies>
+      <!--
+        spring-boot-starter-parent's own dependency management pins commons-lang3 to 3.13.0,
+        which is older than what Apache POI's commons-compress transitive dependency actually
+        needs at runtime (it calls org.apache.commons.lang3.ArrayFill, only added in 3.14.0),
+        causing a NoClassDefFoundError. Re-pin it here to the version commons-compress declares.
+      -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.14.0</version>
+      </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>testcontainers-bom</artifactId>
