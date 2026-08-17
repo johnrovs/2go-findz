@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { ChevronDown, Download, Menu } from "lucide-react";
+import { Download, Menu } from "lucide-react";
 import { useAuth } from "../hooks/useAuth.js";
 import { useToast } from "../hooks/useToast.js";
 import { exportDashboardReport } from "../services/dashboardService.js";
@@ -59,11 +59,11 @@ function DashboardHeader({ startDate, endDate, onRangeChange }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        {/* <DashboardDateRangePicker startDate={startDate} endDate={endDate} onChange={onRangeChange} />
+        <DashboardDateRangePicker startDate={startDate} endDate={endDate} onChange={onRangeChange} />
         <Button type="button" variant="secondary" size="sm" disabled={isExporting} onClick={handleExport} className="gap-2">
           <Download size={16} />
           {isExporting ? 'Exporting…' : 'Export Report'}
-        </Button> */}
+        </Button>
         {/* TODO(future development): stubbed trigger only — no dropdown (profile/logout) is wired up yet. */}
         {/* <button
           type="button"
