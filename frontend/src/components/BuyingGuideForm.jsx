@@ -10,6 +10,7 @@ import BuyingGuideContentStep from './buying-guide-form/BuyingGuideContentStep.j
 import BuyingGuideFaqsStep from './buying-guide-form/BuyingGuideFaqsStep.jsx';
 import BuyingGuideSeoPublishStep from './buying-guide-form/BuyingGuideSeoPublishStep.jsx';
 import LivePreview from './buying-guide-form/LivePreview.jsx';
+import DesktopGuidePreview from './buying-guide-form/DesktopGuidePreview.jsx';
 import Modal from './Modal.jsx';
 import Button from './Button.jsx';
 import ConfirmDialog from './ConfirmDialog.jsx';
@@ -786,7 +787,7 @@ function BuyingGuideForm({ guide, categories, onSubmit, onCancel, onMenuClick })
       </Modal>
 
       <Modal isOpen={isDesktopPreviewOpen} onClose={() => setIsDesktopPreviewOpen(false)} title="Preview" size="xl">
-        <LivePreview {...previewProps} />
+        <DesktopGuidePreview {...previewProps} />
       </Modal>
 
       <ConfirmDialog

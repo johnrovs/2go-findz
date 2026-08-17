@@ -571,7 +571,7 @@ describe('BuyingGuideForm', () => {
     expect(screen.getAllByText('Preview Me').length).toBeGreaterThan(0);
   });
 
-  it('opens a wide modal with a working toggle when Desktop is clicked in the sidebar preview', async () => {
+  it('opens a wide modal showing the real page layout, with no toggle inside it, when Desktop is clicked in the sidebar preview', async () => {
     const user = userEvent.setup();
     renderForm();
 
@@ -580,14 +580,11 @@ describe('BuyingGuideForm', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'Preview' });
     expect(dialog).toHaveClass('max-w-5xl');
-    expect(within(dialog).getByText('Sidebar Desktop Preview')).toBeInTheDocument();
+    expect(within(dialog).getByRole('heading', { level: 1, name: 'Sidebar Desktop Preview' })).toBeInTheDocument();
 
-    const dialogCard = within(dialog).getByText('Sidebar Desktop Preview').closest('.rounded-card');
-    expect(dialogCard).not.toHaveClass('max-w-[375px]');
-
-    await user.click(within(dialog).getByRole('button', { name: 'Preview on mobile' }));
-
-    expect(dialogCard).toHaveClass('max-w-[375px]');
+    // Only the sidebar's own toggle button exists now -- the dialog no longer has one.
+    expect(screen.getAllByRole('button', { name: 'Preview on desktop' })).toHaveLength(1);
+    expect(within(dialog).queryByRole('button', { name: 'Preview on mobile' })).not.toBeInTheDocument();
   });
 
   it('Next on Basic Info validates required fields before advancing', async () => {
