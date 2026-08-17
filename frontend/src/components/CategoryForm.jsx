@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Button from './Button.jsx';
 import ImageUploader from './ImageUploader.jsx';
+import ToggleSwitch from './ToggleSwitch.jsx';
 
 function CategoryForm({ category, onSubmit, onCancel }) {
   const [name, setName] = useState(category?.productCategoryName ?? '');
@@ -8,6 +9,7 @@ function CategoryForm({ category, onSubmit, onCancel }) {
     category?.commissionRate !== undefined ? String(category.commissionRate) : ''
   );
   const [imageFileName, setImageFileName] = useState(category?.imageFileName ?? null);
+  const [active, setActive] = useState(category?.active ?? true);
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,7 +35,12 @@ function CategoryForm({ category, onSubmit, onCancel }) {
 
     setIsSubmitting(true);
     try {
-      await onSubmit({ productCategoryName: name.trim(), commissionRate: Number(commissionRate), imageFileName });
+      await onSubmit({
+        productCategoryName: name.trim(),
+        commissionRate: Number(commissionRate),
+        imageFileName,
+        active,
+      });
     } catch (error) {
       setFieldErrors(error.fieldErrors ?? {});
       if (!error.fieldErrors) {
@@ -132,6 +139,15 @@ function CategoryForm({ category, onSubmit, onCancel }) {
               label="Category Image"
               variant="dropzone"
             />
+
+            <div className="mt-6 rounded-btn border border-border px-4">
+              <ToggleSwitch
+                label="Active"
+                helperText="Visible on the storefront"
+                checked={active}
+                onChange={setActive}
+              />
+            </div>
           </div>
         </div>
 
