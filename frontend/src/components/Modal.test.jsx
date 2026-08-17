@@ -67,4 +67,22 @@ describe('Modal', () => {
     );
     expect(screen.getByRole('alertdialog', { name: 'Test Modal' })).toBeInTheDocument();
   });
+
+  it('applies the default md max-width when no size is given', () => {
+    render(
+      <Modal isOpen onClose={vi.fn()} title="Test Modal">
+        <p>Content</p>
+      </Modal>
+    );
+    expect(screen.getByRole('dialog', { name: 'Test Modal' })).toHaveClass('max-w-md');
+  });
+
+  it('applies a wider max-width when size="lg"', () => {
+    render(
+      <Modal isOpen onClose={vi.fn()} title="Test Modal" size="lg">
+        <p>Content</p>
+      </Modal>
+    );
+    expect(screen.getByRole('dialog', { name: 'Test Modal' })).toHaveClass('max-w-3xl');
+  });
 });

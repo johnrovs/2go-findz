@@ -81,4 +81,11 @@ describe('Button', () => {
     render(<Button className="w-full">Full width</Button>);
     expect(screen.getByRole('button', { name: 'Full width' })).toHaveClass('w-full', 'bg-amazon');
   });
+
+  it('applies outline variant classes', () => {
+    render(<Button variant="outline">Import Products</Button>);
+    expect(screen.getByRole('button', { name: 'Import Products' })).toHaveClass(
+      'bg-white', 'text-primary', 'border-primary'
+    );
+  });
 });

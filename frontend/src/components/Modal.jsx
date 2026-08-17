@@ -4,7 +4,12 @@ import { createPortal } from 'react-dom';
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
-function Modal({ isOpen, onClose, title, children, role = 'dialog' }) {
+const SIZE_CLASSES = {
+  md: 'max-w-md',
+  lg: 'max-w-3xl',
+};
+
+function Modal({ isOpen, onClose, title, children, role = 'dialog', size = 'md' }) {
   const dialogRef = useRef(null);
   const previousFocusRef = useRef(null);
 
@@ -59,7 +64,7 @@ function Modal({ isOpen, onClose, title, children, role = 'dialog' }) {
         role={role}
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="relative flex max-h-[90vh] w-full max-w-md flex-col rounded-card bg-white p-6 shadow-dropdown"
+        className={`relative flex max-h-[90vh] w-full ${SIZE_CLASSES[size]} flex-col rounded-card bg-white p-6 shadow-dropdown`}
       >
         <h2 id="modal-title" className="mb-4 shrink-0 text-card-title text-heading">
           {title}
