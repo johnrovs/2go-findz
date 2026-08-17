@@ -115,4 +115,56 @@ describe('ImageUploader', () => {
     expect(await screen.findByText('Upload failed. Please try again.')).toBeInTheDocument();
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  it('renders the dropzone variant with upload copy when there is no image', () => {
+    render(<ImageUploader imageFileName={null} onChange={vi.fn()} variant="dropzone" />);
+    expect(screen.getByText('Upload product image')).toBeInTheDocument();
+    expect(screen.getByText('PNG, JPG or WebP · Max 5MB')).toBeInTheDocument();
+    expect(screen.getByText('Choose Image')).toBeInTheDocument();
+  });
+
+  it('shows a preview and Change Image label in the dropzone variant once an image is set', () => {
+    render(<ImageUploader imageFileName="img_123.webp" onChange={vi.fn()} variant="dropzone" />);
+    expect(screen.getByAltText('Product preview')).toBeInTheDocument();
+    expect(screen.getByText('Change Image')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Remove image' })).toBeInTheDocument();
+  });
+
+  it('uploads a file dropped onto the dropzone variant', async () => {
+    const onChange = vi.fn();
+    vi.spyOn(adminImageService, 'uploadImage').mockResolvedValue({ filename: 'img_dropped.webp' });
+    render(<ImageUploader imageFileName={null} onChange={onChange} variant="dropzone" />);
+
+    const file = new File(['content'], 'photo.webp', { type: 'image/webp' });
+    const dropzone = screen.getByText('Upload product image').closest('div');
+    fireEvent.drop(dropzone, { dataTransfer: { files: [file] } });
+
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith('img_dropped.webp'));
+  });
+
+  it('rejects an unsupported file type dropped onto the dropzone variant', async () => {
+    const onChange = vi.fn();
+    const uploadSpy = vi.spyOn(adminImageService, 'uploadImage');
+    render(<ImageUploader imageFileName={null} onChange={onChange} variant="dropzone" />);
+
+    const file = new File(['content'], 'photo.gif', { type: 'image/gif' });
+    const dropzone = screen.getByText('Upload product image').closest('div');
+    fireEvent.drop(dropzone, { dataTransfer: { files: [file] } });
+
+    expect(await screen.findByText('Only JPG, PNG, and WebP images are allowed.')).toBeInTheDocument();
+    expect(uploadSpy).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('uploads a file chosen via Choose Image in the dropzone variant', async () => {
+    const onChange = vi.fn();
+    vi.spyOn(adminImageService, 'uploadImage').mockResolvedValue({ filename: 'img_chosen.webp' });
+    const user = userEvent.setup();
+    render(<ImageUploader imageFileName={null} onChange={onChange} variant="dropzone" />);
+
+    const file = new File(['content'], 'photo.webp', { type: 'image/webp' });
+    await user.upload(screen.getByLabelText('Upload product image'), file);
+
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith('img_chosen.webp'));
+  });
 });

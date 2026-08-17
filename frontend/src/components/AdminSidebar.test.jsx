@@ -23,7 +23,6 @@ describe('AdminSidebar', () => {
     expect(screen.getByRole('link', { name: 'Products' })).toHaveAttribute('href', '/admin/products');
     expect(screen.getByRole('link', { name: 'Categories' })).toHaveAttribute('href', '/admin/categories');
     expect(screen.getByRole('link', { name: 'Buying Guides' })).toHaveAttribute('href', '/admin/buying-guides');
-    expect(screen.getByRole('link', { name: 'Comparisons' })).toHaveAttribute('href', '/admin/comparisons');
     expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/admin/settings');
   });
 

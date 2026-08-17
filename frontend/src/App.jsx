@@ -27,6 +27,7 @@ import DashboardPage from './pages/admin/DashboardPage.jsx';
 import ProductsPage from './pages/admin/ProductsPage.jsx';
 import ProductFormPage from './pages/admin/ProductFormPage.jsx';
 import CategoriesPage from './pages/admin/CategoriesPage.jsx';
+import CategoryFormPage from './pages/admin/CategoryFormPage.jsx';
 import SettingsPage from './pages/admin/SettingsPage.jsx';
 import BuyingGuidesPage from './pages/admin/BuyingGuidesPage.jsx';
 import BuyingGuideFormPage from './pages/admin/BuyingGuideFormPage.jsx';
@@ -64,6 +65,8 @@ function App() {
                     <Route path="/admin/products/new" element={<ProductFormPage />} />
                     <Route path="/admin/products/:id" element={<ProductFormPage />} />
                     <Route path="/admin/categories" element={<CategoriesPage />} />
+                    <Route path="/admin/categories/new" element={<CategoryFormPage />} />
+                    <Route path="/admin/categories/:id" element={<CategoryFormPage />} />
                     <Route path="/admin/settings" element={<SettingsPage />} />
                     <Route path="/admin/buying-guides" element={<BuyingGuidesPage />} />
                     <Route path="/admin/buying-guides/new" element={<BuyingGuideFormPage />} />

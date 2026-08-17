@@ -8,6 +8,7 @@ public record CategoryResponse(
         String productCategoryName,
         BigDecimal commissionRate,
         String imageFileName,
+        Boolean active,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

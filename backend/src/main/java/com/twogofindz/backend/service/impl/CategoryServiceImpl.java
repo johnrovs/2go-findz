@@ -43,6 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .productCategoryName(request.productCategoryName())
                 .commissionRate(request.commissionRate())
                 .imageFileName(request.imageFileName())
+                .active(request.active())
                 .build();
         return categoryMapper.toResponse(categoryRepository.save(category));
     }
@@ -62,6 +63,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setProductCategoryName(request.productCategoryName());
         category.setCommissionRate(request.commissionRate());
         category.setImageFileName(request.imageFileName());
+        category.setActive(request.active());
         return categoryMapper.toResponse(categoryRepository.save(category));
     }
 
@@ -80,6 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<PublicCategoryResponse> getAllForPublic() {
         return categoryRepository.findAll(Sort.by(Sort.Direction.ASC, "productCategoryName")).stream()
+                .filter(ProductCategory::isActive)
                 .map(categoryMapper::toPublicResponse)
                 .toList();
     }

@@ -43,6 +43,7 @@ describe('CategoryForm', () => {
       productCategoryName: 'Electronics',
       commissionRate: 4.5,
       imageFileName: null,
+      active: true,
     });
   });
 
@@ -68,6 +69,7 @@ describe('CategoryForm', () => {
       productCategoryName: 'Electronics',
       commissionRate: 5,
       imageFileName: null,
+      active: true,
     });
   });
 
@@ -91,7 +93,7 @@ describe('CategoryForm', () => {
     render(<CategoryForm category={null} onSubmit={onSubmit} onCancel={vi.fn()} />);
 
     const file = new File(['fake-image-bytes'], 'category.jpg', { type: 'image/jpeg' });
-    await user.upload(screen.getByLabelText(/upload image/i), file);
+    await user.upload(screen.getByLabelText('Upload product image'), file);
     await screen.findByAltText('Product preview');
 
     await user.type(screen.getByLabelText('Category Name'), 'Electronics');
@@ -102,6 +104,7 @@ describe('CategoryForm', () => {
       productCategoryName: 'Electronics',
       commissionRate: 4.5,
       imageFileName: 'img_new_upload.jpg',
+      active: true,
     });
   });
 
@@ -119,5 +122,48 @@ describe('CategoryForm', () => {
 
     expect(await screen.findByText('A category with this name already exists.')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('defaults Active to on for a new category and includes it in the submit payload', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(<CategoryForm category={null} onSubmit={onSubmit} onCancel={vi.fn()} />);
+
+    expect(screen.getByRole('switch', { name: 'Active' })).toHaveAttribute('aria-checked', 'true');
+
+    await user.type(screen.getByLabelText('Category Name'), 'Electronics');
+    await user.type(screen.getByLabelText('Commission Rate (%)'), '4.5');
+    await user.click(screen.getByRole('button', { name: 'Add Category' }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ active: true })
+    );
+  });
+
+  it('submits active:false when the Active switch is toggled off', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(<CategoryForm category={null} onSubmit={onSubmit} onCancel={vi.fn()} />);
+
+    await user.type(screen.getByLabelText('Category Name'), 'Electronics');
+    await user.type(screen.getByLabelText('Commission Rate (%)'), '4.5');
+    await user.click(screen.getByRole('switch', { name: 'Active' }));
+    await user.click(screen.getByRole('button', { name: 'Add Category' }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ active: false })
+    );
+  });
+
+  it('pre-fills Active as off when editing an inactive category', () => {
+    render(
+      <CategoryForm
+        category={{ id: 1, productCategoryName: 'Electronics', commissionRate: 4, active: false }}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('switch', { name: 'Active' })).toHaveAttribute('aria-checked', 'false');
   });
 });

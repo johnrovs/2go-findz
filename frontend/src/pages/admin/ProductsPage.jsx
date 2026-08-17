@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image as ImageIcon, FileUp } from 'lucide-react';
 import Button from '../../components/Button.jsx';
 import DataTable from '../../components/DataTable.jsx';
 import ConfirmDialog from '../../components/ConfirmDialog.jsx';
@@ -9,6 +9,8 @@ import FilterDropdown from '../../components/FilterDropdown.jsx';
 import Pagination from '../../components/Pagination.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
+import StatusBadge from '../../components/StatusBadge.jsx';
+import ImportProductsModal from '../../components/ImportProductsModal.jsx';
 import { useToast } from '../../hooks/useToast.js';
 import { useAdminProductSearch } from '../../hooks/useAdminProductSearch.js';
 import { getImageUrl } from '../../utils/imageUrl.js';
@@ -32,12 +34,29 @@ const STATUS_OPTIONS = [
   { value: 'inactive', label: 'Inactive' },
 ];
 
+const SORT_OPTIONS = [
+  { value: 'createdAt,desc', label: 'Newest first' },
+  { value: 'createdAt,asc', label: 'Oldest first' },
+  { value: 'name,asc', label: 'Name A–Z' },
+  { value: 'productPrice,asc', label: 'Price: low to high' },
+  { value: 'productPrice,desc', label: 'Price: high to low' },
+];
+
+const PAGE_SIZE_OPTIONS = [
+  { value: '10', label: '10' },
+  { value: '20', label: '20' },
+  { value: '50', label: '50' },
+];
+
+const TABLE_HEADER_GRADIENT = 'bg-[linear-gradient(90deg,#5B2CF2_0%,#6D35F5_55%,#5425E8_100%)]';
+
 function ProductsPage() {
   const { showToast } = useToast();
   const productSearch = useAdminProductSearch();
   const [categories, setCategories] = useState([]);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   useEffect(() => {
     getCategories()
@@ -60,6 +79,23 @@ function ProductsPage() {
     }
   }
 
+  function handleClearFilters() {
+    productSearch.clearFilters();
+  }
+
+  function handleImportComplete(result) {
+    productSearch.setPage(1);
+    productSearch.reload();
+    showToast(
+      `${result.importedProducts} products and ${result.createdCategories} new categories were imported successfully.`
+    );
+  }
+
+  function handleSortChange(value) {
+    const [nextSortKey, nextSortDirection] = value.split(',');
+    productSearch.setSort(nextSortKey, nextSortDirection);
+  }
+
   const categoryOptions = [
     { value: '', label: 'All Categories' },
     ...categories.map((category) => ({ value: String(category.id), label: category.productCategoryName })),
@@ -80,7 +116,7 @@ function ProductsPage() {
         );
       },
     },
-    { key: 'name', label: 'Name', sortable: true },
+    { key: 'name', label: 'Product', sortable: true },
     { key: 'categoryName', label: 'Category' },
     { key: 'brand', label: 'Brand', render: (row) => row.brand || '—' },
     {
@@ -94,26 +130,13 @@ function ProductsPage() {
       label: 'Status',
       render: (row) => (
         <div className="flex flex-wrap gap-1.5">
-          {row.trending && (
-            <span className="rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning">
-              Trending
-            </span>
+          {row.trending && <StatusBadge variant="trending">Trending</StatusBadge>}
+          {row.bestSeller && <StatusBadge variant="bestSeller">Best Seller</StatusBadge>}
+          {row.scheduledPublishAt && <StatusBadge variant="scheduled">Scheduled</StatusBadge>}
+          {row.active && !row.trending && !row.bestSeller && !row.scheduledPublishAt && (
+            <StatusBadge variant="published">Published</StatusBadge>
           )}
-          {row.bestSeller && (
-            <span className="rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success">
-              Best Seller
-            </span>
-          )}
-          {row.scheduledPublishAt && (
-            <span className="rounded-full bg-info/10 px-2.5 py-0.5 text-xs font-medium text-info">
-              Scheduled
-            </span>
-          )}
-          {!row.active && (
-            <span className="rounded-full bg-surface-secondary px-2.5 py-0.5 text-xs font-medium text-muted">
-              Inactive
-            </span>
-          )}
+          {!row.active && <StatusBadge variant="inactive">Inactive</StatusBadge>}
         </div>
       ),
     },
@@ -126,82 +149,128 @@ function ProductsPage() {
           <Link
             to={`/admin/products/${row.id}`}
             aria-label={`Edit ${row.name}`}
-            className="inline-flex rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary"
+            title="Edit"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-muted hover:border-primary hover:bg-primary/10 hover:text-primary"
           >
-            <Pencil size={16} />
+            <Pencil size={14} />
           </Link>
           <button
             type="button"
             onClick={() => setDeleteTarget(row)}
             aria-label={`Delete ${row.name}`}
-            className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-danger"
+            title="Delete"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-muted hover:border-danger hover:bg-danger/10 hover:text-danger"
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} />
           </button>
         </div>
       ),
     },
   ];
 
+  const rangeStart = productSearch.totalElements === 0 ? 0 : (productSearch.page - 1) * productSearch.pageSize + 1;
+  const rangeEnd = Math.min(productSearch.page * productSearch.pageSize, productSearch.totalElements);
+  const paginationSummary = `Showing ${rangeStart}–${rangeEnd} of ${productSearch.totalElements} products`;
+
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-page-heading text-heading">Products</h1>
-        <Button to="/admin/products/new" size="sm">
-          <Plus size={16} />
-          Add Product
-        </Button>
-      </div>
-
-      <div className="mb-4 flex flex-wrap items-end gap-4">
-        <div className="min-w-[240px] flex-1">
-          <SearchInput value={productSearch.search} onChange={productSearch.setSearch} />
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-[46px] font-extrabold leading-tight text-heading">Products</h1>
+          <p className="mt-1 text-small text-muted">Manage, organize, and publish products across your storefront.</p>
         </div>
-        <FilterDropdown
-          label="Category"
-          value={productSearch.categoryId}
-          options={categoryOptions}
-          onChange={productSearch.setCategoryId}
-        />
-        <FilterDropdown
-          label="Type"
-          value={productSearch.filter}
-          options={TYPE_OPTIONS}
-          onChange={productSearch.setFilter}
-        />
-        <FilterDropdown
-          label="Status"
-          value={productSearch.status}
-          options={STATUS_OPTIONS}
-          onChange={productSearch.setStatus}
-        />
+        <div className="flex gap-3">
+          <Button variant="outline" size="sm" onClick={() => setIsImportOpen(true)}>
+            <FileUp size={16} />
+            Import Products
+          </Button>
+          <Button to="/admin/products/new" variant="accent" size="sm">
+            <Plus size={16} />
+            Add Product
+          </Button>
+        </div>
       </div>
 
-      {productSearch.error ? (
-        <ErrorState message={productSearch.error} onRetry={productSearch.reload} />
-      ) : (
-        <>
-          <DataTable
-            columns={columns}
-            rows={productSearch.products}
-            sortKey={productSearch.sortKey}
-            sortDirection={productSearch.sortDirection}
-            onSortChange={productSearch.onSortChange}
-            isLoading={productSearch.isLoading}
-            emptyState={
-              <EmptyState
-                title="No products found"
-                description="Try adjusting your search or filters, or add your first product."
+      <div className="rounded-card border border-slate-200 bg-white shadow-card">
+        <div className="flex flex-wrap items-end gap-4 p-5">
+          <div className="w-full min-w-[240px] flex-1 sm:w-auto">
+            <SearchInput value={productSearch.search} onChange={productSearch.setSearch} />
+          </div>
+          <div className="w-full sm:w-auto">
+            <FilterDropdown
+              label="Category"
+              value={productSearch.categoryId}
+              options={categoryOptions}
+              onChange={productSearch.setCategoryId}
+            />
+          </div>
+          <div className="w-full sm:w-auto">
+            <FilterDropdown label="Type" value={productSearch.filter} options={TYPE_OPTIONS} onChange={productSearch.setFilter} />
+          </div>
+          <div className="w-full sm:w-auto">
+            <FilterDropdown
+              label="Status"
+              value={productSearch.status}
+              options={STATUS_OPTIONS}
+              onChange={productSearch.setStatus}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleClearFilters}
+            className="w-full text-small font-medium text-primary hover:underline sm:w-auto"
+          >
+            Clear filters
+          </button>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-5 py-3">
+          <p className="text-small text-muted">{productSearch.totalElements} products</p>
+          <div className="w-full sm:w-auto">
+            <FilterDropdown
+              label="Sort by"
+              value={`${productSearch.sortKey},${productSearch.sortDirection}`}
+              options={SORT_OPTIONS}
+              onChange={handleSortChange}
+            />
+          </div>
+        </div>
+
+        <div className="px-5 pb-5">
+          {productSearch.error ? (
+            <ErrorState message={productSearch.error} onRetry={productSearch.reload} />
+          ) : (
+            <>
+              <DataTable
+                columns={columns}
+                rows={productSearch.products}
+                sortKey={productSearch.sortKey}
+                sortDirection={productSearch.sortDirection}
+                onSortChange={productSearch.onSortChange}
+                isLoading={productSearch.isLoading}
+                headerClassName={TABLE_HEADER_GRADIENT}
+                emptyState={
+                  <EmptyState
+                    title="No products found"
+                    description="Try adjusting your search or filters, or add your first product."
+                  />
+                }
               />
-            }
-          />
-          <Pagination
-            page={productSearch.page}
-            totalPages={productSearch.totalPages}
-            onPageChange={productSearch.setPage}
-          />
-        </>
-      )}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
+                <Pagination page={productSearch.page} totalPages={productSearch.totalPages} onPageChange={productSearch.setPage} summary={paginationSummary} />
+                <div className="w-full sm:w-auto">
+                  <FilterDropdown
+                    label="Rows per page"
+                    value={String(productSearch.pageSize)}
+                    options={PAGE_SIZE_OPTIONS}
+                    onChange={(value) => productSearch.setPageSize(Number(value))}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
@@ -215,6 +284,12 @@ function ProductsPage() {
         isLoading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <ImportProductsModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        onImportComplete={handleImportComplete}
       />
     </div>
   );

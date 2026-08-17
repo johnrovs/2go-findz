@@ -111,7 +111,7 @@ describe('SettingsPage', () => {
     renderPage();
     await screen.findByLabelText('Hero Headline');
 
-    const heroUploadInput = screen.getAllByLabelText(/upload image/i)[1];
+    const heroUploadInput = screen.getAllByLabelText('Upload product image')[1];
     const file = new File(['content'], 'hero.webp', { type: 'image/webp' });
     fireEvent.change(heroUploadInput, { target: { files: [file] } });
 

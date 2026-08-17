@@ -53,6 +53,11 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Delete' })).toHaveClass('bg-danger', 'text-white');
   });
 
+  it('renders the accent variant with the dashboard-orange background', () => {
+    render(<Button variant="accent">Add Product</Button>);
+    expect(screen.getByRole('button', { name: 'Add Product' })).toHaveClass('bg-dashboard-orange');
+  });
+
   it('forwards onClick and disabled to a native button', async () => {
     const onClick = vi.fn();
     const user = userEvent.setup();
@@ -75,5 +80,12 @@ describe('Button', () => {
   it('merges a passed className with the variant/size classes', () => {
     render(<Button className="w-full">Full width</Button>);
     expect(screen.getByRole('button', { name: 'Full width' })).toHaveClass('w-full', 'bg-amazon');
+  });
+
+  it('applies outline variant classes', () => {
+    render(<Button variant="outline">Import Products</Button>);
+    expect(screen.getByRole('button', { name: 'Import Products' })).toHaveClass(
+      'bg-white', 'text-primary', 'border-primary'
+    );
   });
 });

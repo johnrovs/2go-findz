@@ -102,6 +102,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(ApiResponse.failure(ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidImportFileException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidImportFile(InvalidImportFileException ex) {
+        return ResponseEntity.badRequest().body(ApiResponse.failure(ex.getMessage()));
+    }
+
     @ExceptionHandler(InvalidBuyingGuideException.class)
     public ResponseEntity<ApiResponse<Void>> handleInvalidBuyingGuide(InvalidBuyingGuideException ex) {
         return ResponseEntity.badRequest().body(ApiResponse.failure(ex.getMessage()));

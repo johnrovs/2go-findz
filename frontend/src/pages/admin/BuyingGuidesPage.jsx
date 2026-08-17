@@ -6,6 +6,7 @@ import DataTable from '../../components/DataTable.jsx';
 import ConfirmDialog from '../../components/ConfirmDialog.jsx';
 import ErrorState from '../../components/ErrorState.jsx';
 import EmptyState from '../../components/EmptyState.jsx';
+import StatusBadge from '../../components/StatusBadge.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { useToast } from '../../hooks/useToast.js';
 import { getBuyingGuides, deleteBuyingGuide } from '../../services/adminBuyingGuideService.js';
@@ -14,6 +15,16 @@ function formatDate(isoString) {
   if (!isoString) return '—';
   return new Date(isoString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
+
+// Mirrors deriveStatus() in BuyingGuideForm.jsx, which drives the editor's
+// EditorHeader status pill -- kept in sync manually since that helper isn't exported.
+function deriveStatus(guide) {
+  if (guide.active) return 'Published';
+  if (guide.scheduledPublishAt) return 'Scheduled';
+  return 'Draft';
+}
+
+const TABLE_HEADER_GRADIENT = 'bg-[linear-gradient(90deg,#5B2CF2_0%,#6D35F5_55%,#5425E8_100%)]';
 
 function BuyingGuidesPage() {
   const { showToast } = useToast();
@@ -74,15 +85,12 @@ function BuyingGuidesPage() {
     {
       key: 'active',
       label: 'Status',
-      render: (row) => (
-        <span
-          className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            row.active ? 'bg-success/10 text-success' : 'bg-surface-secondary text-muted'
-          }`}
-        >
-          {row.active ? 'Published' : 'Draft'}
-        </span>
-      ),
+      render: (row) => {
+        const status = deriveStatus(row);
+        if (status === 'Published') return <StatusBadge variant="published">Published</StatusBadge>;
+        if (status === 'Scheduled') return <StatusBadge variant="scheduled">Scheduled</StatusBadge>;
+        return <StatusBadge variant="inactive">Draft</StatusBadge>;
+      },
     },
     { key: 'createdAt', label: 'Created', render: (row) => formatDate(row.createdAt) },
     {
@@ -93,17 +101,19 @@ function BuyingGuidesPage() {
           <Link
             to={`/admin/buying-guides/${row.id}`}
             aria-label={`Edit ${row.title}`}
-            className="inline-flex rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-primary"
+            title="Edit"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-muted hover:border-primary hover:bg-primary/10 hover:text-primary"
           >
-            <Pencil size={16} />
+            <Pencil size={14} />
           </Link>
           <button
             type="button"
             onClick={() => setDeleteTarget(row)}
             aria-label={`Delete ${row.title}`}
-            className="rounded-btn p-1.5 text-muted hover:bg-surface-secondary hover:text-danger"
+            title="Delete"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-muted hover:border-danger hover:bg-danger/10 hover:text-danger"
           >
-            <Trash2 size={16} />
+            <Trash2 size={14} />
           </button>
         </div>
       ),
@@ -112,26 +122,38 @@ function BuyingGuidesPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-page-heading text-heading">Buying Guides</h1>
-        <Button to="/admin/buying-guides/new" size="sm">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-page-heading text-heading">Buying Guides</h1>
+          <p className="mt-1 text-small text-muted">Manage in-depth buying guides for your storefront.</p>
+        </div>
+        <Button to="/admin/buying-guides/new" variant="accent" size="sm">
           <Plus size={16} />
           Add Guide
         </Button>
       </div>
 
-      {error ? (
-        <ErrorState message={error} onRetry={loadGuides} />
-      ) : (
-        <DataTable
-          columns={columns}
-          rows={guides}
-          isLoading={isLoading}
-          emptyState={
-            <EmptyState title="No buying guides found" description="Add your first buying guide to get started." />
-          }
-        />
-      )}
+      <div className="rounded-card border border-slate-200 bg-white shadow-card">
+        <div className="border-b border-slate-100 px-5 py-3">
+          <p className="text-small text-muted">{guides.length} buying guides</p>
+        </div>
+
+        <div className="px-5 pb-5 pt-5">
+          {error ? (
+            <ErrorState message={error} onRetry={loadGuides} />
+          ) : (
+            <DataTable
+              columns={columns}
+              rows={guides}
+              isLoading={isLoading}
+              headerClassName={TABLE_HEADER_GRADIENT}
+              emptyState={
+                <EmptyState title="No buying guides found" description="Add your first buying guide to get started." />
+              }
+            />
+          )}
+        </div>
+      </div>
 
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}

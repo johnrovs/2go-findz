@@ -63,4 +63,21 @@ describe('Pagination', () => {
     expect(screen.getByRole('button', { name: '2' })).toHaveClass('bg-purple-600');
     expect(screen.getByRole('button', { name: '2' })).not.toHaveClass('bg-primary');
   });
+
+  it('renders the summary text even when there is only one page', () => {
+    render(<Pagination page={1} totalPages={1} onPageChange={vi.fn()} summary="Showing 1–2 of 2 products" />);
+    expect(screen.getByText('Showing 1–2 of 2 products')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '1' })).not.toBeInTheDocument();
+  });
+
+  it('renders the summary text alongside the page nav when there are multiple pages', () => {
+    render(<Pagination page={1} totalPages={3} onPageChange={vi.fn()} summary="Showing 1–20 of 50 products" />);
+    expect(screen.getByText('Showing 1–20 of 50 products')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '3' })).toBeInTheDocument();
+  });
+
+  it('still renders nothing with no summary and only one page', () => {
+    const { container } = render(<Pagination page={1} totalPages={1} onPageChange={vi.fn()} />);
+    expect(container).toBeEmptyDOMElement();
+  });
 });
