@@ -7,6 +7,6 @@ describe('AdminBrandingPanel', () => {
     render(<AdminBrandingPanel />);
 
     const image = screen.getByAltText(/2Go Findz Admin Command Center/);
-    expect(image).toHaveAttribute('src', '/admin-login-branding.png');
+    expect(image).toHaveAttribute('src', '/images/home/login_left_image_panel.png');
   });
 });
