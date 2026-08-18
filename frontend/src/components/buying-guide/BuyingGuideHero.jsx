@@ -36,7 +36,7 @@ function BuyingGuideHero({ title, excerpt, coverImageFilename, updatedAt, affili
           </div>
         </div>
         {imageUrl && (
-          <div className="aspect-[3/4] h-full overflow-hidden rounded-image bg-surface-secondary">
+          <div className="aspect-[3/4] overflow-hidden rounded-image bg-surface-secondary">
             <img src={imageUrl} alt={title} loading="eager" className="h-full w-full object-cover" />
           </div>
         )}
