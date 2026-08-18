@@ -14,7 +14,7 @@ function QuickRecommendationsSection({ quickRecommendations, number, guideId, on
       <h2 id="quick-recommendations-heading" className="mb-4 text-xs font-semibold uppercase tracking-wide text-muted">
         {number}. {t('sections.quickRecommendations')}
       </h2>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {quickRecommendations.map(({ product, badgeName }, index) => {
           const imageUrl = getImageUrl(product.imageFileName);
           return (

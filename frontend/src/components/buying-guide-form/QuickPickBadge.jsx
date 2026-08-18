@@ -9,7 +9,7 @@ const BADGE_COLORS = [
 function QuickPickBadge({ label, index, className = '' }) {
   const colorClasses = BADGE_COLORS[index % BADGE_COLORS.length];
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${colorClasses} ${className}`}>
+    <span className={`inline-flex items-center justify-center text-center rounded-full px-2.5 py-1 text-xs font-semibold ${colorClasses} ${className}`}>
       {label}
     </span>
   );
