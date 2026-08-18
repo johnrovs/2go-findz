@@ -130,7 +130,7 @@ function Navbar() {
                 onChange={(event) => setSearchValue(event.target.value)}
                 placeholder={t('nav.searchPlaceholder')}
                 aria-label={t('nav.searchInputAriaLabel')}
-                className="w-40 rounded-search border border-white/20 bg-white/10 py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-2 focus:ring-white lg:w-56"
+                className="w-40 rounded-search border border-white/20 bg-white/10 py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/50 focus:border-white focus:outline-none focus:ring-2 focus:ring-white md:w-64 lg:w-56"
               />
             </form>
             <LanguageSelector />
