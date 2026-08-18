@@ -34,6 +34,7 @@ import com.twogofindz.backend.repository.ProductCategoryRepository;
 import com.twogofindz.backend.repository.ProductRepository;
 import com.twogofindz.backend.service.BuyingGuideService;
 import com.twogofindz.backend.util.HtmlSanitizer;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +71,7 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public BuyingGuideResponse create(BuyingGuideRequest request) {
         validateRequest(request);
         ProductCategory category = findCategory(request.categoryId());
@@ -113,6 +115,7 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public BuyingGuideResponse update(Long id, BuyingGuideRequest request) {
         validateRequest(request);
         BuyingGuide guide = findEntityById(id);
@@ -179,18 +182,21 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public BuyingGuideResponse getByIdForAdmin(Long id) {
         return buyingGuideMapper.toResponse(findEntityById(id));
     }
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(Long id) {
         buyingGuideRepository.delete(findEntityById(id));
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<BuyingGuideResponse> getAllForAdmin() {
         return buyingGuideRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(buyingGuideMapper::toResponse)
@@ -483,6 +489,7 @@ public class BuyingGuideServiceImpl implements BuyingGuideService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public boolean isSlugAvailable(String slug, Long excludeId) {
         boolean taken = excludeId == null
                 ? buyingGuideRepository.existsBySlug(slug)

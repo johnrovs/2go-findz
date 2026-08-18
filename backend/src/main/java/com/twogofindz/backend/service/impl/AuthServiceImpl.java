@@ -4,10 +4,12 @@ import com.twogofindz.backend.dto.request.ChangePasswordRequest;
 import com.twogofindz.backend.dto.request.LoginRequest;
 import com.twogofindz.backend.dto.response.LoginResponse;
 import com.twogofindz.backend.entity.User;
+import com.twogofindz.backend.exception.AccountLockedException;
 import com.twogofindz.backend.repository.UserRepository;
 import com.twogofindz.backend.security.JwtTokenProvider;
 import com.twogofindz.backend.security.SecurityUser;
 import com.twogofindz.backend.service.AuthService;
+import com.twogofindz.backend.service.LoginAttemptService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,23 +24,38 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final LoginAttemptService loginAttemptService;
 
     public AuthServiceImpl(AuthenticationManager authenticationManager,
                             JwtTokenProvider jwtTokenProvider,
                             UserRepository userRepository,
-                            PasswordEncoder passwordEncoder) {
+                            PasswordEncoder passwordEncoder,
+                            LoginAttemptService loginAttemptService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @Override
     public LoginResponse login(LoginRequest request) {
-        var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+        if (loginAttemptService.isLocked(request.username())) {
+            throw new AccountLockedException(
+                    "Too many failed login attempts. Please try again in a few minutes.");
+        }
 
-        SecurityUser principal = (SecurityUser) authentication.getPrincipal();
+        SecurityUser principal;
+        try {
+            var authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+            principal = (SecurityUser) authentication.getPrincipal();
+        } catch (BadCredentialsException ex) {
+            loginAttemptService.recordFailure(request.username());
+            throw ex;
+        }
+
+        loginAttemptService.recordSuccess(request.username());
         String role = principal.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
         String token = jwtTokenProvider.generateToken(principal.getUsername(), role);
 

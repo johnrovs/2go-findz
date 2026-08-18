@@ -67,6 +67,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(ApiResponse.failure("Invalid username or password."));
     }
 
+    @ExceptionHandler(AccountLockedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccountLocked(AccountLockedException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ApiResponse.failure(ex.getMessage()));
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)

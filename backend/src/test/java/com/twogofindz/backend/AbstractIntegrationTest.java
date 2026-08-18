@@ -43,7 +43,7 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.datasource.password", MYSQL::getPassword);
         registry.add("app.jwt.secret", () -> "test-secret-key-for-jwt-signing-in-tests-only-1234567890");
         registry.add("app.jwt.expiration-ms", () -> "86400000");
-        registry.add("app.cors.allowed-origin", () -> "http://localhost:5173");
+        registry.add("app.cors.allowed-origins", () -> "http://localhost:5173,http://localhost:5174");
         registry.add("app.upload.directory", () -> "uploads-test");
     }
 

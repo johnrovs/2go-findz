@@ -7,6 +7,7 @@ import com.twogofindz.backend.exception.ResourceNotFoundException;
 import com.twogofindz.backend.mapper.SettingsMapper;
 import com.twogofindz.backend.repository.SystemSettingsRepository;
 import com.twogofindz.backend.service.SettingsService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ public class SettingsServiceImpl implements SettingsService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public SettingsResponse updateSettings(SettingsRequest request) {
         SystemSettings settings = findSettings();
         settings.setLogoImageFilename(request.logoImageFilename());

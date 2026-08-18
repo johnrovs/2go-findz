@@ -12,6 +12,7 @@ import com.twogofindz.backend.repository.ProductCategoryRepository;
 import com.twogofindz.backend.repository.ProductRepository;
 import com.twogofindz.backend.service.CategoryService;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CategoryResponse create(CategoryRequest request) {
         if (categoryRepository.existsByProductCategoryNameIgnoreCase(request.productCategoryName())) {
             throw new DuplicateResourceException(
@@ -50,6 +52,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public CategoryResponse update(Long id, CategoryRequest request) {
         ProductCategory category = findEntityById(id);
 
@@ -68,11 +71,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public CategoryResponse getById(Long id) {
         return categoryMapper.toResponse(findEntityById(id));
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public List<CategoryResponse> getAll(String sortBy, String direction) {
         return categoryRepository.findAll(buildSort(sortBy, direction)).stream()
                 .map(categoryMapper::toResponse)
@@ -89,6 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(Long id) {
         ProductCategory category = findEntityById(id);
         if (productRepository.existsByCategoryId(id)) {

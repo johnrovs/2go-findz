@@ -27,6 +27,7 @@ import com.twogofindz.backend.repository.ComparisonRepository;
 import com.twogofindz.backend.repository.ProductCategoryRepository;
 import com.twogofindz.backend.repository.ProductRepository;
 import com.twogofindz.backend.service.ComparisonService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +56,7 @@ public class ComparisonServiceImpl implements ComparisonService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ComparisonResponse create(ComparisonRequest request) {
         validateSpecRowsMatchProducts(request);
 
@@ -84,6 +86,7 @@ public class ComparisonServiceImpl implements ComparisonService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ComparisonResponse update(Long id, ComparisonRequest request) {
         validateSpecRowsMatchProducts(request);
 
@@ -120,6 +123,7 @@ public class ComparisonServiceImpl implements ComparisonService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(Long id) {
         comparisonRepository.delete(findEntityById(id));
     }
@@ -147,12 +151,14 @@ public class ComparisonServiceImpl implements ComparisonService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public ComparisonResponse getByIdForAdmin(Long id) {
         return comparisonMapper.toResponse(findEntityById(id));
     }
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<ComparisonSummaryResponse> getAllForAdmin() {
         return comparisonRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(comparisonMapper::toSummary)

@@ -13,6 +13,7 @@ import com.twogofindz.backend.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponse create(ProductRequest request) {
         ProductCategory category = findCategory(request.categoryId());
         boolean effectiveActive = request.scheduledPublishAt() != null ? false : request.active();
@@ -60,6 +62,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponse update(Long id, ProductRequest request) {
         Product product = findProduct(id);
         ProductCategory category = findCategory(request.categoryId());
@@ -85,6 +88,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public ProductResponse getById(Long id) {
         return productMapper.toResponse(findProduct(id));
     }
@@ -103,6 +107,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void softDelete(Long id) {
         Product product = findProduct(id);
         product.setActive(false);
@@ -145,6 +150,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public List<String> getDistinctBrands() {
         return productRepository.findDistinctBrands();
     }
