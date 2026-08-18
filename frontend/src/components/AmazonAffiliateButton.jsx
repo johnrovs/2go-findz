@@ -1,7 +1,7 @@
 import Button from './Button.jsx';
 import { isSupportedAmazonUrl } from '../utils/amazonLink.js';
 
-function AmazonAffiliateButton({ productName, url, onClick, className = '', children }) {
+function AmazonAffiliateButton({ productName, url, onClick, className = '', fullWidth = true, children }) {
   if (!isSupportedAmazonUrl(url)) {
     return (
       <span className={`block rounded-btn bg-slate-200 px-4 py-2 text-center text-sm font-semibold text-muted ${className}`}>
@@ -19,7 +19,7 @@ function AmazonAffiliateButton({ productName, url, onClick, className = '', chil
       rel="nofollow sponsored noopener noreferrer"
       aria-label={`View ${productName} on Amazon`}
       onClick={onClick}
-      className={`w-full justify-center ${className}`}
+      className={`justify-center ${fullWidth ? 'w-full' : ''} ${className}`}
     >
       {children ?? 'View on Amazon'}
     </Button>

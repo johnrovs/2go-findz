@@ -29,7 +29,8 @@ function QuickRecommendationsSection({ quickRecommendations, number, guideId, on
               <AmazonAffiliateButton
                 productName={product.name}
                 url={product.productLink}
-                className="mt-auto"
+                fullWidth={false}
+                className="mt-auto self-center"
                 onClick={() =>
                   onAffiliateClick({
                     guideId,
