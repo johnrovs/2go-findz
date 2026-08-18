@@ -13,6 +13,9 @@ backend/uploads-test/
 node_modules/
 dist/
 
+# Netlify CLI local state
+.netlify/
+
 # Env
 .env
 .env.local
