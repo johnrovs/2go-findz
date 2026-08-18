@@ -1,7 +1,7 @@
 import { ShoppingCart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import AmazonAffiliateButton from '../AmazonAffiliateButton.jsx';
-import QuickPickBadge from '../buying-guide-form/QuickPickBadge.jsx';
+import QuickPickBadge from './QuickPickBadge.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { getAmazonMarketplace } from '../../utils/amazonLink.js';
 

@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary-rgb: 37 99 235;
+    --color-primary-hover-rgb: 29 78 216;
+  }
+
+  .admin-scope {
+    --color-primary-rgb: 124 58 237;
+    --color-primary-hover-rgb: 109 40 217;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Poppins", sans-serif;
+  }
+}
+
+@layer components {
+  .text-hero {
+    @apply text-[36px] font-extrabold leading-[1.6] sm:text-[44px] lg:text-[56px];
+  }
+  .text-page-heading {
+    @apply text-[32px] font-bold leading-[1.6] sm:text-[40px] lg:text-[48px];
+  }
+  .text-section-heading {
+    @apply text-[28px] font-bold leading-[1.6] sm:text-[34px] lg:text-[40px];
+  }
+  .text-card-title {
+    @apply text-[20px] font-bold leading-[1.6] lg:text-[24px];
+  }
+  .text-subtitle {
+    @apply text-[18px] font-medium leading-[1.6] lg:text-[20px];
+  }
+  .text-body {
+    @apply text-[16px] font-normal leading-[1.6] lg:text-[18px];
+  }
+  .text-small {
+    @apply text-[14px] font-normal leading-[1.6] lg:text-[15px];
+  }
+  .text-btn {
+    @apply text-[16px] font-semibold leading-[1.6];
+  }
+  .text-nav {
+    @apply text-[16px] font-medium leading-[1.6];
+  }
+}

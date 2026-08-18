@@ -1,0 +1,93 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
+import RunnerUpsSection from './RunnerUpsSection.jsx';
+
+function makeRunnerUp(id, name) {
+  return {
+    product: { id, name, imageFileName: null, productPrice: 19.99, productLink: `https://amazon.com/dp/B00${id}`, rating: null, reviewCount: 0 },
+    recommendationType: 'RUNNER_UP',
+    sectionLabel: 'Best Budget Pick',
+    whyRecommended: '<p>Solid value.</p>',
+    pros: [],
+    cons: [],
+    bestFor: [],
+    badgeName: 'Best Budget Pick',
+  };
+}
+
+describe('RunnerUpsSection', () => {
+  it('renders the numbered heading and one card per runner-up, in order', () => {
+    const runnerUps = [makeRunnerUp(1, 'Collagen Gummy'), makeRunnerUp(2, 'Magnesium Complex')];
+    render(<RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
+
+    expect(screen.getByRole('heading', { name: /4\. Runner-Ups/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Collagen Gummy' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Magnesium Complex' })).toBeInTheDocument();
+    expect(screen.queryByText('#1')).not.toBeInTheDocument();
+  });
+
+  it('does not show "See all" when there are 4 or fewer runner-ups', () => {
+    const runnerUps = [makeRunnerUp(1, 'A'), makeRunnerUp(2, 'B')];
+    render(<RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
+    expect(screen.queryByText(/See all/)).not.toBeInTheDocument();
+  });
+
+  it('shows a real "See all reviewed products" toggle beyond 4, revealing the rest', async () => {
+    const runnerUps = Array.from({ length: 6 }, (_, i) => makeRunnerUp(i + 1, `Product ${i + 1}`));
+    const user = userEvent.setup();
+    render(<RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
+
+    expect(screen.queryByText('Product 5')).not.toBeInTheDocument();
+    const toggle = screen.getByRole('button', { name: 'See all reviewed products' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(toggle);
+
+    expect(screen.getByText('Product 5')).toBeInTheDocument();
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('renders nothing when there are no runner-ups', () => {
+    const { container } = render(<RunnerUpsSection runnerUps={[]} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('continues the badge color palette after the Top Pick, one color per runner-up', () => {
+    const runnerUps = [makeRunnerUp(1, 'Collagen Gummy'), makeRunnerUp(2, 'Magnesium Complex')];
+    render(<RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
+
+    const badges = screen.getAllByText('Best Budget Pick');
+    expect(badges[0]).toHaveClass('bg-info');
+    expect(badges[1]).toHaveClass('bg-purple-600');
+  });
+
+  it('expands a lone runner-up to the full-width single-column layout used by Top Pick', () => {
+    const { container } = render(
+      <RunnerUpsSection runnerUps={[makeRunnerUp(1, 'Collagen Gummy')]} number={4} guideId={3} onAffiliateClick={vi.fn()} />
+    );
+    const grid = container.querySelector('.grid');
+    expect(grid).toHaveClass('grid-cols-1');
+    expect(grid).not.toHaveClass('lg:grid-cols-2');
+  });
+
+  it('keeps the two-column grid when there is more than one runner-up', () => {
+    const runnerUps = [makeRunnerUp(1, 'Collagen Gummy'), makeRunnerUp(2, 'Magnesium Complex')];
+    const { container } = render(<RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />);
+    expect(container.querySelector('.grid')).toHaveClass('lg:grid-cols-2');
+  });
+
+  it('uses a compact product image for multiple runner-ups, and a full-size one for a lone runner-up', () => {
+    const runnerUps = [makeRunnerUp(1, 'Collagen Gummy'), makeRunnerUp(2, 'Magnesium Complex')];
+    const { container: multiple } = render(
+      <RunnerUpsSection runnerUps={runnerUps} number={4} guideId={3} onAffiliateClick={vi.fn()} />
+    );
+    expect(multiple.querySelector('.h-16.w-16')).toBeInTheDocument();
+    expect(multiple.querySelector('.h-24.w-24')).not.toBeInTheDocument();
+
+    const { container: single } = render(
+      <RunnerUpsSection runnerUps={[makeRunnerUp(1, 'Collagen Gummy')]} number={4} guideId={3} onAffiliateClick={vi.fn()} />
+    );
+    expect(single.querySelector('.h-24.w-24')).toBeInTheDocument();
+  });
+});

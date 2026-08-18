@@ -8,9 +8,9 @@
 
 # React Router client-side routing: without this, Netlify's static file server
 # returns its own 404 for any nested route requested directly (e.g. a hard
-# refresh on /admin/products/5 or /buying-guides/some-slug) instead of loading
-# the SPA, which then renders the app's own client-side routes (including its
-# own NotFoundPage for genuinely unmatched paths).
+# refresh on /buying-guides/some-slug) instead of loading the SPA, which then
+# renders the app's own client-side routes (including its own NotFoundPage for
+# genuinely unmatched paths).
 [[redirects]]
   from = "/*"
   to = "/index.html"

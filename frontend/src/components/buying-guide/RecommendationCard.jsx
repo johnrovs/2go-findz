@@ -1,6 +1,6 @@
 import { Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import QuickPickBadge from '../buying-guide-form/QuickPickBadge.jsx';
+import QuickPickBadge from './QuickPickBadge.jsx';
 import { getImageUrl } from '../../utils/imageUrl.js';
 import { isSupportedAmazonUrl } from '../../utils/amazonLink.js';
 

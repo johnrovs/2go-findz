@@ -12,12 +12,12 @@ const product = {
   imageFileName: null,
 };
 
-function renderBar(initialIds = [], initialEntries = ['/']) {
+function renderBar(initialIds = []) {
   if (initialIds.length > 0) {
     localStorage.setItem('compareProductIds', JSON.stringify(initialIds));
   }
   return render(
-    <MemoryRouter initialEntries={initialEntries}>
+    <MemoryRouter>
       <CompareProvider>
         <CompareBar />
       </CompareProvider>
@@ -64,17 +64,5 @@ describe('CompareBar', () => {
     await user.click(screen.getByRole('button', { name: 'Clear compare list' }));
 
     await waitFor(() => expect(screen.queryByText(/compare \(/i)).not.toBeInTheDocument());
-  });
-
-  it('renders nothing on the login page even with products selected', () => {
-    vi.spyOn(productService, 'compareProducts').mockResolvedValue([product]);
-    renderBar([1], ['/login']);
-    expect(screen.queryByText(/compare \(/i)).not.toBeInTheDocument();
-  });
-
-  it('renders nothing on admin pages even with products selected', () => {
-    vi.spyOn(productService, 'compareProducts').mockResolvedValue([product]);
-    renderBar([1], ['/admin/products']);
-    expect(screen.queryByText(/compare \(/i)).not.toBeInTheDocument();
   });
 });

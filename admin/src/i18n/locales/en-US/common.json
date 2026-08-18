@@ -1,0 +1,40 @@
+{
+  "nav": {
+    "home": "Home",
+    "trending": "Trending",
+    "categories": "Categories",
+    "allCategories": "All Categories",
+    "bestSellers": "Best Sellers",
+    "newArrivals": "New Arrivals",
+    "allProducts": "All Products",
+    "buyingGuides": "Buying Guides",
+    "aboutUs": "About Us",
+    "contactUs": "Contact Us",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfUse": "Terms of Use",
+    "affiliateDisclosure": "Affiliate Disclosure",
+    "searchPlaceholder": "Search products...",
+    "searchInputAriaLabel": "Search products",
+    "searchButtonAriaLabel": "Search",
+    "openMenuAriaLabel": "Open menu",
+    "siteNavigationAriaLabel": "Site navigation",
+    "homeLogoAriaLabel": "2Go Findz home",
+    "changeLanguageAriaLabel": "Change language"
+  },
+  "footer": {
+    "shopHeading": "Shop",
+    "discoverHeading": "Discover",
+    "companyHeading": "Company",
+    "defaultBio": "Discover trending Amazon products, everyday essentials, affordable finds, and must-have items carefully selected to help you shop smarter.",
+    "copyright": "© {{year}} 2Go Findz. All rights reserved."
+  },
+  "errors": {
+    "somethingWentWrong": "Something went wrong.",
+    "tryAgain": "Try again"
+  },
+  "pagination": {
+    "navigationAriaLabel": "Pagination",
+    "previousPageAriaLabel": "Previous page",
+    "nextPageAriaLabel": "Next page"
+  }
+}

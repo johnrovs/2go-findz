@@ -1,0 +1,60 @@
+{
+  "listing": {
+    "description": "Curated advice to help you choose the right products.",
+    "loading": "Loading buying guides...",
+    "emptyTitle": "No buying guides yet",
+    "emptyDescription": "Check back soon for curated buying advice.",
+    "noImageAvailable": "No image available",
+    "loadError": "Failed to load buying guides."
+  },
+  "detail": {
+    "loading": "Loading buying guide...",
+    "notFound": "Buying guide not found.",
+    "skipToContent": "Skip to content",
+    "tableOfContents": "Table of Contents",
+    "tableOfContentsAriaLabel": "Table of contents",
+    "breadcrumbAriaLabel": "Breadcrumb"
+  },
+  "sections": {
+    "quickRecommendations": "Quick Recommendations",
+    "comparisonTable": "Product Comparison",
+    "topPick": "Our Top Pick",
+    "runnerUps": "Runner-Ups",
+    "buyingGuide": "Buying Guide",
+    "faqs": "Frequently Asked Questions",
+    "finalRecommendation": "Final Recommendation"
+  },
+  "hero": {
+    "badge": "BUYING GUIDE",
+    "byline": "By 2Go Findz Team",
+    "updatedOn": "Updated {{date}}"
+  },
+  "content": {
+    "showLess": "Show less",
+    "readMore": "Read more"
+  },
+  "faq": {
+    "showFewer": "Show fewer questions",
+    "viewAll": "View all {{total}} questions"
+  },
+  "comparison": {
+    "productColumn": "Product",
+    "yes": "Yes",
+    "no": "No",
+    "caption": "Comparison of {{names}}",
+    "priceDisclaimer": "* Prices and availability may change after publication."
+  },
+  "recommendation": {
+    "untitledBadge": "Untitled Badge",
+    "whyWeRecommendIt": "Why We Recommend It",
+    "pros": "Pros",
+    "cons": "Cons",
+    "bestFor": "Best For",
+    "viewOnAmazon": "View on Amazon",
+    "viewProductOnAmazon": "View {{productName}} on Amazon"
+  },
+  "runnerUps": {
+    "showFewer": "Show fewer runner-ups",
+    "seeAll": "See all reviewed products"
+  }
+}

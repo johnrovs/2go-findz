@@ -1,0 +1,27 @@
+[build]
+  base = "admin"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# React Router client-side routing: without this, Netlify's static file server
+# returns its own 404 for any nested route requested directly (e.g. a hard
+# refresh on /buying-guides/5) instead of loading the SPA.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    # Belt-and-suspenders alongside index.html's <meta name="robots"> tag and
+    # public/robots.txt: keeps this admin-only app out of search results even
+    # if Netlify's project-level Private visibility were ever misconfigured.
+    X-Robots-Tag = "noindex, nofollow, noarchive, nosnippet"
