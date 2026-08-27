@@ -151,6 +151,28 @@ class AdminProductImportControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void importProducts_allowsABlankLink_andImportsTheRowAsInactive() throws Exception {
+        String token = adminToken();
+        MockMultipartFile file = multipartFile(workbookWithRows(List.of(
+                List.of("No Link Widget", "Acme", "SKU-NO-LINK", "Import No Link Category", "Desc", "9.99", ""))));
+
+        mockMvc.perform(multipart("/api/admin/products/import")
+                        .file(file)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.totalRows").value(1))
+                .andExpect(jsonPath("$.data.importedProducts").value(1))
+                .andExpect(jsonPath("$.data.failedRows").value(0));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .get("/api/admin/products")
+                        .param("search", "No Link Widget")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$.data.content[0].active").value(false))
+                .andExpect(jsonPath("$.data.content[0].productLink").isEmpty());
+    }
+
+    @Test
     void importProducts_reusesExistingCategory_caseInsensitively_withoutChangingItsStatus() throws Exception {
         String token = adminToken();
         Long categoryId = createCategoryId(token, "Beauty");

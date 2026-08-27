@@ -49,7 +49,7 @@ public class Product {
     @Column(name = "product_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal productPrice;
 
-    @Column(name = "product_link", nullable = false, length = 2048)
+    @Column(name = "product_link", length = 2048)
     private String productLink;
 
     @Column(name = "is_trending", nullable = false)

@@ -71,10 +71,10 @@ class ProductImportValidatorTest {
     }
 
     @Test
-    void validate_requiresLink() {
+    void validate_returnsNoErrors_whenLinkIsBlank() {
         ParsedProductRow row = new ParsedProductRow(4, "Widget", "Brand", "SKU", "Tools",
                 "9.99", null, "Desc");
-        assertThat(validator.validate(row)).containsExactly("Row 4: Link is required.");
+        assertThat(validator.validate(row)).isEmpty();
     }
 
     @Test
@@ -101,7 +101,7 @@ class ProductImportValidatorTest {
     @Test
     void validate_reportsMultipleErrorsOnTheSameRow() {
         ParsedProductRow row = new ParsedProductRow(4, null, "Brand", "SKU", null, "free", null, "Desc");
-        assertThat(validator.validate(row)).hasSize(4);
+        assertThat(validator.validate(row)).hasSize(3);
     }
 
     @Test

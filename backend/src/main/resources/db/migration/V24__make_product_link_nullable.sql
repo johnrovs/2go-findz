@@ -1,0 +1,1 @@
+ALTER TABLE products MODIFY COLUMN product_link VARCHAR(2048) NULL;

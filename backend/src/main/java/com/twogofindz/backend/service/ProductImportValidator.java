@@ -56,7 +56,6 @@ public class ProductImportValidator {
 
     private void validateLink(ParsedProductRow row, List<String> errors) {
         if (isBlank(row.link())) {
-            errors.add("Row " + row.rowNumber() + ": Link is required.");
             return;
         }
         if (!VALID_LINK.matcher(row.link().trim()).matches()) {

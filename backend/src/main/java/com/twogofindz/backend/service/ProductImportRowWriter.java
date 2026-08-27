@@ -58,7 +58,7 @@ public class ProductImportRowWriter {
                 .description(row.description() != null ? row.description().trim() : "")
                 .category(category)
                 .productPrice(price)
-                .productLink(row.link().trim())
+                .productLink(row.link() != null ? row.link().trim() : null)
                 .trending(false)
                 .bestSeller(false)
                 .active(false)
